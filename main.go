@@ -78,11 +78,11 @@ func main() {
 
 func (m *Model) generateOutput() string {
 	output := Output{arrName: "arr", customType: false, length: 5}
-	output.arrName = m.steps[0].answer
-	if len(m.steps[2].answer) > 0 {
-		output.customType = true
-		output.customTypeName = m.steps[2].answer
+	//. array name
+	if len(m.steps[0].answer) > 0 {
+		output.arrName = m.steps[0].answer
 	}
+	//. fields
 	for _, field := range m.steps[1].fields {
 		values := strings.Fields(field)
 		if len(values) == 2 {
@@ -99,16 +99,22 @@ func (m *Model) generateOutput() string {
 			output.types = append(output.types, values[1])
 		}
 	}
+	//. custom type
+	if len(m.steps[2].answer) > 0 {
+		output.customType = true
+		output.customTypeName = m.steps[2].answer
+	}
+	//. array length
 	length, _ := strconv.Atoi(m.steps[3].answer)
 	if length > 0 {
 		output.length = length
 	}
 
-	//- generating output
+	//. generating output
 	outputStr := ""
 
 	if output.customType {
-		//- type declaration
+		//. type declaration
 		outputStr += fmt.Sprintf("type %s = {\n", output.customTypeName)
 		for i, field := range output.fields {
 			fieldType := output.types[i]
@@ -116,7 +122,7 @@ func (m *Model) generateOutput() string {
 		}
 		outputStr += "};\n\n"
 
-		//- arr declaration
+		//. arr declaration
 		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
 	} else {
 		outputStr += fmt.Sprintf("const %s: { ", output.arrName)
