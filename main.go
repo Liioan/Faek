@@ -13,6 +13,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/reflow/wordwrap"
 )
 
 var validTypes = [3]string{"string", "number", "boolean"}
@@ -20,7 +21,8 @@ var validTypes = [3]string{"string", "number", "boolean"}
 var (
 	titleStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#44cbca")).MarginLeft(2)
 	answerStyle = lipgloss.NewStyle().MarginLeft(2)
-	outputStyle = lipgloss.NewStyle().Bold(true).MaxWidth(1000)
+	outputStyle = lipgloss.NewStyle().Bold(true)
+	quitStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true)
 )
 
 type Output struct {
@@ -148,7 +150,7 @@ func (m *Model) generateOutput() string {
 
 	outputStr += "];\n"
 
-	return outputStyle.Render(outputStr)
+	return outputStr
 }
 
 func (m Model) Init() tea.Cmd {
@@ -212,10 +214,13 @@ func (m Model) View() string {
 
 	if m.done {
 		output := m.generateOutput()
-		return fmt.Sprintf(
-			"%s\n%s",
-			output,
-			lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Render("press q or ctrl+c to exit"),
+		return wordwrap.String(
+			fmt.Sprintf(
+				"%s\n%s",
+				outputStyle.Render(output),
+				quitStyle.Render("press q or ctrl+c to exit"),
+			),
+			m.width,
 		)
 	}
 
