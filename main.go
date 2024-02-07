@@ -110,8 +110,38 @@ func (m *Model) generateOutput() string {
 		output.length = length
 	}
 
-	//. generating output
+	//- generating output
 	outputStr := ""
+
+	if len(output.fields) == 1 {
+		fieldType := output.types[0]
+
+		if output.customType {
+			outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
+		} else {
+			output.customTypeName = fieldType
+		}
+
+		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
+		for i := 0; i < output.length; i++ {
+			switch fieldType {
+			case "string":
+				outputStr += fmt.Sprintf("  '%s',\n", "lorem ipsum dolor sit amet")
+			case "number":
+				number := rand.Intn(101)
+				outputStr += fmt.Sprintf("  %d,\n", number)
+			case "boolean":
+				boolean := false
+				if rand.Intn(101) >= 50 {
+					boolean = true
+				}
+				outputStr += fmt.Sprintf("  %t,\n", boolean)
+			}
+		}
+		outputStr += "];\n"
+
+		return outputStr
+	}
 
 	if output.customType {
 		//. type declaration
