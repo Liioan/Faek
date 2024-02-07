@@ -16,7 +16,18 @@ import (
 	"github.com/muesli/reflow/wordwrap"
 )
 
-var validTypes = [3]string{"string", "number", "boolean"}
+type ValidTypes []string
+
+var validTypes = ValidTypes{"string", "number", "boolean"}
+
+func (vt ValidTypes) contains(item string) bool {
+	for _, v := range vt {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
 
 var (
 	titleStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#44cbca")).MarginLeft(2)
@@ -80,19 +91,13 @@ func (m *Model) generateOutput() string {
 	output := Output{arrName: "arr", customType: false, length: 5}
 	//. array name
 	if len(m.steps[0].answer) > 0 {
-		output.arrName = m.steps[0].answer
+		output.arrName = strings.Split(m.steps[0].answer, " ")[0]
 	}
 	//. fields
 	for _, field := range m.steps[1].fields {
 		values := strings.Fields(field)
 		if len(values) == 2 {
-			isValidType := false
-			for _, validType := range validTypes {
-				if validType == values[1] {
-					isValidType = true
-				}
-			}
-			if !isValidType {
+			if !validTypes.contains(values[1]) {
 				continue
 			}
 			output.fields = append(output.fields, values[0])
@@ -102,7 +107,7 @@ func (m *Model) generateOutput() string {
 	//. custom type
 	if len(m.steps[2].answer) > 0 {
 		output.customType = true
-		output.customTypeName = m.steps[2].answer
+		output.customTypeName = strings.Split(m.steps[2].answer, " ")[0]
 	}
 	//. array length
 	length, _ := strconv.Atoi(m.steps[3].answer)
