@@ -200,9 +200,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func checkAnswer(m *Model, current *Step, input string) {
 	if current.isRepeating {
-		if input == "" && len(current.fields) > 0 {
-			m.Next()
-			return
+		if input == "" {
+			if len(current.fields) > 0 {
+				m.Next()
+				return
+			} else {
+				return
+			}
 		} else {
 			current.fields = append(current.fields, input)
 			return
