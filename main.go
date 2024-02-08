@@ -120,6 +120,7 @@ func (m *Model) generateOutput() string {
 
 	if len(output.fields) == 1 {
 		fieldType := output.types[0]
+		field := output.fields[0]
 
 		if output.customType {
 			outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
@@ -129,19 +130,7 @@ func (m *Model) generateOutput() string {
 
 		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
 		for i := 0; i < output.length; i++ {
-			switch fieldType {
-			case "string":
-				outputStr += fmt.Sprintf("  '%s',\n", "lorem ipsum dolor sit amet")
-			case "number":
-				number := rand.Intn(101)
-				outputStr += fmt.Sprintf("  %d,\n", number)
-			case "boolean":
-				boolean := false
-				if rand.Intn(101) >= 50 {
-					boolean = true
-				}
-				outputStr += fmt.Sprintf("  %t,\n", boolean)
-			}
+			outputStr += insertData(field, fieldType, len(output.fields))
 		}
 		outputStr += "];\n"
 
@@ -172,19 +161,7 @@ func (m *Model) generateOutput() string {
 		outputStr += "  { "
 		for i, field := range output.fields {
 			fieldType := output.types[i]
-			switch fieldType {
-			case "string":
-				outputStr += fmt.Sprintf("%s: '%s', ", field, "lorem ipsum dolor sit amet")
-			case "number":
-				number := rand.Intn(101)
-				outputStr += fmt.Sprintf("%s: %d, ", field, number)
-			case "boolean":
-				boolean := false
-				if rand.Intn(101) >= 50 {
-					boolean = true
-				}
-				outputStr += fmt.Sprintf("%s: %t, ", field, boolean)
-			}
+			outputStr += insertData(field, fieldType, len(output.fields))
 		}
 		outputStr += "},\n"
 	}
@@ -192,6 +169,66 @@ func (m *Model) generateOutput() string {
 	outputStr += "];\n"
 
 	return outputStr
+}
+
+func insertData(
+	field string,
+	fieldType string,
+	fieldAmount int,
+) string {
+	//! this is very dirty, but I'm a pepega, and this works
+	const itemAmount = 20
+	recognizedFields := map[string][]string{
+		"name":      names,
+		"surname":   surnames,
+		"lastName":  surnames,
+		"last_name": surnames,
+		"email":     emails,
+		"title":     titles,
+		"content":   content,
+	}
+
+	if fieldAmount == 1 {
+		switch fieldType {
+		case "string":
+			if recognizedFields[field] != nil {
+				randItem := recognizedFields[field][rand.Intn(itemAmount)]
+				return fmt.Sprintf("  '%s',\n", randItem)
+			} else {
+				return fmt.Sprintf("  '%s',\n", "lorem ipsum dolor sit amet")
+			}
+		case "number":
+			number := rand.Intn(101)
+			return fmt.Sprintf("  %d,\n", number)
+		case "boolean":
+			boolean := false
+			if rand.Intn(101) >= 50 {
+				boolean = true
+			}
+			return fmt.Sprintf("  %t,\n", boolean)
+		}
+	}
+
+	switch fieldType {
+	case "string":
+		if recognizedFields[field] != nil {
+			randItem := recognizedFields[field][rand.Intn(itemAmount)]
+			return fmt.Sprintf("%s: `%s`, ", field, randItem)
+		} else {
+			return fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
+		}
+	case "number":
+		number := rand.Intn(101)
+		return fmt.Sprintf("%s: %d, ", field, number)
+	case "boolean":
+		boolean := false
+		if rand.Intn(101) >= 50 {
+			boolean = true
+		}
+		return fmt.Sprintf("%s: %t, ", field, boolean)
+	}
+
+	return ""
 }
 
 func (m Model) Init() tea.Cmd {
