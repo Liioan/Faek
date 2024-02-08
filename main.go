@@ -109,7 +109,9 @@ func (m *Model) generateOutput() string {
 	//. custom type
 	if len(m.steps[2].answer) > 0 {
 		output.customType = true
-		output.customTypeName = strings.ToTitle(strings.Fields(m.steps[2].answer)[0])
+		customType := m.steps[2].answer
+		customType = strings.ToUpper(string(customType[0])) + customType[1:]
+		output.customTypeName = strings.Fields(customType)[0]
 	}
 	//. array length
 	length, _ := strconv.Atoi(m.steps[3].answer)
