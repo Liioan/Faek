@@ -93,7 +93,7 @@ func (m *Model) generateOutput() string {
 	output := Output{arrName: "arr", customType: false, length: 5}
 	//. array name
 	if len(m.steps[0].answer) > 0 {
-		output.arrName = strings.Split(m.steps[0].answer, " ")[0]
+		output.arrName = strings.Fields(m.steps[0].answer)[0]
 	}
 	//. fields
 	for _, field := range m.steps[1].fields {
@@ -109,7 +109,7 @@ func (m *Model) generateOutput() string {
 	//. custom type
 	if len(m.steps[2].answer) > 0 {
 		output.customType = true
-		output.customTypeName = strings.Split(m.steps[2].answer, " ")[0]
+		output.customTypeName = strings.ToTitle(strings.Fields(m.steps[2].answer)[0])
 	}
 	//. array length
 	length, _ := strconv.Atoi(m.steps[3].answer)
