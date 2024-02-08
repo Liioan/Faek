@@ -67,10 +67,10 @@ type Model struct {
 func main() {
 	clearConsole()
 	steps := []Step{
-		{instruction: "what will the array be called?", placeholder: "E.g. userPosts"},
-		{instruction: "write your field", isRepeating: true, placeholder: "E.g. email string"},
-		{instruction: "include custom type?", placeholder: "E.g. Post"},
-		{instruction: "how many items will be in this array", placeholder: "E.g. 5"},
+		{instruction: "what will the array be called? (default: arr)", placeholder: "E.g. userPosts"},
+		{instruction: "write your field (to continue press enter without input)", isRepeating: true, placeholder: "E.g. email string"},
+		{instruction: "include custom type? (default: no type, input: type name)", placeholder: "E.g. Post"},
+		{instruction: "how many items will be in this array (default 5)", placeholder: "E.g. 5"},
 	}
 
 	model := New(steps)
