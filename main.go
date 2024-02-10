@@ -47,6 +47,11 @@ var (
 	quitStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true)
 )
 
+type Field struct {
+	fieldName string
+	fieldType string
+}
+
 type Output struct {
 	arrName        string
 	customType     bool
@@ -55,17 +60,21 @@ type Output struct {
 	length         int
 }
 
-type Field struct {
-	fieldName string
-	fieldType string
-}
-
 type Step struct {
 	instruction string
 	answer      string
 	isRepeating bool
 	fields      []Field
 	placeholder string
+}
+
+func (s Step) containsField(name string) bool {
+	for _, field := range s.fields {
+		if field.fieldName == name {
+			return true
+		}
+	}
+	return false
 }
 
 type Model struct {
@@ -312,7 +321,7 @@ func checkAnswer(m *Model, current *Step, input string) {
 						values[1] = v
 					}
 				}
-				if validTypes.contains(values[1]) {
+				if validTypes.contains(values[1]) && !current.containsField(values[0]) {
 					current.fields = append(current.fields, Field{fieldName: values[0], fieldType: values[1]})
 				}
 			}
