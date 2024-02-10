@@ -4,7 +4,7 @@
 
 ![demo](./demo.png)
 
-## predefined fields:
+## predefined fields
 
 - name (string)
 - surname, lastName, last_name (string)
@@ -12,3 +12,14 @@
 - title (string)
 - content (string)
 - author (string)
+
+## type conversion
+
+Faek will convert some field types to ts equivalents
+
+- int -> number
+- float -> number
+- short -> number
+- str -> string
+- char -> string
+- bool -> boolean
