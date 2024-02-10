@@ -20,6 +20,15 @@ type ValidTypes []string
 
 var validTypes = ValidTypes{"string", "number", "boolean"}
 
+var typeConversions = map[string]string{
+	"int":   "number",
+	"float": "number",
+	"short": "number",
+	"str":   "string",
+	"char":  "string",
+	"bool":  "boolean",
+}
+
 func (vt ValidTypes) contains(item string) bool {
 	for _, v := range vt {
 		if v == item {
@@ -42,16 +51,20 @@ type Output struct {
 	arrName        string
 	customType     bool
 	customTypeName string
-	fields         []string
-	types          []string
+	fields         []Field
 	length         int
+}
+
+type Field struct {
+	fieldName string
+	fieldType string
 }
 
 type Step struct {
 	instruction string
 	answer      string
 	isRepeating bool
-	fields      []string
+	fields      []Field
 	placeholder string
 }
 
@@ -91,21 +104,15 @@ func main() {
 
 func (m *Model) generateOutput() string {
 	output := Output{arrName: "arr", customType: false, length: 5}
+
 	//. array name
 	if len(m.steps[0].answer) > 0 {
 		output.arrName = strings.Fields(m.steps[0].answer)[0]
 	}
+
 	//. fields
-	for _, field := range m.steps[1].fields {
-		values := strings.Fields(field)
-		if len(values) == 2 {
-			if !validTypes.contains(values[1]) {
-				continue
-			}
-			output.fields = append(output.fields, values[0])
-			output.types = append(output.types, values[1])
-		}
-	}
+	output.fields = m.steps[1].fields
+
 	//. custom type
 	if len(m.steps[2].answer) > 0 {
 		output.customType = true
@@ -113,6 +120,7 @@ func (m *Model) generateOutput() string {
 		customType = strings.ToUpper(string(customType[0])) + customType[1:]
 		output.customTypeName = strings.Fields(customType)[0]
 	}
+
 	//. array length
 	length, _ := strconv.Atoi(m.steps[3].answer)
 	if length > 0 {
@@ -123,8 +131,8 @@ func (m *Model) generateOutput() string {
 	outputStr := ""
 
 	if len(output.fields) == 1 {
-		fieldType := output.types[0]
-		field := output.fields[0]
+		fieldType := output.fields[0].fieldType
+		field := output.fields[0].fieldName
 
 		if output.customType {
 			outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
@@ -144,9 +152,10 @@ func (m *Model) generateOutput() string {
 	if output.customType {
 		//. type declaration
 		outputStr += fmt.Sprintf("type %s = {\n", output.customTypeName)
-		for i, field := range output.fields {
-			fieldType := output.types[i]
-			outputStr += fmt.Sprintf("  %s: %s;\n", field, fieldType)
+		for _, field := range output.fields {
+			fieldType := field.fieldType
+			fieldName := field.fieldName
+			outputStr += fmt.Sprintf("  %s: %s;\n", fieldName, fieldType)
 		}
 		outputStr += "};\n\n"
 
@@ -154,9 +163,10 @@ func (m *Model) generateOutput() string {
 		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
 	} else {
 		outputStr += fmt.Sprintf("const %s: { ", output.arrName)
-		for i, field := range output.fields {
-			fieldType := output.types[i]
-			outputStr += fmt.Sprintf("%s: %s; ", field, fieldType)
+		for _, field := range output.fields {
+			fieldType := field.fieldType
+			fieldName := field.fieldName
+			outputStr += fmt.Sprintf("%s: %s; ", fieldName, fieldType)
 		}
 		outputStr += "}[] = [\n"
 	}
@@ -165,9 +175,10 @@ func (m *Model) generateOutput() string {
 
 	for i := 0; i < output.length; i++ {
 		outputStr += "  { "
-		for i, field := range output.fields {
-			fieldType := output.types[i]
-			data := insertData(field, fieldType, fieldAmount)
+		for _, field := range output.fields {
+			fieldType := field.fieldType
+			fieldName := field.fieldName
+			data := insertData(fieldName, fieldType, fieldAmount)
 			outputStr += data
 		}
 		if fieldAmount >= LONG_OBJ {
@@ -294,7 +305,17 @@ func checkAnswer(m *Model, current *Step, input string) {
 				return
 			}
 		} else {
-			current.fields = append(current.fields, input)
+			values := strings.Fields(input)
+			if len(values) >= 2 {
+				for k, v := range typeConversions {
+					if k == values[1] {
+						values[1] = v
+					}
+				}
+				if validTypes.contains(values[1]) {
+					current.fields = append(current.fields, Field{fieldName: values[0], fieldType: values[1]})
+				}
+			}
 			return
 		}
 	}
