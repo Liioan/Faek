@@ -50,6 +50,7 @@ var (
 type Field struct {
 	fieldName string
 	fieldType string
+	options   []string
 }
 
 type Output struct {
@@ -142,6 +143,7 @@ func (m *Model) generateOutput() string {
 	if len(output.fields) == 1 {
 		fieldType := output.fields[0].fieldType
 		field := output.fields[0].fieldName
+		fieldOptions := output.fields[0].options
 
 		if output.customType {
 			outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
@@ -151,7 +153,7 @@ func (m *Model) generateOutput() string {
 
 		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
 		for i := 0; i < output.length; i++ {
-			outputStr += insertData(field, fieldType, len(output.fields))
+			outputStr += insertData(field, fieldType, len(output.fields), fieldOptions)
 		}
 		outputStr += "];\n"
 
@@ -187,7 +189,8 @@ func (m *Model) generateOutput() string {
 		for _, field := range output.fields {
 			fieldType := field.fieldType
 			fieldName := field.fieldName
-			data := insertData(fieldName, fieldType, fieldAmount)
+			fieldOptions := field.options
+			data := insertData(fieldName, fieldType, fieldAmount, fieldOptions)
 			outputStr += data
 		}
 		if fieldAmount >= LONG_OBJ {
@@ -201,7 +204,7 @@ func (m *Model) generateOutput() string {
 	return outputStr
 }
 
-func insertData(field string, fieldType string, fieldAmount int) string {
+func insertData(field string, fieldType string, fieldAmount int, fieldOptions []string) string {
 	//! this is very dirty, but I`m a pepega, and this works
 	const itemAmount = 20
 	recognizedFields := map[string][]string{
@@ -227,7 +230,27 @@ func insertData(field string, fieldType string, fieldAmount int) string {
 				data += fmt.Sprintf("  '%s',\n", "lorem ipsum dolor sit amet")
 			}
 		case "number":
-			number := rand.Intn(101)
+			var number int
+			switch len(fieldOptions) {
+			case 0:
+				number = rand.Intn(101)
+			case 1:
+				MaxNum, err := strconv.Atoi(fieldOptions[0])
+				if err != nil {
+					MaxNum = 100
+				}
+				number = rand.Intn(MaxNum + 1)
+			case 2:
+				LowNum, err := strconv.Atoi(fieldOptions[0])
+				if err != nil {
+					LowNum = 0
+				}
+				MaxNum, err := strconv.Atoi(fieldOptions[1])
+				if err != nil {
+					MaxNum = 100
+				}
+				number = rand.Intn((MaxNum-LowNum)+1) + LowNum
+			}
 			data += fmt.Sprintf("  %d,\n", number)
 		case "boolean":
 			boolean := false
@@ -252,7 +275,27 @@ func insertData(field string, fieldType string, fieldAmount int) string {
 			data += fmt.Sprintf("%s: '%s', ", field, "lorem ipsum dolor sit amet")
 		}
 	case "number":
-		number := rand.Intn(101)
+		var number int
+		switch len(fieldOptions) {
+		case 0:
+			number = rand.Intn(101)
+		case 1:
+			MaxNum, err := strconv.Atoi(fieldOptions[0])
+			if err != nil {
+				MaxNum = 100
+			}
+			number = rand.Intn(MaxNum + 1)
+		case 2:
+			LowNum, err := strconv.Atoi(fieldOptions[0])
+			if err != nil {
+				LowNum = 0
+			}
+			MaxNum, err := strconv.Atoi(fieldOptions[1])
+			if err != nil {
+				MaxNum = 100
+			}
+			number = rand.Intn((MaxNum-LowNum)+1) + LowNum
+		}
 		data += fmt.Sprintf("%s: %d, ", field, number)
 	case "boolean":
 		boolean := false
@@ -323,7 +366,14 @@ func checkAnswer(m *Model, current *Step, input string) {
 					}
 				}
 				if validTypes.contains(values[1]) && !current.containsField(values[0]) {
-					current.fields = append(current.fields, Field{fieldName: values[0], fieldType: values[1]})
+					newField := Field{fieldName: values[0], fieldType: values[1]}
+					if len(values) == 3 {
+						newField.options = values[2:]
+					}
+					if len(values) == 4 {
+						newField.options = values[2:]
+					}
+					current.fields = append(current.fields, newField)
 				}
 			}
 			return
