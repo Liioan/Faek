@@ -367,10 +367,7 @@ func checkAnswer(m *Model, current *Step, input string) {
 				}
 				if validTypes.contains(values[1]) && !current.containsField(values[0]) {
 					newField := Field{fieldName: values[0], fieldType: values[1]}
-					if len(values) == 3 {
-						newField.options = values[2:]
-					}
-					if len(values) == 4 {
+					if len(values) >= 3 {
 						newField.options = values[2:]
 					}
 					current.fields = append(current.fields, newField)
