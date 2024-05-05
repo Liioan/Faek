@@ -391,14 +391,32 @@ func (m Model) View() string {
 
 	if m.done {
 		output := m.generateOutput()
-		return wordwrap.String(
-			fmt.Sprintf(
-				"%s\n%s",
-				outputStyle.Render(output),
-				quitStyle.Render("press q or ctrl+c to exit"),
-			),
-			m.width,
-		)
+		if len(output) > m.height {
+			filePath := "output.ts"
+			file, err := os.Create(filePath)
+			if err != nil {
+				log.Fatal("cannot create file")
+			}
+			defer file.Close()
+			file.Write([]byte(output))
+			return wordwrap.String(
+				fmt.Sprintf(
+					"%s\n%s",
+					outputStyle.Render("Output length exceeded terminal height, generating output file"),
+					quitStyle.Render("press q or ctrl+c to exit"),
+				),
+				m.width,
+			)
+		} else {
+			return wordwrap.String(
+				fmt.Sprintf(
+					"%s\n%s",
+					outputStyle.Render(output),
+					quitStyle.Render("press q or ctrl+c to exit"),
+				),
+				m.width,
+			)
+		}
 	}
 
 	return lipgloss.JoinVertical(
