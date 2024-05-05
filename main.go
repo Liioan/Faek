@@ -388,7 +388,7 @@ func (m Model) View() string {
 
 	if m.done {
 		output := m.generateOutput()
-		if len(output) > m.height {
+		if len(strings.Split(output, "\n")) > m.height {
 			filePath := "output.ts"
 			file, err := os.Create(filePath)
 			if err != nil {
