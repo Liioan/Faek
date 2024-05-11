@@ -358,6 +358,9 @@ func checkAnswer(m *Model, current *Step, input string) {
 			}
 		} else {
 			values := strings.Fields(input)
+			if len(values) == 1 {
+				return
+			}
 			values[1] = strings.ToLower(values[1])
 			if len(values) >= 2 {
 				for k, v := range typeConversions {
