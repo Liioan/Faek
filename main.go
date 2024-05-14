@@ -41,10 +41,12 @@ func (vt ValidTypes) contains(item string) bool {
 const LONG_OBJ = 4
 
 var (
-	titleStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#44cbca")).MarginLeft(2)
-	answerStyle = lipgloss.NewStyle().MarginLeft(2)
-	outputStyle = lipgloss.NewStyle().Bold(true)
-	quitStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true)
+	titleStyle      = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#44cbca")).MarginLeft(2)
+	answerStyle     = lipgloss.NewStyle().MarginLeft(2)
+	outputStyle     = lipgloss.NewStyle().Bold(true)
+	quitStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true)
+	helpHeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#44cbca")).Bold(true)
+	helpStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("#fff"))
 )
 
 type Field struct {
@@ -90,6 +92,7 @@ type Model struct {
 func main() {
 	clearConsole()
 	steps := []Step{
+		{instruction: "press enter to continue, ctrl+c to quit or ctrl+h for help", placeholder: ""},
 		{instruction: "what will the array be called? (default: arr)", placeholder: "E.g. userPosts"},
 		{instruction: "write your field (to continue press enter without input)", isRepeating: true, placeholder: "E.g. email string"},
 		{instruction: "Create type for your object? (default: no type, input: type name)", placeholder: "E.g. Post"},
@@ -116,23 +119,23 @@ func (m *Model) generateOutput() string {
 	output := Output{arrName: "arr", customType: false, length: 5}
 
 	//. array name
-	if len(m.steps[0].answer) > 0 {
-		output.arrName = strings.Fields(m.steps[0].answer)[0]
+	if len(m.steps[1].answer) > 0 {
+		output.arrName = strings.Fields(m.steps[1].answer)[0]
 	}
 
 	//. fields
-	output.fields = m.steps[1].fields
+	output.fields = m.steps[2].fields
 
 	//. custom type
-	if len(m.steps[2].answer) > 0 {
+	if len(m.steps[3].answer) > 0 {
 		output.customType = true
-		customType := m.steps[2].answer
+		customType := m.steps[3].answer
 		customType = strings.ToUpper(string(customType[0])) + customType[1:]
 		output.customTypeName = strings.Fields(customType)[0]
 	}
 
 	//. array length
-	length, _ := strconv.Atoi(m.steps[3].answer)
+	length, _ := strconv.Atoi(m.steps[4].answer)
 	if length > 0 {
 		output.length = length
 	}
@@ -331,6 +334,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "ctrl+h":
+			if m.steps[0].answer == "help" {
+				m.steps[0].answer = ""
+			} else {
+				m.steps[0].answer = "help"
+			}
+			return m, nil
 		case "ctrl+c":
 			return m, tea.Quit
 		case "q":
@@ -389,6 +399,14 @@ func (m Model) View() string {
 		return "loading..."
 	}
 
+	if m.steps[0].answer == "help" {
+		output := fmt.Sprintf("%s\n", helpHeaderStyle.Render("Help"))
+		for _, info := range helpInfo {
+			output += fmt.Sprintf("%s\n", info.style.Render(info.text))
+		}
+		return wordwrap.String(output, m.width)
+	}
+
 	if m.done {
 		output := m.generateOutput()
 		if len(strings.Split(output, "\n")) > m.height {
@@ -421,7 +439,7 @@ func (m Model) View() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		titleStyle.Render(current.instruction),
+		wordwrap.String(titleStyle.Render(current.instruction), m.width),
 		answerStyle.Render(m.answerField.View()),
 	)
 }

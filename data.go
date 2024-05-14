@@ -1,5 +1,7 @@
 package main
 
+import "github.com/charmbracelet/lipgloss"
+
 var titles = []string{
 	"Study Finds Majority of People Would Rather Be Anywhere Else",
 	"New Study Reveals Earth Actually Flat, Scientists Baffled",
@@ -113,4 +115,39 @@ var content = []string{
 	"deleniti eum ut voluptate praesentium dolorum autem reprehenderit! Modi itaque",
 	"molestias iusto quos tenetur, consequatur esse iure incidunt. Alias veniam",
 	"voluptatum voluptate. Cupiditate, excepturi impedit aperiam fuga culpa debitis",
+}
+
+// var helpInfo = `
+//
+
+//
+//
+
+//
+
+//
+
+// `
+
+type Info struct {
+	style lipgloss.Style
+	text  string
+}
+
+var helpInfo = []Info{
+	{style: helpStyle, text: "Faek is a simple typescript generation tool that generates mock arrays for you"},
+	{style: helpHeaderStyle, text: "\nPredefined string fields:"},
+	{style: helpStyle, text: "name, surname/lastName/last_name, email, title, content, author"},
+	{style: helpHeaderStyle, text: "\nType conversion:"},
+	{style: helpStyle, text: `Faek will convert some field types to ts equivalents
+int, float, short -> number
+str, char -> string
+bool -> boolean`},
+	{style: helpHeaderStyle, text: "\nNumber range:"},
+	{style: helpStyle, text: `You can specify the range of number generation for number fields
+fieldName number -> 0-100
+fieldName number x -> 0-x
+fieldName number x y -> x-y
+`},
+	{style: quitStyle, text: "\npress ctrl+h to quit help screen"},
 }
