@@ -1,6 +1,8 @@
 package main
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+)
 
 var titles = []string{
 	"Study Finds Majority of People Would Rather Be Anywhere Else",
@@ -117,17 +119,10 @@ var content = []string{
 	"voluptatum voluptate. Cupiditate, excepturi impedit aperiam fuga culpa debitis",
 }
 
-// var helpInfo = `
-//
-
-//
-//
-
-//
-
-//
-
-// `
+var img = "https://usnplash.it/300/500"
+var profileImg = "https://unsplash.it/100/100"
+var articleImg = "https://unsplash.it/600/400"
+var bannerImg = "https://unsplash.it/600/240"
 
 type Info struct {
 	style lipgloss.Style

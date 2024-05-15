@@ -18,7 +18,7 @@ import (
 
 type ValidTypes []string
 
-var validTypes = ValidTypes{"string", "number", "boolean"}
+var validTypes = ValidTypes{"string", "number", "boolean", "img"}
 
 var typeConversions = map[string]string{
 	"int":   "number",
@@ -145,13 +145,22 @@ func (m *Model) generateOutput() string {
 
 	if len(output.fields) == 1 {
 		fieldType := output.fields[0].fieldType
+
 		field := output.fields[0].fieldName
 		fieldOptions := output.fields[0].options
 
-		if output.customType {
-			outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
+		if fieldType != "img" {
+			if output.customType {
+				outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
+			} else {
+				output.customTypeName = fieldType
+			}
 		} else {
-			output.customTypeName = fieldType
+			if output.customType {
+				outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, "string")
+			} else {
+				output.customTypeName = "string"
+			}
 		}
 
 		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
@@ -168,6 +177,9 @@ func (m *Model) generateOutput() string {
 		outputStr += fmt.Sprintf("type %s = {\n", output.customTypeName)
 		for _, field := range output.fields {
 			fieldType := field.fieldType
+			if fieldType == "img" {
+				fieldType = "string"
+			}
 			fieldName := field.fieldName
 			outputStr += fmt.Sprintf("  %s: %s;\n", fieldName, fieldType)
 		}
@@ -179,6 +191,9 @@ func (m *Model) generateOutput() string {
 		outputStr += fmt.Sprintf("const %s: { ", output.arrName)
 		for _, field := range output.fields {
 			fieldType := field.fieldType
+			if fieldType == "img" {
+				fieldType = "string"
+			}
 			fieldName := field.fieldName
 			outputStr += fmt.Sprintf("%s: %s; ", fieldName, fieldType)
 		}
@@ -221,6 +236,12 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 		"content":   content,
 	}
 
+	imageTypes := map[string]string{
+		"profile": profileImg,
+		"article": articleImg,
+		"banner":  bannerImg,
+	}
+
 	data := ""
 
 	if fieldAmount == 1 {
@@ -261,6 +282,19 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 				boolean = true
 			}
 			data += fmt.Sprintf("  %t,\n", boolean)
+		case "img":
+			switch len(fieldOptions) {
+			case 0:
+				data += fmt.Sprintf("  '%s',\n", img)
+			case 1:
+				for typeName, imgType := range imageTypes {
+					if fieldOptions[0] == typeName {
+						data += fmt.Sprintf(" '%s',\n", imgType)
+					}
+				}
+			case 3:
+				data += fmt.Sprintf(" 'unsplash.it/%s/%s'\n", fieldOptions[1], fieldOptions[2])
+			}
 		}
 		return data
 	}
@@ -306,6 +340,20 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 			boolean = true
 		}
 		data += fmt.Sprintf("%s: %t, ", field, boolean)
+	case "img":
+		switch len(fieldOptions) {
+		case 0:
+			data += fmt.Sprintf("%s: '%s',", field, img)
+		case 1:
+			for typeName, imgType := range imageTypes {
+				if fieldOptions[0] == typeName {
+					data += fmt.Sprintf("%s: '%s',", field, imgType)
+				}
+			}
+		case 3:
+			data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[1], fieldOptions[2])
+		}
+
 	}
 
 	return data
