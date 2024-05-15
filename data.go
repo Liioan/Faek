@@ -134,6 +134,10 @@ var helpInfo = []Info{
 	{style: helpStyle, text: "Faek is a simple typescript generation tool that generates mock arrays for you"},
 	{style: helpHeaderStyle, text: "\nPredefined string fields:"},
 	{style: helpStyle, text: "name, surname/lastName/last_name, email, title, content, author"},
+	{style: helpHeaderStyle, text: "\nImg type"},
+	{style: helpStyle, text: "syntax: '> fieldName img size? x? y?'"},
+	{style: helpHeaderStyle, text: "\npredefined sizes:"},
+	{style: helpStyle, text: "vertical, profile, articla, banner"},
 	{style: helpHeaderStyle, text: "\nType conversion:"},
 	{style: helpStyle, text: `Faek will convert some field types to ts equivalents
 int, float, short -> number
