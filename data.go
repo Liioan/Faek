@@ -119,7 +119,8 @@ var content = []string{
 	"voluptatum voluptate. Cupiditate, excepturi impedit aperiam fuga culpa debitis",
 }
 
-var img = "https://usnplash.it/300/500"
+var horizontalImg = "https://usnplash.it/300/500"
+var verticalImg = "https://unsplash.it/500/300"
 var profileImg = "https://unsplash.it/100/100"
 var articleImg = "https://unsplash.it/600/400"
 var bannerImg = "https://unsplash.it/600/240"

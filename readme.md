@@ -13,6 +13,29 @@
 - content (string)
 - author (string)
 
+## img type
+
+There is a defined img type that inserts unsplash img
+
+### Sizes:
+
+- default: 300x500
+- vertical: 500x300
+- profile: 100x100
+- article: 600x400
+- banner: 600x240
+- custom:
+
+### syntax:
+
+`> fieldName img size? x? y?`
+
+#### example:
+
+`> src img profile` -> {... src: "https://unsplash.it/100/100"}
+
+`> src img custom 250 300` -> {... src: "https://unsplash.it/250/300}
+
 ## type conversion
 
 Faek will convert some field types to ts equivalents
@@ -30,6 +53,6 @@ You can specify the range of number generation for number fields
 
 ### syntax:
 
-- `fieldName number` -> 0-100
-- `filedName number x` -> 0-x
-- `fieldName number x y` -> x-y
+- `> fieldName number` -> 0-100
+- `> filedName number x` -> 0-x
+- `> fieldName number x y` -> x-y
