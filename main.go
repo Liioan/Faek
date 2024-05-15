@@ -237,9 +237,10 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 	}
 
 	imageTypes := map[string]string{
-		"profile": profileImg,
-		"article": articleImg,
-		"banner":  bannerImg,
+		"vertical": verticalImg,
+		"profile":  profileImg,
+		"article":  articleImg,
+		"banner":   bannerImg,
 	}
 
 	data := ""
@@ -285,7 +286,7 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 		case "img":
 			switch len(fieldOptions) {
 			case 0:
-				data += fmt.Sprintf("  '%s',\n", img)
+				data += fmt.Sprintf("  '%s',\n", horizontalImg)
 			case 1:
 				for typeName, imgType := range imageTypes {
 					if fieldOptions[0] == typeName {
@@ -343,7 +344,7 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 	case "img":
 		switch len(fieldOptions) {
 		case 0:
-			data += fmt.Sprintf("%s: '%s',", field, img)
+			data += fmt.Sprintf("%s: '%s',", field, horizontalImg)
 		case 1:
 			for typeName, imgType := range imageTypes {
 				if fieldOptions[0] == typeName {
