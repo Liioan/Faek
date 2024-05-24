@@ -135,7 +135,7 @@ var helpInfo = []Info{
 	{style: helpHeaderStyle, text: "\nPredefined string fields:"},
 	{style: helpStyle, text: "name, surname/lastName/last_name, email, title, content, author"},
 	{style: helpHeaderStyle, text: "\nImg type"},
-	{style: helpStyle, text: "syntax: '> fieldName img size? x? y?'"},
+	{style: helpStyle, text: "syntax: '> fieldName img size? || x? y?'"},
 	{style: helpHeaderStyle, text: "\nPredefined sizes:"},
 	{style: helpStyle, text: "vertical, profile, articla, banner"},
 	{style: helpHeaderStyle, text: "\nType conversion:"},

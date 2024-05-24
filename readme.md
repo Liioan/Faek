@@ -34,7 +34,7 @@ There is a defined img type that inserts unsplash img
 
 `> src img profile` -> {... src: "https://unsplash.it/100/100"}
 
-`> src img custom 250 300` -> {... src: "https://unsplash.it/250/300}
+`> src img 250 300` -> {... src: "https://unsplash.it/250/300}
 
 ## type conversion
 

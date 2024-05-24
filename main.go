@@ -250,9 +250,9 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 		case "string":
 			if recognizedFields[field] != nil {
 				randItem := recognizedFields[field][rand.Intn(itemAmount)]
-				data += fmt.Sprintf("  '%s',\n", randItem)
+				data += fmt.Sprintf("  `%s`,\n", randItem)
 			} else {
-				data += fmt.Sprintf("  '%s',\n", "lorem ipsum dolor sit amet")
+				data += fmt.Sprintf("  `%s`,\n", "lorem ipsum dolor sit amet")
 			}
 		case "number":
 			var number int
@@ -293,8 +293,8 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 						data += fmt.Sprintf(" '%s',\n", imgType)
 					}
 				}
-			case 3:
-				data += fmt.Sprintf(" 'unsplash.it/%s/%s'\n", fieldOptions[1], fieldOptions[2])
+			case 2:
+				data += fmt.Sprintf(" 'unsplash.it/%s/%s'\n", fieldOptions[0], fieldOptions[1])
 			}
 		}
 		return data
@@ -308,9 +308,9 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 	case "string":
 		if recognizedFields[field] != nil {
 			randItem := recognizedFields[field][rand.Intn(itemAmount)]
-			data += fmt.Sprintf("%s: '%s', ", field, randItem)
+			data += fmt.Sprintf("%s: `%s`, ", field, randItem)
 		} else {
-			data += fmt.Sprintf("%s: '%s', ", field, "lorem ipsum dolor sit amet")
+			data += fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
 		}
 	case "number":
 		var number int
@@ -351,8 +351,8 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 					data += fmt.Sprintf("%s: '%s',", field, imgType)
 				}
 			}
-		case 3:
-			data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[1], fieldOptions[2])
+		case 2:
+			data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[0], fieldOptions[1])
 		}
 
 	}
