@@ -13,11 +13,19 @@
 - content (string)
 - author (string)
 
+## string set
+
+There is a defined string set type, that will choose a random word provided by the user
+
+### syntax
+
+`> fieldName strSet option1 option2 option3`
+
 ## img type
 
 There is a defined img type that inserts unsplash img
 
-### Sizes:
+### sizes:
 
 - default: 300x500
 - vertical: 500x300
@@ -46,6 +54,10 @@ Faek will convert some field types to ts equivalents
 - str -> string
 - char -> string
 - bool -> boolean
+- stringSet -> strSet,
+- ss -> strSet,
+- strs -> strSet,
+- strset -> strSet,
 
 ## number range
 
