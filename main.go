@@ -245,72 +245,27 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 
 	data := ""
 
-	if fieldAmount == 1 {
-		switch fieldType {
-		case "string":
-			if recognizedFields[field] != nil {
-				randItem := recognizedFields[field][rand.Intn(itemAmount)]
-				data += fmt.Sprintf("  `%s`,\n", randItem)
-			} else {
-				data += fmt.Sprintf("  `%s`,\n", "lorem ipsum dolor sit amet")
-			}
-		case "number":
-			var number int
-			switch len(fieldOptions) {
-			case 0:
-				number = rand.Intn(101)
-			case 1:
-				MaxNum, err := strconv.Atoi(fieldOptions[0])
-				if err != nil {
-					MaxNum = 100
-				}
-				number = rand.Intn(MaxNum + 1)
-			case 2:
-				LowNum, err := strconv.Atoi(fieldOptions[0])
-				if err != nil {
-					LowNum = 0
-				}
-				MaxNum, err := strconv.Atoi(fieldOptions[1])
-				if err != nil {
-					MaxNum = 100
-				}
-				number = rand.Intn((MaxNum-LowNum)+1) + LowNum
-			}
-			data += fmt.Sprintf("  %d,\n", number)
-		case "boolean":
-			boolean := false
-			if rand.Intn(101) >= 50 {
-				boolean = true
-			}
-			data += fmt.Sprintf("  %t,\n", boolean)
-		case "img":
-			switch len(fieldOptions) {
-			case 0:
-				data += fmt.Sprintf("  '%s',\n", horizontalImg)
-			case 1:
-				for typeName, imgType := range imageTypes {
-					if fieldOptions[0] == typeName {
-						data += fmt.Sprintf(" '%s',\n", imgType)
-					}
-				}
-			case 2:
-				data += fmt.Sprintf(" 'unsplash.it/%s/%s'\n", fieldOptions[0], fieldOptions[1])
-			}
-		}
-		return data
-	}
-
 	if fieldAmount >= LONG_OBJ {
 		data += "\n    "
 	}
 
 	switch fieldType {
 	case "string":
-		if recognizedFields[field] != nil {
-			randItem := recognizedFields[field][rand.Intn(itemAmount)]
-			data += fmt.Sprintf("%s: `%s`, ", field, randItem)
+		if fieldAmount == 1 {
+			if recognizedFields[field] != nil {
+				randItem := recognizedFields[field][rand.Intn(itemAmount)]
+				data += fmt.Sprintf("  `%s`,\n", randItem)
+			} else {
+				data += fmt.Sprintf("  `%s`,\n", "lorem ipsum dolor sit amet")
+			}
 		} else {
-			data += fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
+
+			if recognizedFields[field] != nil {
+				randItem := recognizedFields[field][rand.Intn(itemAmount)]
+				data += fmt.Sprintf("%s: `%s`, ", field, randItem)
+			} else {
+				data += fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
+			}
 		}
 	case "number":
 		var number int
@@ -334,13 +289,21 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 			}
 			number = rand.Intn((MaxNum-LowNum)+1) + LowNum
 		}
-		data += fmt.Sprintf("%s: %d, ", field, number)
+		if fieldAmount == 1 {
+			data += fmt.Sprintf("  %d,\n", number)
+		} else {
+			data += fmt.Sprintf("%s: %d, ", field, number)
+		}
 	case "boolean":
 		boolean := false
 		if rand.Intn(101) >= 50 {
 			boolean = true
 		}
-		data += fmt.Sprintf("%s: %t, ", field, boolean)
+		if fieldAmount == 1 {
+			data += fmt.Sprintf("  %t,\n", boolean)
+		} else {
+			data += fmt.Sprintf("%s: %t, ", field, boolean)
+		}
 	case "img":
 		switch len(fieldOptions) {
 		case 0:
@@ -348,11 +311,19 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 		case 1:
 			for typeName, imgType := range imageTypes {
 				if fieldOptions[0] == typeName {
-					data += fmt.Sprintf("%s: '%s',", field, imgType)
+					if fieldAmount == 1 {
+						data += fmt.Sprintf(" '%s',\n", imgType)
+					} else {
+						data += fmt.Sprintf("%s: '%s',", field, imgType)
+					}
 				}
 			}
 		case 2:
-			data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[0], fieldOptions[1])
+			if fieldAmount == 1 {
+				data += fmt.Sprintf(" 'unsplash.it/%s/%s'\n", fieldOptions[0], fieldOptions[1])
+			} else {
+				data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[0], fieldOptions[1])
+			}
 		}
 
 	}
