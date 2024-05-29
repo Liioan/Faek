@@ -18,15 +18,19 @@ import (
 
 type ValidTypes []string
 
-var validTypes = ValidTypes{"string", "number", "boolean", "img"}
+var validTypes = ValidTypes{"string", "number", "boolean", "img", "strSet"}
 
 var typeConversions = map[string]string{
-	"int":   "number",
-	"float": "number",
-	"short": "number",
-	"str":   "string",
-	"char":  "string",
-	"bool":  "boolean",
+	"int":       "number",
+	"float":     "number",
+	"short":     "number",
+	"str":       "string",
+	"char":      "string",
+	"bool":      "boolean",
+	"stringSet": "strSet",
+	"ss":        "strSet",
+	"strs":      "strSet",
+	"strset":    "strSet",
 }
 
 func (vt ValidTypes) contains(item string) bool {
@@ -87,12 +91,12 @@ type Model struct {
 	height      int
 	done        bool
 	answerField textinput.Model
+	help        bool
 }
 
 func main() {
 	clearConsole()
 	steps := []Step{
-		{instruction: "press enter to continue, ctrl+c to quit or ctrl+h for help", placeholder: ""},
 		{instruction: "what will the array be called? (default: arr)", placeholder: "E.g. userPosts"},
 		{instruction: "write your field (to continue press enter without input)", isRepeating: true, placeholder: "E.g. email string"},
 		{instruction: "Create type for your object? (default: no type, input: type name)", placeholder: "E.g. Post"},
@@ -119,23 +123,23 @@ func (m *Model) generateOutput() string {
 	output := Output{arrName: "arr", customType: false, length: 5}
 
 	//. array name
-	if len(m.steps[1].answer) > 0 {
-		output.arrName = strings.Fields(m.steps[1].answer)[0]
+	if len(m.steps[0].answer) > 0 {
+		output.arrName = strings.Fields(m.steps[0].answer)[0]
 	}
 
 	//. fields
-	output.fields = m.steps[2].fields
+	output.fields = m.steps[1].fields
 
 	//. custom type
-	if len(m.steps[3].answer) > 0 {
+	if len(m.steps[2].answer) > 0 {
 		output.customType = true
-		customType := m.steps[3].answer
+		customType := m.steps[2].answer
 		customType = strings.ToUpper(string(customType[0])) + customType[1:]
 		output.customTypeName = strings.Fields(customType)[0]
 	}
 
 	//. array length
-	length, _ := strconv.Atoi(m.steps[4].answer)
+	length, _ := strconv.Atoi(m.steps[3].answer)
 	if length > 0 {
 		output.length = length
 	}
@@ -320,12 +324,15 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 			}
 		case 2:
 			if fieldAmount == 1 {
-				data += fmt.Sprintf(" 'unsplash.it/%s/%s'\n", fieldOptions[0], fieldOptions[1])
+				data += fmt.Sprintf(" 'unsplash.it/%s/%s',\n", fieldOptions[0], fieldOptions[1])
 			} else {
 				data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[0], fieldOptions[1])
 			}
 		}
-
+	case "strSet":
+		if fieldAmount == 1 {
+			data += fmt.Sprintf("  'beng',\n")
+		}
 	}
 
 	return data
@@ -355,11 +362,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+h":
-			if m.steps[0].answer == "help" {
-				m.steps[0].answer = ""
-			} else {
-				m.steps[0].answer = "help"
-			}
+			m.help = !m.help
 			return m, nil
 		case "ctrl+c":
 			return m, tea.Quit
@@ -419,7 +422,7 @@ func (m Model) View() string {
 		return "loading..."
 	}
 
-	if m.steps[0].answer == "help" {
+	if m.help {
 		output := fmt.Sprintf("%s\n", helpHeaderStyle.Render("Help"))
 		for _, info := range helpInfo {
 			output += fmt.Sprintf("%s\n", info.style.Render(info.text))

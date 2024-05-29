@@ -4,6 +4,8 @@
     "charmbracelet",
     "Faek",
     "lipgloss",
+    "strs",
+    "strset",
     "textinput",
     "wordwrap"
   ]
