@@ -33,6 +33,11 @@ var typeConversions = map[string]string{
 	"strset":    "strSet",
 }
 
+var trueTypes = map[string]string{
+	"img":    "string",
+	"strSet": "string",
+}
+
 func (vt ValidTypes) contains(item string) bool {
 	for _, v := range vt {
 		if v == item {
@@ -153,18 +158,26 @@ func (m *Model) generateOutput() string {
 		field := output.fields[0].fieldName
 		fieldOptions := output.fields[0].options
 
-		if fieldType != "img" {
+		hasFakeType := false
+		for fakeType := range trueTypes {
+			if fieldType == fakeType {
+				hasFakeType = true
+			}
+		}
+
+		if hasFakeType {
+			if output.customType {
+				outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, trueTypes[fieldType])
+			} else {
+				output.customTypeName = trueTypes[fieldType]
+			}
+		} else {
 			if output.customType {
 				outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, fieldType)
 			} else {
 				output.customTypeName = fieldType
 			}
-		} else {
-			if output.customType {
-				outputStr += fmt.Sprintf("type %s = %s;\n\n", output.customTypeName, "string")
-			} else {
-				output.customTypeName = "string"
-			}
+
 		}
 
 		outputStr += fmt.Sprintf("const %s: %s[] = [\n", output.arrName, output.customTypeName)
@@ -181,8 +194,15 @@ func (m *Model) generateOutput() string {
 		outputStr += fmt.Sprintf("type %s = {\n", output.customTypeName)
 		for _, field := range output.fields {
 			fieldType := field.fieldType
-			if fieldType == "img" {
-				fieldType = "string"
+			hasFakeType := false
+			for fakeType := range trueTypes {
+				if fieldType == fakeType {
+					hasFakeType = true
+				}
+			}
+
+			if hasFakeType {
+				fieldType = trueTypes[fieldType]
 			}
 			fieldName := field.fieldName
 			outputStr += fmt.Sprintf("  %s: %s;\n", fieldName, fieldType)
@@ -195,8 +215,14 @@ func (m *Model) generateOutput() string {
 		outputStr += fmt.Sprintf("const %s: { ", output.arrName)
 		for _, field := range output.fields {
 			fieldType := field.fieldType
-			if fieldType == "img" {
-				fieldType = "string"
+			hasFakeType := false
+			for fakeType := range trueTypes {
+				if fieldType == fakeType {
+					hasFakeType = true
+				}
+			}
+			if hasFakeType {
+				fieldType = trueTypes[fieldType]
 			}
 			fieldName := field.fieldName
 			outputStr += fmt.Sprintf("%s: %s; ", fieldName, fieldType)
@@ -311,27 +337,40 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 	case "img":
 		switch len(fieldOptions) {
 		case 0:
-			data += fmt.Sprintf("%s: '%s',", field, horizontalImg)
+			if fieldAmount == 1 {
+				data += fmt.Sprintf("  `%s`,\n", horizontalImg)
+			} else {
+				data += fmt.Sprintf("%s: `%s`,", field, horizontalImg)
+			}
 		case 1:
 			for typeName, imgType := range imageTypes {
 				if fieldOptions[0] == typeName {
 					if fieldAmount == 1 {
-						data += fmt.Sprintf(" '%s',\n", imgType)
+						data += fmt.Sprintf(" `%s`,\n", imgType)
 					} else {
-						data += fmt.Sprintf("%s: '%s',", field, imgType)
+						data += fmt.Sprintf("%s: `%s`,", field, imgType)
 					}
 				}
 			}
 		case 2:
 			if fieldAmount == 1 {
-				data += fmt.Sprintf(" 'unsplash.it/%s/%s',\n", fieldOptions[0], fieldOptions[1])
+				data += fmt.Sprintf("  `unsplash.it/%s/%s`,\n", fieldOptions[0], fieldOptions[1])
 			} else {
-				data += fmt.Sprintf("%s: 'https://unsplash.it/%s/%s',", field, fieldOptions[0], fieldOptions[1])
+				data += fmt.Sprintf("%s: `https://unsplash.it/%s/%s`,", field, fieldOptions[0], fieldOptions[1])
 			}
 		}
 	case "strSet":
+		randomWord := ""
+		switch len(fieldOptions) {
+		case 0:
+			randomWord = "lorem"
+		default:
+			randomWord = fieldOptions[rand.Intn(len(fieldOptions))]
+		}
 		if fieldAmount == 1 {
-			data += fmt.Sprintf("  'beng',\n")
+			data += fmt.Sprintf("  `%s`,\n", randomWord)
+		} else {
+			data += fmt.Sprintf("%s: `%s`,", field, randomWord)
 		}
 	}
 
