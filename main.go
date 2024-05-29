@@ -365,7 +365,7 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 		case 0:
 			randomWord = "lorem"
 		default:
-			randomWord = fieldOptions[rand.Intn(len(fieldOptions))]
+			randomWord = strings.Replace(fieldOptions[rand.Intn(len(fieldOptions))], "_", " ", -1)
 		}
 		if fieldAmount == 1 {
 			data += fmt.Sprintf("  `%s`,\n", randomWord)
