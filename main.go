@@ -20,7 +20,6 @@ import (
 // TODO rework readme.md
 
 //+ Ideas:
-//. add option for user to provide string for string type
 //. add date type
 
 type ValidTypes []string
@@ -55,6 +54,7 @@ func (vt ValidTypes) contains(item string) bool {
 }
 
 const LONG_OBJ = 4
+const OUTPUT_FILEPATH = "faekOutput.ts"
 
 var (
 	titleStyle      = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#44cbca")).MarginLeft(2)
@@ -123,6 +123,13 @@ func main() {
 		os.Exit(1)
 	}
 	defer file.Close()
+
+	if fileExists(OUTPUT_FILEPATH) {
+		err = os.Remove(OUTPUT_FILEPATH)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	program := tea.NewProgram(*model)
 	_, err = program.Run()
@@ -501,13 +508,14 @@ func (m Model) View() string {
 	if m.done {
 		output := m.generateOutput()
 		if len(strings.Split(output, "\n")) > m.height {
-			filePath := "output.ts"
-			file, err := os.Create(filePath)
-			if err != nil {
-				log.Fatal("cannot create file")
+			if !fileExists(OUTPUT_FILEPATH) {
+				file, err := os.Create(OUTPUT_FILEPATH)
+				if err != nil {
+					log.Fatal("cannot create file")
+				}
+				defer file.Close()
+				file.Write([]byte(output))
 			}
-			defer file.Close()
-			file.Write([]byte(output))
 			return wordwrap.String(
 				fmt.Sprintf(
 					"%s\n%s",
@@ -543,6 +551,16 @@ func New(steps []Step) *Model {
 }
 
 var clear map[string]func()
+
+//. utils
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil
+}
 
 func init() {
 	clear = make(map[string]func())
