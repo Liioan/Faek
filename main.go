@@ -16,6 +16,13 @@ import (
 	"github.com/muesli/reflow/wordwrap"
 )
 
+// TODO strip down help screen to valid types and img sizes
+// TODO rework readme.md
+
+//+ Ideas:
+//. add option for user to provide string for string type
+//. add date type
+
 type ValidTypes []string
 
 var validTypes = ValidTypes{"string", "number", "boolean", "img", "strSet"}
@@ -286,7 +293,18 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 				randItem := recognizedFields[field][rand.Intn(itemAmount)]
 				data += fmt.Sprintf("  `%s`,\n", randItem)
 			} else {
-				data += fmt.Sprintf("  `%s`,\n", "lorem ipsum dolor sit amet")
+				if len(fieldOptions) > 0 {
+					userString := ""
+					for i, word := range fieldOptions {
+						userString += word
+						if i < len(fieldOptions)-1 {
+							userString += " "
+						}
+					}
+					data += fmt.Sprintf("  `%s`,\n", userString)
+				} else {
+					data += fmt.Sprintf("  `%s`,\n", "lorem ipsum dolor sit amet")
+				}
 			}
 		} else {
 
@@ -294,7 +312,18 @@ func insertData(field string, fieldType string, fieldAmount int, fieldOptions []
 				randItem := recognizedFields[field][rand.Intn(itemAmount)]
 				data += fmt.Sprintf("%s: `%s`, ", field, randItem)
 			} else {
-				data += fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
+				if len(fieldOptions) > 0 {
+					userString := ""
+					for i, word := range fieldOptions {
+						userString += word
+						if i < len(fieldOptions)-1 {
+							userString += " "
+						}
+					}
+					data += fmt.Sprintf("%s: `%s`, ", field, userString)
+				} else {
+					data += fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
+				}
 			}
 		}
 	case "number":

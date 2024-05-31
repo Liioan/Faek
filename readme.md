@@ -19,7 +19,7 @@ There is a defined string set type, that will choose a random word provided by t
 
 ### syntax
 
-`> fieldName strSet option1 option2 option3`
+`> fieldName strSet option1 option_2 options...`
 
 ## img type
 
