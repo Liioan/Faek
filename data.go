@@ -131,23 +131,10 @@ type Info struct {
 }
 
 var helpInfo = []Info{
-	{style: helpStyle, text: "Faek is a simple typescript generation tool that generates mock arrays for you"},
-	{style: helpHeaderStyle, text: "\nPredefined string fields:"},
-	{style: helpStyle, text: "name, surname/lastName/last_name, email, title, content, author"},
-	{style: helpHeaderStyle, text: "\nImg type"},
-	{style: helpStyle, text: "syntax: '> fieldName img size? || x? y?'"},
-	{style: helpHeaderStyle, text: "\nPredefined sizes:"},
-	{style: helpStyle, text: "vertical, profile, articla, banner"},
-	{style: helpHeaderStyle, text: "\nType conversion:"},
-	{style: helpStyle, text: `Faek will convert some field types to ts equivalents
-int, float, short -> number
-str, char -> string
-bool -> boolean`},
-	{style: helpHeaderStyle, text: "\nNumber range:"},
-	{style: helpStyle, text: `You can specify the range of number generation for number fields
-fieldName number -> 0-100
-fieldName number x -> 0-x
-fieldName number x y -> x-y
-`},
-	{style: quitStyle, text: "\npress ctrl+h to quit help screen"},
+	{style: helpHeaderStyle, text: "\nSuported types: "},
+	{style: helpStyle, text: "string, number, boolean, img, strSet"},
+	{style: helpHeaderStyle, text: "\nImg sizes: "},
+	{style: helpStyle, text: "default (300x500), vertical (500x300), profile (100x100), article (600x400), banner (600x240)"},
+	{style: helpHeaderStyle, text: "\nPredefined string fields: "},
+	{style: helpStyle, text: "name, surname/lastName/lastName, email, title, content, author"},
 }

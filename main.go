@@ -16,7 +16,6 @@ import (
 	"github.com/muesli/reflow/wordwrap"
 )
 
-// TODO strip down help screen to valid types and img sizes
 // TODO rework readme.md
 
 //+ Ideas:
