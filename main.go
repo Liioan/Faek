@@ -16,8 +16,6 @@ import (
 	"github.com/muesli/reflow/wordwrap"
 )
 
-// TODO rework readme.md
-
 //+ Ideas:
 //. add date type
 

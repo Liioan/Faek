@@ -13,6 +13,14 @@
 - content (string)
 - author (string)
 
+## custom string
+
+You can provide a custom string to be inserted into string field, if it doesn't match any predefined fields
+
+### example
+
+`> bio string A thing of beauty, will never fade away` -> {... bio: 'A thing of beauty, will never fade away'}
+
 ## string set
 
 There is a defined string set type, that will choose a random word provided by the user
@@ -20,6 +28,10 @@ There is a defined string set type, that will choose a random word provided by t
 ### syntax
 
 `> fieldName strSet option1 option_2 options...`
+
+### example
+
+`> role strSet user admin mod`
 
 ## img type
 
@@ -32,9 +44,9 @@ There is a defined img type that inserts unsplash img
 - profile: 100x100
 - article: 600x400
 - banner: 600x240
-- custom:
+- [custom](#custom-size-syntax)
 
-### syntax:
+### custom size syntax:
 
 `> fieldName img size? x? y?`
 
