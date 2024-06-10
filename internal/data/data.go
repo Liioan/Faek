@@ -2,6 +2,9 @@ package data
 
 import (
 	"faek/internal/styles"
+	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -139,4 +142,35 @@ var HelpInfo = []Info{
 	{Style: styles.HelpStyle, Text: "default (300x500), vertical (500x300), profile (100x100), article (600x400), banner (600x240)"},
 	{Style: styles.HelpHeaderStyle, Text: "\nPredefined string fields: "},
 	{Style: styles.HelpStyle, Text: "name, surname/lastName/lastName, email, title, content, author"},
+}
+
+type DateVariant string
+
+const (
+	DateTime  DateVariant = "dateTime"
+	Timestamp DateVariant = "timestamp"
+	Day       DateVariant = "day"
+	Month     DateVariant = "month"
+	Year      DateVariant = "year"
+	Object    DateVariant = "obj"
+)
+
+// - because of how rand numbers are generated, this allows to get different random day
+func GetDateVariant(variant DateVariant, dayDiff int) string {
+	switch variant {
+	case DateTime:
+		return time.Now().AddDate(0, 0, -1*rand.Intn(dayDiff+1)).Format("02.01.2006")
+	case Timestamp:
+		return fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(dayDiff+1)).Unix())
+	case Day:
+		return fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(dayDiff+1)).Day())
+	case Month:
+		return fmt.Sprintf("%d", time.Now().Month())
+	case Year:
+		return fmt.Sprintf("%d", time.Now().Year())
+	case Object:
+		return "new Date()"
+	default:
+		return time.Now().AddDate(0, 0, -1*rand.Intn(dayDiff+1)).Format("2.1.2006")
+	}
 }

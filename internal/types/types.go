@@ -2,7 +2,7 @@ package types
 
 type ValidTypes []string
 
-var ValidTypesArray = ValidTypes{"string", "number", "boolean", "img", "strSet"}
+var ValidTypesArray = ValidTypes{"string", "number", "boolean", "img", "strSet", "date"}
 
 var TypeConversions = map[string]string{
 	"int":       "number",
