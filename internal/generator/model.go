@@ -122,6 +122,10 @@ func (m Model) View() string {
 	if m.Done {
 		outputGenerator := InitGenerator()
 		output := outputGenerator.GenerateOutput(&m)
+		directory, err := os.Getwd()
+		if err != nil {
+			log.Fatal("cannot get user path")
+		}
 		if len(strings.Split(output, "\n")) > m.Height {
 			if !utils.FileExists(constance.OUTPUT_FILEPATH) {
 				file, err := os.Create(constance.OUTPUT_FILEPATH)
@@ -134,7 +138,7 @@ func (m Model) View() string {
 			return wordwrap.String(
 				fmt.Sprintf(
 					"%s\n%s",
-					styles.OutputStyle.Render("Output length exceeded terminal Height, generating output file"),
+					styles.OutputStyle.Render(fmt.Sprintf("Output length exceeded terminal Height, generating output file at %s/faekOutput.ts", directory)),
 					styles.QuitStyle.Render("press q or ctrl+c to exit"),
 				),
 				m.Width,
