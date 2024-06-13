@@ -179,43 +179,17 @@ func insertRes(field string, fieldType string, fieldAmount int, fieldOptions []s
 
 	switch fieldType {
 	case "string":
+		str := "Lorem ipsum dolor sit amet."
+		if recognizedFields[field] != nil {
+			str = recognizedFields[field][rand.Intn(itemAmount)]
+		}
+		if len(fieldOptions) > 0 {
+			str = strings.Replace(fieldOptions[rand.Intn(len(fieldOptions))], "_", " ", -1)
+		}
 		if fieldAmount == 1 {
-			if recognizedFields[field] != nil {
-				randItem := recognizedFields[field][rand.Intn(itemAmount)]
-				res += fmt.Sprintf("  `%s`,\n", randItem)
-			} else {
-				if len(fieldOptions) > 0 {
-					userString := ""
-					for i, word := range fieldOptions {
-						userString += word
-						if i < len(fieldOptions)-1 {
-							userString += " "
-						}
-					}
-					res += fmt.Sprintf("  `%s`,\n", userString)
-				} else {
-					res += fmt.Sprintf("  `%s`,\n", "lorem ipsum dolor sit amet")
-				}
-			}
+			res += fmt.Sprintf("  `%s`,\n", str)
 		} else {
-
-			if recognizedFields[field] != nil {
-				randItem := recognizedFields[field][rand.Intn(itemAmount)]
-				res += fmt.Sprintf("%s: `%s`, ", field, randItem)
-			} else {
-				if len(fieldOptions) > 0 {
-					userString := ""
-					for i, word := range fieldOptions {
-						userString += word
-						if i < len(fieldOptions)-1 {
-							userString += " "
-						}
-					}
-					res += fmt.Sprintf("%s: `%s`, ", field, userString)
-				} else {
-					res += fmt.Sprintf("%s: `%s`, ", field, "lorem ipsum dolor sit amet")
-				}
-			}
+			res += fmt.Sprintf("%s: `%s`, ", field, str)
 		}
 	case "number":
 		var number int
@@ -278,19 +252,6 @@ func insertRes(field string, fieldType string, fieldAmount int, fieldOptions []s
 			} else {
 				res += fmt.Sprintf("%s: `https://unsplash.it/%s/%s`,", field, fieldOptions[0], fieldOptions[1])
 			}
-		}
-	case "strSet":
-		randomWord := ""
-		switch len(fieldOptions) {
-		case 0:
-			randomWord = "lorem"
-		default:
-			randomWord = strings.Replace(fieldOptions[rand.Intn(len(fieldOptions))], "_", " ", -1)
-		}
-		if fieldAmount == 1 {
-			res += fmt.Sprintf("  `%s`,\n", randomWord)
-		} else {
-			res += fmt.Sprintf("%s: `%s`,", field, randomWord)
 		}
 	case "date":
 		dateString := ""
