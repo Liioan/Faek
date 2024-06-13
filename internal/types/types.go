@@ -2,19 +2,20 @@ package types
 
 type ValidTypes []string
 
-var ValidTypesArray = ValidTypes{"string", "number", "boolean", "img", "date"}
+var ValidTypesArray = ValidTypes{"string", "int", "float", "boolean", "img", "date"}
 
 var TypeConversions = map[string]string{
-	"int":   "number",
-	"float": "number",
-	"short": "number",
-	"str":   "string",
-	"char":  "string",
-	"bool":  "boolean",
+	"short":  "int",
+	"double": "float",
+	"str":    "string",
+	"char":   "string",
+	"bool":   "boolean",
 }
 
 var TrueTypes = map[string]string{
-	"img": "string",
+	"img":   "string",
+	"int":   "number",
+	"float": "number",
 }
 
 func (vt ValidTypes) Contains(item string) bool {

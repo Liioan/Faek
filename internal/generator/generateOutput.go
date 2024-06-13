@@ -191,7 +191,7 @@ func insertRes(field string, fieldType string, fieldAmount int, fieldOptions []s
 		} else {
 			res += fmt.Sprintf("%s: `%s`, ", field, str)
 		}
-	case "number":
+	case "int":
 		var number int
 		switch len(fieldOptions) {
 		case 0:
@@ -217,6 +217,33 @@ func insertRes(field string, fieldType string, fieldAmount int, fieldOptions []s
 			res += fmt.Sprintf("  %d,\n", number)
 		} else {
 			res += fmt.Sprintf("%s: %d, ", field, number)
+		}
+	case "float":
+		var number float32
+		switch len(fieldOptions) {
+		case 0:
+			number = rand.Float32() * 10
+		case 1:
+			MaxNum, err := strconv.Atoi(fieldOptions[0])
+			if err != nil {
+				MaxNum = 100
+			}
+			number = (rand.Float32() * float32(MaxNum))
+		case 2:
+			LowNum, err := strconv.Atoi(fieldOptions[0])
+			if err != nil {
+				LowNum = 0
+			}
+			MaxNum, err := strconv.Atoi(fieldOptions[1])
+			if err != nil {
+				MaxNum = 100
+			}
+			number = (rand.Float32() * float32(MaxNum-LowNum)) + float32(LowNum)
+		}
+		if fieldAmount == 1 {
+			res += fmt.Sprintf("  %.2f,\n", number)
+		} else {
+			res += fmt.Sprintf("%s: %.2f, ", field, number)
 		}
 	case "boolean":
 		boolean := false
