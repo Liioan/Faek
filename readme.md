@@ -13,13 +13,13 @@
 - content (string)
 - author (string)
 
-## string set
+## string options
 
-There is a defined string set type, that will choose a random word provided by the user
+You can provide custom strings to insert to string type. Faek will choose a random string you provided. Your strings override predefined fields.
 
 ### syntax
 
-`> fieldName strSet option1 option_2 options...`
+`> fieldName string option1 option_2 options...`
 
 ## date
 
@@ -67,21 +67,25 @@ Faek will convert some field types to ts equivalents
 
 - int -> `number`
 - float -> `number`
+- decimal -> `number`
 - short -> `number`
 - str -> `string`
 - char -> `string`
 - bool -> `boolean`
-- stringSet -> `strSet`
-- ss -> `strSet`
-- strs -> `strSet`
-- strset -> `strSet`
 
-## number range
+## number and float generation
 
-You can specify the range of number generation for number fields
+Even though there is no distinction between float and int in typescript, you can choose to generate one of them. You can also provide a range for those numbers. Note that if you will choose `number` type it will generate random int.
 
-### syntax:
+### syntax
 
-- `> fieldName number` -> 0-100
-- `> filedName number x` -> 0-x
-- `> fieldName number x y` -> x-y
+#### default range
+
+- int: 0-100
+- float 0-10
+
+`> fieldName int | float`
+`> fieldName int | float x` -> 0-x
+`> fieldName int | float x y` -> x-y
+
+example: `> age int 20 100`
