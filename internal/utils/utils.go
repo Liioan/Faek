@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -32,4 +33,13 @@ func ClearConsole() {
 	if available {
 		clear()
 	}
+}
+
+func LogToFile(data string) {
+	file, err := os.Create("./test.txt")
+	if err != nil {
+		log.Fatal("could not create file")
+	}
+	defer file.Close()
+	file.Write([]byte(data))
 }

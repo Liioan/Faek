@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/liioan/faek/internal/constance"
 	"github.com/liioan/faek/internal/styles"
+	"github.com/liioan/faek/internal/utils"
 	"github.com/muesli/reflow/wordwrap"
 )
 
@@ -87,16 +88,16 @@ var dateOptions = map[string]Option{
 	"object: new Date()":         DateObject,
 }
 
-func getOptions(fieldType string, instruction string) *listInputField {
+func newOptionsInput(fieldType string, instruction string) *listInputField {
 	options := map[string]Option{}
 	switch fieldType {
 	case "date":
-		options = imgOptions
-	case "img":
 		options = dateOptions
+	case "img":
+		options = imgOptions
 	}
 	l := []list.Item{}
-	for k, _ := range options {
+	for k := range options {
 		l = append(l, item(k))
 	}
 	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
@@ -110,7 +111,7 @@ type activeInput struct {
 type Field struct {
 	name      string
 	fieldType string
-	option    string
+	option    Option
 }
 
 type Step struct {
@@ -123,7 +124,7 @@ type Step struct {
 	Repeats bool
 }
 
-func newListStep(instruction string, repeats bool, options []list.Item) *Step {
+func NewListStep(instruction string, repeats bool, options []list.Item) *Step {
 	i := activeInput{
 		input: newListInputField(options, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction),
 		mode:  List,
@@ -133,7 +134,7 @@ func newListStep(instruction string, repeats bool, options []list.Item) *Step {
 	return &s
 }
 
-func newTextStep(instruction, placeholder string, repeats bool) *Step {
+func NewTextStep(instruction, placeholder string, repeats bool) *Step {
 	i := activeInput{
 		input: newTextInputField(placeholder),
 		mode:  Text,
@@ -158,13 +159,13 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m Model) Next() {
+func (m *Model) Next() {
 	if m.Index < len(m.Steps)-1 {
 		m.Index++
 	} else if m.Index == len(m.Steps)-1 {
 		m.Finished = true
 	}
-	m.ActiveInput.input = m.Steps[m.Index].StepInput.input
+	m.ActiveInput = m.Steps[m.Index].StepInput
 }
 
 func (m Model) View() string {
@@ -175,6 +176,26 @@ func (m Model) View() string {
 	}
 
 	if m.Finished {
+		output := ""
+		test := m.Steps
+		for _, step := range test {
+			if len(step.Answer.fields) > 0 {
+				output += "\nFields: \n"
+				for _, field := range step.Answer.fields {
+					output += field.name + " " + field.fieldType
+					if len(field.option) > 0 {
+						output += " " + string(field.option)
+					}
+
+					output += "\n"
+				}
+				output += "\n"
+				continue
+			}
+			output += step.Answer.text + "\n"
+			utils.LogToFile(output)
+		}
+
 		return styles.QuitStyle.Render()
 	}
 
@@ -190,6 +211,19 @@ func (m Model) View() string {
 }
 
 func checkAnswer(m *Model, current *Step, userInput string) {
+	if m.ActiveInput.mode == List {
+		fieldsLen := len(m.Steps[m.Index].Answer.fields)
+		currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
+
+		switch currentField.fieldType {
+		case "date":
+			currentField.option = dateOptions[userInput]
+		case "img":
+			currentField.option = imgOptions[userInput]
+		}
+		m.ActiveInput = m.Steps[m.Index].StepInput
+	}
+
 	if current.Repeats {
 		if userInput == "" {
 			if len(current.Answer.fields) > 0 {
@@ -215,8 +249,10 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 
 				for k, v := range typesWithOptions {
 					if k == values[1] {
-						optionsInput := getOptions(k, v)
-						m.ActiveInput = 
+						optionsInput := newOptionsInput(k, v)
+						m.ActiveInput.input = optionsInput
+						m.ActiveInput.mode = List
+						return
 					}
 				}
 			}
@@ -243,9 +279,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		case "enter":
-			// checkAnswer(&m, current, m.AnswerField.Value())
-			// m.AnswerField.SetValue("")
-			// return m, nil
+			checkAnswer(&m, current, m.ActiveInput.input.Value())
+			m.ActiveInput.input.setValue("")
+			return m, nil
 		}
 	}
 	m.ActiveInput.input, cmd = m.ActiveInput.input.Update(msg)
