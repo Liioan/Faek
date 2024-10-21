@@ -41,8 +41,9 @@ var typeConversion = map[string]string{
 }
 
 const (
-	Text inputMode = "text"
-	List inputMode = "list"
+	TextInput   inputMode = "text"
+	ListInput   inputMode = "list"
+	CustomInput inputMode = "custom"
 )
 
 var typesWithOptions = map[string]string{
@@ -51,6 +52,11 @@ var typesWithOptions = map[string]string{
 }
 
 type Option string
+
+type OptionData struct {
+	key   string
+	value Option
+}
 
 const (
 	HorizontalImg     Option = "300x500"
@@ -61,13 +67,13 @@ const (
 	Custom            Option = "custom"
 )
 
-var imgOptions = map[string]Option{
-	"Horizontal (default) 300x500": HorizontalImg,
-	"Vertical 500x300":             VerticalImg,
-	"Profile Picture 100x100":      ProfilePictureImg,
-	"Article 600x400":              ArticleImg,
-	"Banner 600x240":               Banner,
-	"Custom":                       Custom,
+var imgOptions = []OptionData{
+	OptionData{"Horizontal (default) 300x500", HorizontalImg},
+	OptionData{"Vertical 500x300", VerticalImg},
+	OptionData{"Profile Picture 100x100", ProfilePictureImg},
+	OptionData{"Article 600x400", ArticleImg},
+	OptionData{"Banner 600x240", Banner},
+	OptionData{"Custom", Custom},
 }
 
 const (
@@ -79,17 +85,17 @@ const (
 	DateObject Option = "object"
 )
 
-var dateOptions = map[string]Option{
-	"dateTime: e.g. 27.02.2024":  DateTime,
-	"timestamp: e.g. 1718051654": Timestamp,
-	"day: 0-31":                  Day,
-	"month: 0-12":                Month,
-	"year: current year":         Year,
-	"object: new Date()":         DateObject,
+var dateOptions = []OptionData{
+	OptionData{"dateTime: e.g. 27.02.2024", DateTime},
+	OptionData{"timestamp: e.g. 1718051654", Timestamp},
+	OptionData{"day: 0-31", Day},
+	OptionData{"month: 0-12", Month},
+	OptionData{"year: current year", Year},
+	OptionData{"object: new Date()", DateObject},
 }
 
 func newOptionsInput(fieldType string, instruction string) *listInputField {
-	options := map[string]Option{}
+	options := []OptionData{}
 	switch fieldType {
 	case "date":
 		options = dateOptions
@@ -97,10 +103,28 @@ func newOptionsInput(fieldType string, instruction string) *listInputField {
 		options = imgOptions
 	}
 	l := []list.Item{}
-	for k := range options {
-		l = append(l, item(k))
+	for _, option := range options {
+		l = append(l, item(option.key))
 	}
 	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
+}
+
+func getOptionsValue(fieldType string, userInput string) Option {
+	switch fieldType {
+	case "date":
+		for _, dateOption := range dateOptions {
+			if dateOption.key == userInput {
+				return dateOption.value
+			}
+		}
+	case "img":
+		for _, imgOption := range imgOptions {
+			if imgOption.key == userInput {
+				return imgOption.value
+			}
+		}
+	}
+	return Option("")
 }
 
 type activeInput struct {
@@ -127,7 +151,7 @@ type Step struct {
 func NewListStep(instruction string, repeats bool, options []list.Item) *Step {
 	i := activeInput{
 		input: newListInputField(options, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction),
-		mode:  List,
+		mode:  ListInput,
 	}
 
 	s := Step{Instruction: instruction, Repeats: repeats, StepInput: i}
@@ -137,7 +161,7 @@ func NewListStep(instruction string, repeats bool, options []list.Item) *Step {
 func NewTextStep(instruction, placeholder string, repeats bool) *Step {
 	i := activeInput{
 		input: newTextInputField(placeholder),
-		mode:  Text,
+		mode:  TextInput,
 	}
 
 	s := Step{Instruction: instruction, Repeats: repeats, StepInput: i}
@@ -179,8 +203,8 @@ func (m Model) View() string {
 		output := ""
 		test := m.Steps
 		for _, step := range test {
+			output += "\n"
 			if len(step.Answer.fields) > 0 {
-				output += "\nFields: \n"
 				for _, field := range step.Answer.fields {
 					output += field.name + " " + field.fieldType
 					if len(field.option) > 0 {
@@ -211,15 +235,19 @@ func (m Model) View() string {
 }
 
 func checkAnswer(m *Model, current *Step, userInput string) {
-	if m.ActiveInput.mode == List {
+	if userInput == "Custom" {
+		m.ActiveInput = activeInput{input: newTextInputField("custom dimension e.g. 200x300"), mode: CustomInput}
+		return
+	}
+
+	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
 		fieldsLen := len(m.Steps[m.Index].Answer.fields)
 		currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
 
-		switch currentField.fieldType {
-		case "date":
-			currentField.option = dateOptions[userInput]
-		case "img":
-			currentField.option = imgOptions[userInput]
+		if m.ActiveInput.mode == CustomInput {
+			currentField.option = Option(userInput)
+		} else {
+			currentField.option = getOptionsValue(currentField.fieldType, userInput)
 		}
 		m.ActiveInput = m.Steps[m.Index].StepInput
 	}
@@ -251,7 +279,7 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 					if k == values[1] {
 						optionsInput := newOptionsInput(k, v)
 						m.ActiveInput.input = optionsInput
-						m.ActiveInput.mode = List
+						m.ActiveInput.mode = ListInput
 						return
 					}
 				}
