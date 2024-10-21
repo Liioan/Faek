@@ -217,7 +217,7 @@ func (m Model) View() string {
 				continue
 			}
 			output += step.Answer.text + "\n"
-			utils.LogToFile(output)
+			utils.LogToDebug(output)
 		}
 
 		return styles.QuitStyle.Render()

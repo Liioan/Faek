@@ -35,8 +35,8 @@ func ClearConsole() {
 	}
 }
 
-func LogToFile(data string) {
-	file, err := os.Create("./test.txt")
+func LogToDebug(data string) {
+	file, err := os.Create("./debug.txt")
 	if err != nil {
 		log.Fatal("could not create file")
 	}
