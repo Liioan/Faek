@@ -119,7 +119,7 @@ func newListInputField(items []list.Item, delegate list.ItemDelegate, width, hei
 	model.SetShowStatusBar(false)
 	model.SetFilteringEnabled(false)
 	model.SetShowHelp(false)
-	model.Styles.Title = styles.TitleStyle
+	model.Styles.Title = styles.ListTitleStyle
 
 	a.listInput = model
 	return &a
