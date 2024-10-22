@@ -40,92 +40,16 @@ var typeConversion = map[string]string{
 	"strset":    "strSet",
 }
 
-const (
-	TextInput   inputMode = "text"
-	ListInput   inputMode = "list"
-	CustomInput inputMode = "custom"
-)
-
 var typesWithOptions = map[string]string{
 	"date": "Choose a date format: ",
 	"img":  "Choose a size of the image: ",
 }
 
-type Option string
-
-type OptionData struct {
-	key   string
-	value Option
-}
-
 const (
-	HorizontalImg     Option = "300x500"
-	VerticalImg       Option = "500x300"
-	ProfilePictureImg Option = "100x100"
-	ArticleImg        Option = "600x400"
-	Banner            Option = "600x240"
-	Custom            Option = "custom"
+	TextInput   inputMode = "text"
+	ListInput   inputMode = "list"
+	CustomInput inputMode = "custom"
 )
-
-var imgOptions = []OptionData{
-	OptionData{"Horizontal (default) 300x500", HorizontalImg},
-	OptionData{"Vertical 500x300", VerticalImg},
-	OptionData{"Profile Picture 100x100", ProfilePictureImg},
-	OptionData{"Article 600x400", ArticleImg},
-	OptionData{"Banner 600x240", Banner},
-	OptionData{"Custom", Custom},
-}
-
-const (
-	DateTime   Option = "dateTime"
-	Timestamp  Option = "timestamp"
-	Day        Option = "day"
-	Month      Option = "month"
-	Year       Option = "year"
-	DateObject Option = "object"
-)
-
-var dateOptions = []OptionData{
-	OptionData{"dateTime: e.g. 27.02.2024", DateTime},
-	OptionData{"timestamp: e.g. 1718051654", Timestamp},
-	OptionData{"day: 0-31", Day},
-	OptionData{"month: 0-12", Month},
-	OptionData{"year: current year", Year},
-	OptionData{"object: new Date()", DateObject},
-}
-
-func newOptionsInput(fieldType string, instruction string) *listInputField {
-	options := []OptionData{}
-	switch fieldType {
-	case "date":
-		options = dateOptions
-	case "img":
-		options = imgOptions
-	}
-	l := []list.Item{}
-	for _, option := range options {
-		l = append(l, item(option.key))
-	}
-	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
-}
-
-func getOptionsValue(fieldType string, userInput string) Option {
-	switch fieldType {
-	case "date":
-		for _, dateOption := range dateOptions {
-			if dateOption.key == userInput {
-				return dateOption.value
-			}
-		}
-	case "img":
-		for _, imgOption := range imgOptions {
-			if imgOption.key == userInput {
-				return imgOption.value
-			}
-		}
-	}
-	return Option("")
-}
 
 type activeInput struct {
 	input InputComponent
@@ -205,6 +129,7 @@ func (m Model) View() string {
 		for _, step := range test {
 			output += "\n"
 			if len(step.Answer.fields) > 0 {
+				output += "fields: \n"
 				for _, field := range step.Answer.fields {
 					output += field.name + " " + field.fieldType
 					if len(field.option) > 0 {
@@ -216,6 +141,7 @@ func (m Model) View() string {
 				output += "\n"
 				continue
 			}
+			output += step.Instruction + ": \n"
 			output += step.Answer.text + "\n"
 			utils.LogToDebug(output)
 		}

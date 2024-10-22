@@ -13,9 +13,10 @@ import (
 func main() {
 	utils.ClearConsole()
 	steps := []generator.Step{
-		*generator.NewTextStep("Array name:", "e.g. users", false),
-		*generator.NewTextStep("fields", "e.g. name string", true),
-		*generator.NewTextStep("len", "e.g. 5", false),
+		*generator.NewTextStep("What will the array be called? (default: arr)", "e.g. users", false),
+		*generator.NewTextStep("Write your field (to continue press enter without input)", "e.g. name string", true),
+		*generator.NewTextStep("Create type for your object? (default: no type, input: type name)", "e.g. Post", false),
+		*generator.NewTextStep("How many items will be in this array (default 5)", "e.g. 5", false),
 	}
 
 	model := generator.NewModel(steps, false)
