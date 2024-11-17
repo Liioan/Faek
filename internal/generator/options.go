@@ -8,8 +8,8 @@ import (
 type Option string
 
 type OptionData struct {
-	key   string
-	value Option
+	key   Option
+	value string
 }
 
 const (
@@ -22,12 +22,12 @@ const (
 )
 
 var imgOptions = []OptionData{
-	{"Horizontal (default) 300x500", HorizontalImg},
-	{"Vertical 500x300", VerticalImg},
-	{"Profile Picture 100x100", ProfilePictureImg},
-	{"Article 600x400", ArticleImg},
-	{"Banner 600x240", Banner},
-	{"Custom", Custom},
+	{HorizontalImg, "Horizontal (default) 300x500"},
+	{VerticalImg, "Vertical 500x300"},
+	{ProfilePictureImg, "Profile Picture 100x100"},
+	{ArticleImg, "Article 600x400"},
+	{Banner, "Banner 600x240"},
+	{Custom, "Custom"},
 }
 
 const (
@@ -40,12 +40,12 @@ const (
 )
 
 var dateOptions = []OptionData{
-	{"dateTime: e.g. 27.02.2024", DateTime},
-	{"timestamp: e.g. 1718051654", Timestamp},
-	{"day: 0-31", Day},
-	{"month: 0-12", Month},
-	{"year: current year", Year},
-	{"object: new Date()", DateObject},
+	{DateTime, "dateTime: e.g. 27.02.2024"},
+	{Timestamp, "timestamp: e.g. 1718051654"},
+	{Day, "day: 0-31"},
+	{Month, "month: 0-12"},
+	{Year, "year: current year"},
+	{DateObject, "object: new Date()"},
 }
 
 func newOptionsInput(fieldType string, instruction string) *listInputField {
@@ -58,7 +58,7 @@ func newOptionsInput(fieldType string, instruction string) *listInputField {
 	}
 	l := []list.Item{}
 	for _, option := range options {
-		l = append(l, item(option.key))
+		l = append(l, item(option.value))
 	}
 	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
 }
@@ -67,14 +67,14 @@ func getOptionsValue(fieldType string, userInput string) Option {
 	switch fieldType {
 	case "date":
 		for _, dateOption := range dateOptions {
-			if dateOption.key == userInput {
-				return dateOption.value
+			if dateOption.value == userInput {
+				return dateOption.key
 			}
 		}
 	case "img":
 		for _, imgOption := range imgOptions {
-			if imgOption.key == userInput {
-				return imgOption.value
+			if imgOption.value == userInput {
+				return imgOption.key
 			}
 		}
 	}

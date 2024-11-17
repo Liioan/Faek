@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,6 +13,16 @@ import (
 
 func main() {
 	utils.ClearConsole()
+
+	var config bool
+	flag.BoolVar(&config, "c", false, "enter configuration mode")
+	flag.Parse()
+
+	if config {
+		fmt.Println("config")
+		return
+	}
+
 	steps := []generator.Step{
 		*generator.NewTextStep("What will the array be called? (default: arr)", "e.g. users", false),
 		*generator.NewTextStep("Write your field (to continue press enter without input)", "e.g. name string", true),

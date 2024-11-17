@@ -150,6 +150,7 @@ func (m Model) View() string {
 	}
 
 	if m.Quitting {
+		utils.ClearConsole()
 		return styles.QuitStyle.Render("Quitting")
 	}
 
@@ -227,6 +228,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c":
+			m.Quitting = true
 			return m, tea.Quit
 		case "q":
 			if m.Index == len(m.Steps)-1 {
