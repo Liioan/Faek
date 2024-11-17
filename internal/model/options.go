@@ -1,4 +1,4 @@
-package generator
+package model
 
 import (
 	"github.com/charmbracelet/bubbles/list"
