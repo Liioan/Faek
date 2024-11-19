@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 
 	e "github.com/liioan/faek/internal/errors"
 )
@@ -31,8 +32,16 @@ func getConfigFilePath() (string, error) {
 	return dirname + settingsFilePath, nil
 }
 
-func SaveUserSettings(outputStyle, fileName string) error {
-	settings := Settings{OutputStyle: outputStyle, FileName: fileName}
+func SaveUserSettings(settings *Settings) error {
+	if settings.FileName == "" {
+		settings.FileName = "faekOutput.ts"
+	}
+
+	if settings.OutputStyle == "" {
+		settings.OutputStyle = "terminal"
+	}
+
+	settings.FileName = strings.Split(settings.FileName, ".")[0] + ".ts"
 
 	bytes, err := json.Marshal(settings)
 	if err != nil {
@@ -60,14 +69,8 @@ func SaveUserSettings(outputStyle, fileName string) error {
 }
 
 func GetUserSettings() (Settings, error) {
-	defaultSettings := Settings{
-		OutputStyle: "terminal",
-		FileName:    "faekOutput.ts",
-	}
-
 	filePath, err := getConfigFilePath()
 	if err != nil {
-
 		return Settings{}, errors.New(e.FileDoesNotExists)
 	}
 	fileBytes, err := os.ReadFile(filePath)
@@ -79,14 +82,6 @@ func GetUserSettings() (Settings, error) {
 
 	if err != nil {
 		return Settings{}, errors.New(e.CantUnmarshalJson)
-	}
-
-	if s.FileName == "" {
-		s.FileName = defaultSettings.FileName
-	}
-
-	if s.OutputStyle == "" {
-		s.OutputStyle = defaultSettings.OutputStyle
 	}
 
 	return s, nil

@@ -1,12 +1,13 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/styles"
-	"github.com/liioan/faek/internal/utils"
 	"github.com/muesli/reflow/wordwrap"
 )
 
@@ -35,7 +36,8 @@ var typeConversion = map[string]string{
 	"stringSet": "strSet",
 	"ss":        "strSet",
 	"strs":      "strSet",
-	"strset":    "strSet",
+
+	"strset": "strSet",
 }
 
 var typesWithOptions = map[string]string{
@@ -122,17 +124,27 @@ func (m Model) View() string {
 	}
 
 	if m.Finished {
+		output := ""
 		if m.Configuration {
-			saveSettings(m)
+			settings := configuration.Settings{
+				OutputStyle: m.Steps[0].Answer.text,
+				FileName:    m.Steps[1].Answer.text,
+			}
+
+			configuration.SaveUserSettings(&settings)
+
+			output += styles.TitleStyle.Render("Your preferences have been saved!")
+			output += "\n"
+			output += styles.OutputStyle.Render(fmt.Sprintf(" output style: %s\n filename: %s", settings.OutputStyle, settings.FileName))
 		} else {
 			generateOutput(m)
 		}
 
-		return styles.QuitStyle.Render()
+		output += styles.QuitStyle.Render("\n\npress q or ctrl+c to exit")
+		return output
 	}
 
 	if m.Quitting {
-		utils.ClearConsole()
 		return styles.QuitStyle.Render("Quitting")
 	}
 

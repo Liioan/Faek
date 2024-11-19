@@ -7,6 +7,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/model"
 	"github.com/liioan/faek/internal/utils"
 )
@@ -14,13 +15,32 @@ import (
 func main() {
 	utils.ClearConsole()
 
-	var config bool
-	flag.BoolVar(&config, "c", false, "enter configuration mode")
+	var configMode bool
+	flag.BoolVar(&configMode, "c", false, "enter configuration mode")
+
+	var debugMode bool
+	flag.BoolVar(&debugMode, "d", false, "enter debug mode")
 	flag.Parse()
 
-	steps := []model.Step{}
+	if debugMode {
+		settings, err := configuration.GetUserSettings()
+		if err != nil {
+			fmt.Println("Fatal: ", err)
+			os.Exit(1)
+		}
+		fmt.Println(settings)
+		return
+	}
 
-	if config {
+	_, err := configuration.GetUserSettings()
+
+	if err != nil {
+		configMode = true
+	}
+
+	var steps []model.Step
+
+	if configMode {
 		steps = []model.Step{
 			*model.NewListStep("Choose your default output style", "Output options:", false, "output"),
 			*model.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
@@ -34,7 +54,7 @@ func main() {
 		}
 	}
 
-	model := model.NewModel(steps, config)
+	model := model.NewModel(steps, configMode)
 
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {

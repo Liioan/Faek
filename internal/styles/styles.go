@@ -4,7 +4,7 @@ import "github.com/charmbracelet/lipgloss"
 
 var (
 	//- model styles
-	OutputStyle     = lipgloss.NewStyle().Bold(true)
+	OutputStyle     = lipgloss.NewStyle().Bold(true).MarginLeft(2)
 	QuitStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).Bold(true)
 	HelpHeaderStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#44cbca")).Bold(true)
 	HelpStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("#fff"))
