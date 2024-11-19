@@ -18,25 +18,23 @@ func main() {
 	flag.BoolVar(&config, "c", false, "enter configuration mode")
 	flag.Parse()
 
-	steps := []model.Step{
-
-	}
+	steps := []model.Step{}
 
 	if config {
 		steps = []model.Step{
-			*model.NewListStep("Choose your default output style", false, {});
+			*model.NewListStep("Choose your default output style", "Output options:", false, "output"),
+			*model.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
 		}
 	} else {
-	steps = []model.Step{
-		*model.NewTextStep("What will the array be called? (default: arr)", "e.g. users", false),
-		*model.NewTextStep("Write your field (to continue press enter without input)", "e.g. name string", true),
-		*model.NewTextStep("Create type for your object? (default: no type, input: type name)", "e.g. Post", false),
-		*model.NewTextStep("How many items will be in this array (default 5)", "e.g. 5", false),
-	}
+		steps = []model.Step{
+			*model.NewTextStep("What will the array be called? (default: arr)", "e.g. users", false),
+			*model.NewTextStep("Write your field (to continue press enter without input)", "e.g. name string", true),
+			*model.NewTextStep("Create type for your object? (default: no type, input: type name)", "e.g. Post", false),
+			*model.NewTextStep("How many items will be in this array (default 5)", "e.g. 5", false),
+		}
 	}
 
-
-	model := model.NewModel(steps, false)
+	model := model.NewModel(steps, config)
 
 	file, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {

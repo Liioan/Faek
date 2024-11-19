@@ -12,6 +12,7 @@ type OptionData struct {
 	value string
 }
 
+// - generator options
 const (
 	HorizontalImg     Option = "300x500"
 	VerticalImg       Option = "500x300"
@@ -48,6 +49,18 @@ var dateOptions = []OptionData{
 	{DateObject, "object: new Date()"},
 }
 
+//- configuration options
+
+const (
+	Terminal Option = "terminal"
+	File     Option = "file"
+)
+
+var outputOptions = []OptionData{
+	{Terminal, "In terminal"},
+	{File, "Output file"},
+}
+
 func newOptionsInput(fieldType string, instruction string) *listInputField {
 	options := []OptionData{}
 	switch fieldType {
@@ -55,6 +68,8 @@ func newOptionsInput(fieldType string, instruction string) *listInputField {
 		options = dateOptions
 	case "img":
 		options = imgOptions
+	case "output":
+		options = outputOptions
 	}
 	l := []list.Item{}
 	for _, option := range options {
@@ -64,18 +79,20 @@ func newOptionsInput(fieldType string, instruction string) *listInputField {
 }
 
 func getOptionsValue(fieldType string, userInput string) Option {
+	optionsArr := []OptionData{}
+
 	switch fieldType {
 	case "date":
-		for _, dateOption := range dateOptions {
-			if dateOption.value == userInput {
-				return dateOption.key
-			}
-		}
+		optionsArr = dateOptions
 	case "img":
-		for _, imgOption := range imgOptions {
-			if imgOption.value == userInput {
-				return imgOption.key
-			}
+		optionsArr = imgOptions
+	case "output":
+		optionsArr = outputOptions
+	}
+
+	for _, option := range optionsArr {
+		if option.value == userInput {
+			return option.key
 		}
 	}
 	return Option("")

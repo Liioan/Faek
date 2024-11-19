@@ -3,10 +3,8 @@ package model
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/liioan/faek/internal/constance"
 	"github.com/liioan/faek/internal/styles"
 	"github.com/liioan/faek/internal/utils"
 	"github.com/muesli/reflow/wordwrap"
@@ -72,13 +70,13 @@ type Step struct {
 	Repeats bool
 }
 
-func NewListStep(instruction string, repeats bool, options []list.Item) *Step {
+func NewListStep(title, instruction string, repeats bool, options string) *Step {
 	i := activeInput{
-		input: newListInputField(options, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction),
+		input: newOptionsInput("output", instruction),
 		mode:  ListInput,
 	}
 
-	s := Step{Instruction: instruction, Repeats: repeats, StepInput: i}
+	s := Step{Instruction: title, Repeats: repeats, StepInput: i}
 	return &s
 }
 
@@ -124,26 +122,10 @@ func (m Model) View() string {
 	}
 
 	if m.Finished {
-		output := ""
-		test := m.Steps
-		for _, step := range test {
-			output += "\n"
-			if len(step.Answer.fields) > 0 {
-				output += "fields: \n"
-				for _, field := range step.Answer.fields {
-					output += field.name + " " + field.fieldType
-					if len(field.option) > 0 {
-						output += " " + string(field.option)
-					}
-
-					output += "\n"
-				}
-				output += "\n"
-				continue
-			}
-			output += step.Instruction + ": \n"
-			output += step.Answer.text + "\n"
-			utils.LogToDebug(output)
+		if m.Configuration {
+			saveSettings(m)
+		} else {
+			generateOutput(m)
 		}
 
 		return styles.QuitStyle.Render()
@@ -168,15 +150,21 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 	}
 
 	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
-		fieldsLen := len(m.Steps[m.Index].Answer.fields)
-		currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
-
-		if m.ActiveInput.mode == CustomInput {
-			currentField.option = Option(userInput)
+		if m.Configuration {
+			current.Answer.text = string(getOptionsValue("output", userInput))
+			m.Next()
+			return
 		} else {
-			currentField.option = getOptionsValue(currentField.fieldType, userInput)
+			fieldsLen := len(m.Steps[m.Index].Answer.fields)
+			currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
+
+			if m.ActiveInput.mode == CustomInput {
+				currentField.option = Option(userInput)
+			} else {
+				currentField.option = getOptionsValue(currentField.fieldType, userInput)
+			}
+			m.ActiveInput = m.Steps[m.Index].StepInput
 		}
-		m.ActiveInput = m.Steps[m.Index].StepInput
 	}
 
 	if current.Repeats {
