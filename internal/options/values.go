@@ -1,16 +1,20 @@
-package model
-
-import (
-	"github.com/charmbracelet/bubbles/list"
-	"github.com/liioan/faek/internal/constance"
-)
+package options
 
 type Option string
 
 type OptionData struct {
-	key   Option
-	value string
+	Key   Option
+	Value string
 }
+
+type OptionSet string
+
+const (
+	DateSet     OptionSet = "date"
+	ImgSet      OptionSet = "img"
+	OutputSet   OptionSet = "output"
+	LanguageSet OptionSet = "lang"
+)
 
 // - generator options
 const (
@@ -22,7 +26,7 @@ const (
 	Custom            Option = "custom"
 )
 
-var imgOptions = []OptionData{
+var ImgOptions = []OptionData{
 	{HorizontalImg, "Horizontal (default) 300x500"},
 	{VerticalImg, "Vertical 500x300"},
 	{ProfilePictureImg, "Profile Picture 100x100"},
@@ -40,7 +44,7 @@ const (
 	DateObject Option = "object"
 )
 
-var dateOptions = []OptionData{
+var DateOptions = []OptionData{
 	{DateTime, "dateTime: e.g. 27.02.2024"},
 	{Timestamp, "timestamp: e.g. 1718051654"},
 	{Day, "day: 0-31"},
@@ -56,44 +60,17 @@ const (
 	File     Option = "file"
 )
 
-var outputOptions = []OptionData{
+var OutputOptions = []OptionData{
 	{Terminal, "In terminal"},
 	{File, "Output file"},
 }
 
-func newOptionsInput(fieldType string, instruction string) *listInputField {
-	options := []OptionData{}
-	switch fieldType {
-	case "date":
-		options = dateOptions
-	case "img":
-		options = imgOptions
-	case "output":
-		options = outputOptions
-	}
-	l := []list.Item{}
-	for _, option := range options {
-		l = append(l, item(option.value))
-	}
-	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
-}
+const (
+	TypeScript Option = "typescript"
+	JavaScript Option = "javascript"
+)
 
-func getOptionsValue(fieldType string, userInput string) Option {
-	optionsArr := []OptionData{}
-
-	switch fieldType {
-	case "date":
-		optionsArr = dateOptions
-	case "img":
-		optionsArr = imgOptions
-	case "output":
-		optionsArr = outputOptions
-	}
-
-	for _, option := range optionsArr {
-		if option.value == userInput {
-			return option.key
-		}
-	}
-	return Option("")
+var LanguageOptions = []OptionData{
+	{TypeScript, "TypeScript"},
+	{JavaScript, "JavaScript"},
 }

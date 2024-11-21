@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	e "github.com/liioan/faek/internal/errors"
+	o "github.com/liioan/faek/internal/options"
 )
 
 const settingsFilePath = "/faek_settings.json"
@@ -15,6 +16,7 @@ const settingsDirectoryPath = "/.config/faek"
 type Settings struct {
 	OutputStyle string `json:"outputStyle"`
 	FileName    string `json:"fileName"`
+	Language    string `json:"lang"`
 }
 
 func getConfigDirectory() (string, error) {
@@ -38,7 +40,11 @@ func SaveUserSettings(settings *Settings) error {
 	}
 
 	if settings.OutputStyle == "" {
-		settings.OutputStyle = "terminal"
+		settings.OutputStyle = string(o.Terminal)
+	}
+
+	if settings.Language == "" {
+		settings.Language = string(o.TypeScript)
 	}
 
 	settings.FileName = strings.Split(settings.FileName, ".")[0] + ".ts"

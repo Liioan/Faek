@@ -7,7 +7,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/liioan/faek/internal/configuration"
+	o "github.com/liioan/faek/internal/options"
 	"github.com/liioan/faek/internal/styles"
+	"github.com/liioan/faek/internal/utils"
 	"github.com/muesli/reflow/wordwrap"
 )
 
@@ -59,7 +61,7 @@ type activeInput struct {
 type Field struct {
 	name      string
 	fieldType string
-	option    Option
+	option    o.Option
 }
 
 type Step struct {
@@ -72,9 +74,11 @@ type Step struct {
 	Repeats bool
 }
 
-func NewListStep(title, instruction string, repeats bool, options string) *Step {
+func NewListStep(title, instruction string, repeats bool, optionSet o.OptionSet) *Step {
+	utils.LogToDebug(string(optionSet))
+
 	i := activeInput{
-		input: newOptionsInput("output", instruction),
+		input: newOptionsInput(optionSet, instruction),
 		mode:  ListInput,
 	}
 
@@ -128,14 +132,15 @@ func (m Model) View() string {
 		if m.Configuration {
 			settings := configuration.Settings{
 				OutputStyle: m.Steps[0].Answer.text,
-				FileName:    m.Steps[1].Answer.text,
+				FileName:    strings.Trim(m.Steps[1].Answer.text, " "),
+				Language:    m.Steps[2].Answer.text,
 			}
 
 			configuration.SaveUserSettings(&settings)
 
-			output += styles.TitleStyle.Render("Your preferences have been saved!")
+			output += styles.OutputTitleStyle.Render("Your preferences have been saved!")
 			output += "\n"
-			output += styles.OutputStyle.Render(fmt.Sprintf(" output style: %s\n filename: %s", settings.OutputStyle, settings.FileName))
+			output += styles.OutputStyle.Render(fmt.Sprintf(" output style: %s\n filename: %s\n language: %s", settings.OutputStyle, settings.FileName, settings.Language))
 		} else {
 			generateOutput(m)
 		}
@@ -171,9 +176,9 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 			currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
 
 			if m.ActiveInput.mode == CustomInput {
-				currentField.option = Option(userInput)
+				currentField.option = o.Option(userInput)
 			} else {
-				currentField.option = getOptionsValue(currentField.fieldType, userInput)
+				currentField.option = getOptionsValue(o.OptionSet(currentField.fieldType), userInput)
 			}
 			m.ActiveInput = m.Steps[m.Index].StepInput
 		}
@@ -204,7 +209,7 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 
 				for k, v := range typesWithOptions {
 					if k == values[1] {
-						optionsInput := newOptionsInput(k, v)
+						optionsInput := newOptionsInput(o.OptionSet(k), v)
 						m.ActiveInput.input = optionsInput
 						m.ActiveInput.mode = ListInput
 						return
