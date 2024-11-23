@@ -1,11 +1,11 @@
 package model
 
 import (
-	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/liioan/faek/internal/configuration"
 	o "github.com/liioan/faek/internal/options"
 	"github.com/liioan/faek/internal/styles"
@@ -140,7 +140,30 @@ func (m Model) View() string {
 
 			output += styles.OutputTitleStyle.Render("Your preferences have been saved!")
 			output += "\n"
-			output += styles.OutputStyle.Render(fmt.Sprintf(" output style: %s\n filename: %s\n language: %s", settings.OutputStyle, settings.FileName, settings.Language))
+
+			rows := [][]string{
+				{"Output style", settings.OutputStyle},
+				{"File name", settings.FileName},
+				{"Language", settings.Language},
+			}
+
+			table := table.New().
+				Border(lipgloss.NormalBorder()).
+				BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#fff"))).
+				StyleFunc(func(row, col int) lipgloss.Style {
+					switch {
+					case row == 0:
+						return styles.TableHeaderStyle
+					case row%2 == 0:
+						return styles.TableEvenRowStyle
+					default:
+						return styles.TableOddRowStyle
+					}
+				}).
+				Headers("Setting", "Value").
+				Rows(rows...)
+
+			output += table.Render()
 		} else {
 			generateOutput(m)
 		}
