@@ -44,8 +44,8 @@ func main() {
 	if configMode {
 		steps = []model.Step{
 			*model.NewListStep("Choose your default output style", "Output options:", false, o.OutputSet),
-			*model.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
 			*model.NewListStep("Choose your preferred language (default: TypeScript)", "Language options:", false, o.LanguageSet),
+			*model.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
 		}
 
 	} else {

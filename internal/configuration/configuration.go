@@ -50,7 +50,12 @@ func SaveUserSettings(settings *Settings) error {
 		settings.Language = string(o.TypeScript)
 	}
 
-	settings.FileName = strings.Split(settings.FileName, ".")[0] + ".ts"
+	settings.FileName = strings.Split(settings.FileName, ".")[0]
+	if settings.Language == string(o.TypeScript) {
+		settings.FileName += ".ts"
+	} else {
+		settings.FileName += ".js"
+	}
 
 	bytes, err := json.Marshal(settings)
 	if err != nil {

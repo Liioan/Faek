@@ -9,7 +9,6 @@ import (
 	"github.com/liioan/faek/internal/configuration"
 	o "github.com/liioan/faek/internal/options"
 	"github.com/liioan/faek/internal/styles"
-	"github.com/liioan/faek/internal/utils"
 	"github.com/muesli/reflow/wordwrap"
 )
 
@@ -131,11 +130,9 @@ func (m Model) View() string {
 		if m.Configuration {
 			settings := configuration.Settings{
 				OutputStyle: m.Steps[0].Answer.text,
-				FileName:    strings.Trim(m.Steps[1].Answer.text, " "),
-				Language:    m.Steps[2].Answer.text,
+				Language:    m.Steps[1].Answer.text,
+				FileName:    strings.Trim(m.Steps[2].Answer.text, " "),
 			}
-
-			utils.LogToDebug(settings.Language)
 
 			configuration.SaveUserSettings(&settings)
 
@@ -144,8 +141,8 @@ func (m Model) View() string {
 
 			rows := [][]string{
 				{"Output style", settings.OutputStyle},
-				{"File name", settings.FileName},
 				{"Language", settings.Language},
+				{"File name", settings.FileName},
 			}
 
 			table := table.New().
