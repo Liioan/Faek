@@ -162,8 +162,8 @@ func (m Model) View() string {
 				}).
 				Headers("Setting", "Value").
 				Rows(rows...)
-
 			output += table.Render()
+			output += styles.OutputStyle.Render("You can always change your settings by running ") + styles.HighlightStyle.Render("`>faek -c`")
 		} else {
 			generateOutput(m)
 		}
@@ -221,9 +221,9 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 				return
 			}
 			if len(values) == 2 {
-				for k, v := range typeConversion {
-					if values[1] == k {
-						values[1] = v
+				for key, value := range typeConversion {
+					if values[1] == key {
+						values[1] = value
 					}
 				}
 				if ValidTypesArray.contains(values[1]) {
