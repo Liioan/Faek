@@ -4,7 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/liioan/faek/internal/constance"
 	o "github.com/liioan/faek/internal/options"
-	"github.com/liioan/faek/internal/utils"
 )
 
 func newOptionsInput(optionSet o.OptionSet, instruction string) *listInputField {
@@ -18,7 +17,6 @@ func newOptionsInput(optionSet o.OptionSet, instruction string) *listInputField 
 	case o.OutputSet:
 		optionsArr = o.OutputOptions
 	case o.LanguageSet:
-		utils.LogToDebug(string(optionSet))
 		optionsArr = o.LanguageOptions
 	}
 	l := []list.Item{}

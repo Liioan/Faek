@@ -71,18 +71,17 @@ type Step struct {
 		text   string
 		fields []Field
 	}
-	Repeats bool
+	OptionSet o.OptionSet
+	Repeats   bool
 }
 
 func NewListStep(title, instruction string, repeats bool, optionSet o.OptionSet) *Step {
-	utils.LogToDebug(string(optionSet))
-
 	i := activeInput{
 		input: newOptionsInput(optionSet, instruction),
 		mode:  ListInput,
 	}
 
-	s := Step{Instruction: title, Repeats: repeats, StepInput: i}
+	s := Step{Instruction: title, Repeats: repeats, StepInput: i, OptionSet: optionSet}
 	return &s
 }
 
@@ -136,6 +135,8 @@ func (m Model) View() string {
 				Language:    m.Steps[2].Answer.text,
 			}
 
+			utils.LogToDebug(settings.Language)
+
 			configuration.SaveUserSettings(&settings)
 
 			output += styles.OutputTitleStyle.Render("Your preferences have been saved!")
@@ -162,13 +163,15 @@ func (m Model) View() string {
 				}).
 				Headers("Setting", "Value").
 				Rows(rows...)
+
 			output += table.Render()
-			output += styles.OutputStyle.Render("You can always change your settings by running ") + styles.HighlightStyle.Render("`>faek -c`")
+			output += styles.OutputStyle.Render("You can always change your settings by running ") + styles.HighlightStyle.Render("`>faek -c``")
 		} else {
 			generateOutput(m)
 		}
 
 		output += styles.QuitStyle.Render("\n\npress q or ctrl+c to exit")
+
 		return output
 	}
 
@@ -191,7 +194,7 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 
 	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
 		if m.Configuration {
-			current.Answer.text = string(getOptionsValue("output", userInput))
+			current.Answer.text = string(getOptionsValue(current.OptionSet, userInput))
 			m.Next()
 			return
 		} else {
@@ -249,6 +252,7 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	current := &m.Steps[m.Index]
 	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Width = msg.Width

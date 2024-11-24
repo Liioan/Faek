@@ -8,6 +8,7 @@ import (
 
 	e "github.com/liioan/faek/internal/errors"
 	o "github.com/liioan/faek/internal/options"
+	"github.com/liioan/faek/internal/utils"
 )
 
 const settingsFilePath = "/faek_settings.json"
@@ -35,6 +36,8 @@ func getConfigFilePath() (string, error) {
 }
 
 func SaveUserSettings(settings *Settings) error {
+	utils.LogToDebug(settings.Language)
+
 	if settings.FileName == "" {
 		settings.FileName = "faekOutput.ts"
 	}
