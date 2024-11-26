@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -8,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/styles"
+
 	v "github.com/liioan/faek/internal/variants"
 	"github.com/muesli/reflow/wordwrap"
 )
@@ -285,5 +287,42 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func NewModel(steps []Step, configuration bool) *Model {
 	m := Model{Steps: steps, Configuration: configuration, ActiveInput: steps[0].StepInput}
+	return &m
+}
+
+//- debug
+
+func NewDebugModel(steps []Step, usersTemplate, typesTemplate bool, length int) *Model {
+	m := Model{Steps: steps, Configuration: false, ActiveInput: steps[len(steps)-1].StepInput}
+	m.Index = len(m.Steps) - 1
+	m.Finished = true
+
+	if typesTemplate {
+		m.Steps[0].Answer.text = ""
+		m.Steps[1].Answer.fields = []Field{
+			{name: "a", fieldType: "string"},
+			{name: "b", fieldType: "number"},
+			{name: "c", fieldType: "bool"},
+			{name: "d", fieldType: "date", variant: v.Timestamp},
+			{name: "d", fieldType: "img", variant: v.HorizontalImg},
+			{name: "e", fieldType: "strset", options: []string{"a", "b"}},
+		}
+		m.Steps[2].Answer.text = ""
+		m.Steps[3].Answer.text = fmt.Sprint(length)
+	}
+
+	if usersTemplate {
+		m.Steps[0].Answer.text = "users"
+		m.Steps[1].Answer.fields = []Field{
+			{name: "name", fieldType: "string"},
+			{name: "surname", fieldType: "string"},
+			{name: "age", fieldType: "number", options: []string{"18", "100"}},
+			{name: "email", fieldType: "string"},
+			{name: "isAdmin", fieldType: "bool"},
+		}
+		m.Steps[2].Answer.text = "User"
+		m.Steps[3].Answer.text = fmt.Sprint(length)
+	}
+
 	return &m
 }
