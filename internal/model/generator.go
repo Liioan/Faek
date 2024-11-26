@@ -1,9 +1,30 @@
 package model
 
-import "github.com/liioan/faek/internal/utils"
+import (
+	"errors"
+	"strconv"
 
-func generateOutput(m Model) {
+	c "github.com/liioan/faek/internal/configuration"
+	e "github.com/liioan/faek/internal/errors"
+)
+
+type OutputModel struct {
+	AryName    string
+	Fields     []Field
+	CustomType string
+	Len        int
+
+	Settings c.Settings
+}
+
+func generateOutput(m *Model) string {
 	output := ""
+
+	outputData, err := NewOutputModel(m)
+	if err != nil {
+		return err.Error()
+	}
+
 	test := m.Steps
 	for _, step := range test {
 		output += "\n"
@@ -30,5 +51,33 @@ func generateOutput(m Model) {
 		output += step.Answer.text + "\n"
 	}
 
-	utils.LogToDebug(output)
+	return output
+}
+
+func NewOutputModel(m *Model) (*OutputModel, error) {
+	o := OutputModel{}
+
+	//. get data from user interview
+	o.AryName = m.Steps[0].Answer.text
+	o.Fields = m.Steps[1].Answer.fields
+	o.CustomType = m.Steps[2].Answer.text
+	l, err := strconv.Atoi(m.Steps[3].Answer.text)
+	if err != nil {
+		l = 5
+	}
+	o.Len = l
+
+	if o.AryName == "" {
+		o.AryName = "arr"
+	}
+
+	//. settings
+	settings, err := c.GetUserSettings()
+	if err != nil {
+		return nil, errors.New(e.SettingsUnavailable)
+	}
+
+	o.Settings = settings
+
+	return &o, nil
 }

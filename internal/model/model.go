@@ -167,7 +167,7 @@ func (m Model) View() string {
 			output += table.Render()
 			output += styles.OutputStyle.Render("You can always change your settings by running ") + styles.HighlightStyle.Render("`>faek -c``")
 		} else {
-			generateOutput(m)
+			output += generateOutput(&m)
 		}
 
 		output += styles.QuitStyle.Render("\n\npress q or ctrl+c to exit")
@@ -187,6 +187,7 @@ func (m Model) View() string {
 }
 
 func parseInput(m *Model, current *Step, userInput string) {
+	userInput = strings.Trim(userInput, " ")
 
 	if userInput == "Custom" {
 		m.ActiveInput = activeInput{input: newTextInputField("custom dimension e.g. 200x300"), mode: CustomInput}
