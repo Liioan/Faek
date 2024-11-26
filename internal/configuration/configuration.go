@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	e "github.com/liioan/faek/internal/errors"
-	o "github.com/liioan/faek/internal/options"
 	"github.com/liioan/faek/internal/utils"
+	v "github.com/liioan/faek/internal/variants"
 )
 
 const settingsFilePath = "/faek_settings.json"
@@ -43,15 +43,15 @@ func SaveUserSettings(settings *Settings) error {
 	}
 
 	if settings.OutputStyle == "" {
-		settings.OutputStyle = string(o.Terminal)
+		settings.OutputStyle = string(v.Terminal)
 	}
 
 	if settings.Language == "" {
-		settings.Language = string(o.TypeScript)
+		settings.Language = string(v.TypeScript)
 	}
 
 	settings.FileName = strings.Split(settings.FileName, ".")[0]
-	if settings.Language == string(o.TypeScript) {
+	if settings.Language == string(v.TypeScript) {
 		settings.FileName += ".ts"
 	} else {
 		settings.FileName += ".js"

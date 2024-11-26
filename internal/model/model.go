@@ -7,8 +7,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/liioan/faek/internal/configuration"
-	o "github.com/liioan/faek/internal/options"
 	"github.com/liioan/faek/internal/styles"
+	v "github.com/liioan/faek/internal/variants"
 	"github.com/muesli/reflow/wordwrap"
 )
 
@@ -60,7 +60,8 @@ type activeInput struct {
 type Field struct {
 	name      string
 	fieldType string
-	option    o.Option
+	variant   v.Variant
+	options   []string
 }
 
 type Step struct {
@@ -70,13 +71,13 @@ type Step struct {
 		text   string
 		fields []Field
 	}
-	OptionSet o.OptionSet
+	OptionSet v.VariantSet
 	Repeats   bool
 }
 
-func NewListStep(title, instruction string, repeats bool, optionSet o.OptionSet) *Step {
+func NewListStep(title, instruction string, repeats bool, optionSet v.VariantSet) *Step {
 	i := activeInput{
-		input: newOptionsInput(optionSet, instruction),
+		input: newVariantsInput(optionSet, instruction),
 		mode:  ListInput,
 	}
 
@@ -183,7 +184,8 @@ func (m Model) View() string {
 	)
 }
 
-func checkAnswer(m *Model, current *Step, userInput string) {
+func parseInput(m *Model, current *Step, userInput string) {
+
 	if userInput == "Custom" {
 		m.ActiveInput = activeInput{input: newTextInputField("custom dimension e.g. 200x300"), mode: CustomInput}
 		return
@@ -191,7 +193,7 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 
 	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
 		if m.Configuration {
-			current.Answer.text = string(getOptionsValue(current.OptionSet, userInput))
+			current.Answer.text = string(getVariantsValue(current.OptionSet, userInput))
 			m.Next()
 			return
 		} else {
@@ -199,12 +201,13 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 			currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
 
 			if m.ActiveInput.mode == CustomInput {
-				currentField.option = o.Option(userInput)
+				currentField.variant = v.Variant(userInput)
 			} else {
-				currentField.option = getOptionsValue(o.OptionSet(currentField.fieldType), userInput)
+				currentField.variant = getVariantsValue(v.VariantSet(currentField.fieldType), userInput)
 			}
 			m.ActiveInput = m.Steps[m.Index].StepInput
 		}
+		return
 	}
 
 	if current.Repeats {
@@ -216,27 +219,34 @@ func checkAnswer(m *Model, current *Step, userInput string) {
 				return
 			}
 		} else {
-			values := strings.Fields(strings.ToLower(userInput))
-			if len(values) == 1 {
+			stringFields := strings.Fields(strings.ToLower(userInput))
+			l := len(stringFields)
+			if l == 1 {
 				return
 			}
-			if len(values) == 2 {
+			if l >= 2 {
 				for key, value := range typeConversion {
-					if values[1] == key {
-						values[1] = value
+					if stringFields[1] == key {
+						stringFields[1] = value
 					}
 				}
-				if ValidTypesArray.contains(values[1]) {
-					current.Answer.fields = append(current.Answer.fields, Field{name: values[0], fieldType: values[1]})
+				if ValidTypesArray.contains(stringFields[1]) {
+					current.Answer.fields = append(current.Answer.fields, Field{name: stringFields[0], fieldType: stringFields[1]})
 				}
 
-				for k, v := range typesWithOptions {
-					if k == values[1] {
-						optionsInput := newOptionsInput(o.OptionSet(k), v)
+				for key, value := range typesWithOptions {
+					if key == stringFields[1] {
+						optionsInput := newVariantsInput(v.VariantSet(key), value)
 						m.ActiveInput.input = optionsInput
 						m.ActiveInput.mode = ListInput
 						return
 					}
+				}
+
+				if l > 2 {
+					fieldsLen := len(m.Steps[m.Index].Answer.fields)
+					currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
+					currentField.options = append(currentField.options, stringFields[2:]...)
 				}
 			}
 			return
@@ -264,7 +274,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		case "enter":
-			checkAnswer(&m, current, m.ActiveInput.input.Value())
+			parseInput(&m, current, m.ActiveInput.input.Value())
 			m.ActiveInput.input.setValue("")
 			return m, nil
 		}

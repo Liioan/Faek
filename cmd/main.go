@@ -9,8 +9,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/model"
-	o "github.com/liioan/faek/internal/options"
 	"github.com/liioan/faek/internal/utils"
+	v "github.com/liioan/faek/internal/variants"
 )
 
 func main() {
@@ -43,8 +43,8 @@ func main() {
 
 	if configMode {
 		steps = []model.Step{
-			*model.NewListStep("Choose your default output style", "Output options:", false, o.OutputSet),
-			*model.NewListStep("Choose your preferred language (default: TypeScript)", "Language options:", false, o.LanguageSet),
+			*model.NewListStep("Choose your default output style", "Output options:", false, v.OutputSet),
+			*model.NewListStep("Choose your preferred language (default: TypeScript)", "Language options:", false, v.LanguageSet),
 			*model.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
 		}
 

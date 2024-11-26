@@ -11,8 +11,14 @@ func generateOutput(m Model) {
 			output += "fields: \n"
 			for _, field := range step.Answer.fields {
 				output += field.name + " " + field.fieldType
-				if len(field.option) > 0 {
-					output += " " + string(field.option)
+				if len(field.variant) > 0 {
+					output += " " + string(field.variant)
+				}
+
+				if len(field.options) > 0 {
+					for _, option := range field.options {
+						output += " " + option
+					}
 				}
 
 				output += "\n"
