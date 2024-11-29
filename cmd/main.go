@@ -20,13 +20,11 @@ func main() {
 	flag.BoolVar(&configMode, "c", false, "enter configuration mode")
 
 	var debugMode bool
-	var userTemplate bool
-	var typesTemplate bool
+	var template string
 	var length int
 
 	flag.BoolVar(&debugMode, "d", false, "enter debug mode")
-	flag.BoolVar(&userTemplate, "user", false, "create user template")
-	flag.BoolVar(&typesTemplate, "types", true, "create types template")
+	flag.StringVar(&template, "template", "types", "create types template")
 	flag.IntVar(&length, "lenght", 5, "add length")
 	flag.Parse()
 
@@ -66,7 +64,7 @@ func main() {
 	model := m.NewModel(steps, configMode)
 
 	if debugMode {
-		model = m.NewDebugModel(steps, userTemplate, typesTemplate, length)
+		model = m.NewDebugModel(steps, template, length)
 	}
 
 	file, err := tea.LogToFile("debug.log", "debug")

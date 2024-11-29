@@ -293,12 +293,12 @@ func NewModel(steps []Step, configuration bool) *Model {
 
 //- debug
 
-func NewDebugModel(steps []Step, usersTemplate, typesTemplate bool, length int) *Model {
+func NewDebugModel(steps []Step, template string, length int) *Model {
 	m := Model{Steps: steps, Configuration: false, ActiveInput: steps[len(steps)-1].StepInput}
 	m.Index = len(m.Steps) - 1
 	m.Finished = true
 
-	if typesTemplate {
+	if template == "types" {
 		m.Steps[0].Answer.text = ""
 		m.Steps[1].Answer.fields = []Field{
 			{name: "a", fieldType: "string"},
@@ -312,7 +312,7 @@ func NewDebugModel(steps []Step, usersTemplate, typesTemplate bool, length int) 
 		m.Steps[3].Answer.text = fmt.Sprint(length)
 	}
 
-	if usersTemplate {
+	if template == "user" {
 		m.Steps[0].Answer.text = "users"
 		m.Steps[1].Answer.fields = []Field{
 			{name: "name", fieldType: "string"},

@@ -20,10 +20,10 @@ type OutputModel struct {
 func generateOutput(m *Model) string {
 	output := ""
 
-	outputData, err := NewOutputModel(m)
-	if err != nil {
-		return err.Error()
-	}
+	// outputData, err := NewOutputModel(m)
+	// if err != nil {
+	// 	return err.Error()
+	// }
 
 	test := m.Steps
 	for _, step := range test {
