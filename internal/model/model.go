@@ -298,7 +298,8 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 	m.Index = len(m.Steps) - 1
 	m.Finished = true
 
-	if template == "types" {
+	switch template {
+	case "types":
 		m.Steps[0].Answer.text = ""
 		m.Steps[1].Answer.fields = []Field{
 			{name: "a", fieldType: "string"},
@@ -310,9 +311,7 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		}
 		m.Steps[2].Answer.text = ""
 		m.Steps[3].Answer.text = fmt.Sprint(length)
-	}
-
-	if template == "user" {
+	case "user":
 		m.Steps[0].Answer.text = "users"
 		m.Steps[1].Answer.fields = []Field{
 			{name: "name", fieldType: "string"},
@@ -323,7 +322,46 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		}
 		m.Steps[2].Answer.text = "User"
 		m.Steps[3].Answer.text = fmt.Sprint(length)
-	}
 
+	case "smallNoType":
+		m.Steps[0].Answer.text = ""
+		m.Steps[1].Answer.fields = []Field{
+			{name: "a", fieldType: "string"},
+			{name: "b", fieldType: "number"},
+			{name: "c", fieldType: "boolean"},
+		}
+		m.Steps[2].Answer.text = ""
+		m.Steps[3].Answer.text = fmt.Sprint(length)
+	case "smallType":
+		m.Steps[0].Answer.text = ""
+		m.Steps[1].Answer.fields = []Field{
+			{name: "a", fieldType: "string"},
+			{name: "b", fieldType: "number"},
+			{name: "c", fieldType: "boolean"},
+		}
+		m.Steps[2].Answer.text = "Test"
+		m.Steps[3].Answer.text = fmt.Sprint(length)
+	case "bigNoType":
+		m.Steps[0].Answer.text = ""
+		m.Steps[1].Answer.fields = []Field{
+			{name: "a", fieldType: "string"},
+			{name: "b", fieldType: "number"},
+			{name: "c", fieldType: "boolean"},
+			{name: "d", fieldType: "img"},
+		}
+		m.Steps[2].Answer.text = ""
+		m.Steps[3].Answer.text = fmt.Sprint(length)
+	case "bigType":
+		m.Steps[0].Answer.text = ""
+		m.Steps[1].Answer.fields = []Field{
+			{name: "a", fieldType: "string"},
+			{name: "b", fieldType: "number"},
+			{name: "c", fieldType: "boolean"},
+			{name: "d", fieldType: "img"},
+		}
+		m.Steps[2].Answer.text = "Test"
+		m.Steps[3].Answer.text = fmt.Sprint(length)
+
+	}
 	return &m
 }

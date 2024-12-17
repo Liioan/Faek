@@ -37,8 +37,40 @@ func generateOutput(m *Model) string {
 	utils.LogToDebug(PrintInterview(outputModel))
 
 	res += handleType(outputModel)
-
+	res += " = [\n"
+	for range outputModel.Len {
+		res += handleObject(outputModel)
+	}
 	res += "];"
+
+	return res
+}
+
+func handleObject(o *OutputModel) string {
+	res := ""
+
+	l := len(o.Fields)
+	res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
+	switch {
+	case l == 1:
+	case l <= 3:
+		res += " "
+		for i, field := range o.Fields {
+			coma := ","
+			if i == l-1 {
+				coma = ""
+			}
+			res += fmt.Sprintf("%s: test%s ", field.name, coma)
+		}
+		res += "},\n"
+	case l >= 4:
+		res += "\n"
+		for _, field := range o.Fields {
+			res += fmt.Sprintf("%s%s: test,\n", getIndent(&o.Settings, 2), field.name)
+		}
+
+		res += fmt.Sprintf("%s},\n", getIndent(&o.Settings, 1))
+	}
 	return res
 }
 
@@ -48,32 +80,52 @@ func handleType(o *OutputModel) string {
 
 	switch v.Variant(lang) {
 	case v.JavaScript:
-		res += fmt.Sprintf("const %s = [", o.AryName)
+		res += fmt.Sprintf("const %s", o.AryName)
 	case v.TypeScript:
 		l := len(o.Fields)
 		switch {
 		case l == 1:
 			t := getUnderlyingType(o.Fields[0].fieldType, o.Fields[0].variant)
 			if o.CustomType != "" {
-				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[] = [\n", o.CustomType, t, o.AryName, o.CustomType)
+				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("const %s: %s[] = [\n", o.AryName, t)
+				res += fmt.Sprintf("const %s: %s[]\n", o.AryName, t)
 			}
-		case l >= 2:
+		case l > 1 && l <= 3:
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
 					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s%s: %s\n", getIndent(o, 1), field.name, t)
+					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.name, t)
 				}
-				res += fmt.Sprintf("}\n\nconst %s: %s[] = [\n", o.AryName, o.CustomType)
+				res += fmt.Sprintf("}\n\nconst %s: %s[]", o.AryName, o.CustomType)
+			} else {
+				res += fmt.Sprintf("const %s: { ", o.AryName)
+				for i, field := range o.Fields {
+					coma := ","
+					if i == l-1 {
+						coma = ""
+					}
+					t := getUnderlyingType(field.fieldType, field.variant)
+					res += fmt.Sprintf("%s: %s%s ", field.name, t, coma)
+				}
+				res += "}[]"
+			}
+		case l >= 4:
+			if o.CustomType != "" {
+				res += fmt.Sprintf("type %s = {\n", o.CustomType)
+				for _, field := range o.Fields {
+					t := getUnderlyingType(field.fieldType, field.variant)
+					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.name, t)
+				}
+				res += fmt.Sprintf("}\n\nconst %s: %s[]", o.AryName, o.CustomType)
 			} else {
 				res += fmt.Sprintf("const %s: {\n", o.AryName)
 				for _, field := range o.Fields {
 					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s%s: %s;\n", getIndent(o, 1), field.name, t)
+					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
 				}
-				res += "} = ["
+				res += "}"
 			}
 		}
 	}
@@ -95,8 +147,8 @@ func getUnderlyingType(fieldType string, variant v.Variant) string {
 	return fieldType
 }
 
-func getIndent(o *OutputModel, level int) string {
-	indent, err := strconv.Atoi(o.Settings.Indent)
+func getIndent(s *c.Settings, level int) string {
+	indent, err := strconv.Atoi(s.Indent)
 	if err != nil {
 		indent = 2
 	}
