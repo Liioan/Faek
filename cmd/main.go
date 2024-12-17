@@ -34,7 +34,7 @@ func main() {
 			fmt.Println("Fatal: ", err)
 			os.Exit(1)
 		}
-		fmt.Println(settings)
+		fmt.Printf("%v\n\n", settings)
 	}
 
 	_, err := configuration.GetUserSettings()
@@ -50,6 +50,7 @@ func main() {
 			*m.NewListStep("Choose your default output style", "Output options:", false, v.OutputSet),
 			*m.NewListStep("Choose your preferred language (default: TypeScript)", "Language options:", false, v.LanguageSet),
 			*m.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
+			*m.NewTextStep("Choose indent size (default: 2)", "e.g. 4", false),
 		}
 
 	} else {

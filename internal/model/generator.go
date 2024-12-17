@@ -12,6 +12,12 @@ import (
 	v "github.com/liioan/faek/internal/variants"
 )
 
+var underlyingTypes = map[string]string{
+	"strSet": "string",
+	"img":    "string",
+	"date":   "string",
+}
+
 type OutputModel struct {
 	AryName    string
 	Fields     []Field
@@ -37,7 +43,6 @@ func generateOutput(m *Model) string {
 }
 
 func handleType(o *OutputModel) string {
-	// https://excalidraw.com/#json=W7TYYmjH3zP67GIeOQnTl,QFsPbGhJNR9xBtnLQKgBPg
 	lang := o.Settings.Language
 	res := ""
 
@@ -45,18 +50,64 @@ func handleType(o *OutputModel) string {
 	case v.JavaScript:
 		res += fmt.Sprintf("const %s = [", o.AryName)
 	case v.TypeScript:
-		switch len(o.Fields) {
-		case 1:
-			t := o.Fields[0].fieldType
+		l := len(o.Fields)
+		switch {
+		case l == 1:
+			t := getUnderlyingType(o.Fields[0].fieldType, o.Fields[0].variant)
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[] = [\n", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
 				res += fmt.Sprintf("const %s: %s[] = [\n", o.AryName, t)
 			}
+		case l >= 2:
+			if o.CustomType != "" {
+				res += fmt.Sprintf("type %s = {\n", o.CustomType)
+				for _, field := range o.Fields {
+					t := getUnderlyingType(field.fieldType, field.variant)
+					res += fmt.Sprintf("%s%s: %s\n", getIndent(o, 1), field.name, t)
+				}
+				res += fmt.Sprintf("}\n\nconst %s: %s[] = [\n", o.AryName, o.CustomType)
+			} else {
+				res += fmt.Sprintf("const %s: {\n", o.AryName)
+				for _, field := range o.Fields {
+					t := getUnderlyingType(field.fieldType, field.variant)
+					res += fmt.Sprintf("%s%s: %s;\n", getIndent(o, 1), field.name, t)
+				}
+				res += "} = ["
+			}
 		}
 	}
 
 	return res
+}
+
+func getUnderlyingType(fieldType string, variant v.Variant) string {
+	if fieldType == "date" && variant == v.DateObject {
+		return "Date"
+	}
+
+	for k, v := range underlyingTypes {
+		if k == fieldType {
+			return v
+		}
+	}
+
+	return fieldType
+}
+
+func getIndent(o *OutputModel, level int) string {
+	indent, err := strconv.Atoi(o.Settings.Indent)
+	if err != nil {
+		indent = 2
+	}
+	length := indent * level
+	str := ""
+	for {
+		str = " " + str
+		if len(str) > length {
+			return str[0:length]
+		}
+	}
 }
 
 func NewOutputModel(m *Model) (*OutputModel, error) {

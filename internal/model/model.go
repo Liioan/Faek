@@ -39,8 +39,7 @@ var typeConversion = map[string]string{
 	"stringSet": "strSet",
 	"ss":        "strSet",
 	"strs":      "strSet",
-
-	"strset": "strSet",
+	"strset":    "strSet",
 }
 
 var typesWithOptions = map[string]string{
@@ -135,6 +134,7 @@ func (m Model) View() string {
 				OutputStyle: m.Steps[0].Answer.text,
 				Language:    m.Steps[1].Answer.text,
 				FileName:    strings.Trim(m.Steps[2].Answer.text, " "),
+				Indent:      m.Steps[3].Answer.text,
 			}
 
 			configuration.SaveUserSettings(&settings)
@@ -146,6 +146,7 @@ func (m Model) View() string {
 				{"Output style", settings.OutputStyle},
 				{"Language", settings.Language},
 				{"File name", settings.FileName},
+				{"Indent", settings.Indent},
 			}
 
 			table := table.New().
@@ -302,10 +303,10 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		m.Steps[1].Answer.fields = []Field{
 			{name: "a", fieldType: "string"},
 			{name: "b", fieldType: "number"},
-			{name: "c", fieldType: "bool"},
+			{name: "c", fieldType: "boolean"},
 			{name: "d", fieldType: "date", variant: v.Timestamp},
-			{name: "d", fieldType: "img", variant: v.HorizontalImg},
-			{name: "e", fieldType: "strset", options: []string{"a", "b"}},
+			{name: "e", fieldType: "img", variant: v.HorizontalImg},
+			{name: "f", fieldType: "strSet", options: []string{"a", "b"}},
 		}
 		m.Steps[2].Answer.text = ""
 		m.Steps[3].Answer.text = fmt.Sprint(length)

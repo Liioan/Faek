@@ -18,6 +18,7 @@ type Settings struct {
 	OutputStyle string `json:"outputStyle"`
 	FileName    string `json:"fileName"`
 	Language    string `json:"lang"`
+	Indent      string `json:"indent"`
 }
 
 func getConfigDirectory() (string, error) {
@@ -48,6 +49,10 @@ func SaveUserSettings(settings *Settings) error {
 
 	if settings.Language == "" {
 		settings.Language = string(v.TypeScript)
+	}
+
+	if settings.Indent == "" {
+		settings.Indent = "2"
 	}
 
 	settings.FileName = strings.Split(settings.FileName, ".")[0]
