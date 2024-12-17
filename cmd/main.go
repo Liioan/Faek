@@ -25,7 +25,7 @@ func main() {
 
 	flag.BoolVar(&debugMode, "d", false, "enter debug mode")
 	flag.StringVar(&template, "template", "types", "create types template")
-	flag.IntVar(&length, "lenght", 5, "add length")
+	flag.IntVar(&length, "length", 5, "add length")
 	flag.Parse()
 
 	if debugMode {

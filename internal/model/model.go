@@ -291,8 +291,7 @@ func NewModel(steps []Step, configuration bool) *Model {
 	return &m
 }
 
-//- debug
-
+// - debug
 func NewDebugModel(steps []Step, template string, length int) *Model {
 	m := Model{Steps: steps, Configuration: false, ActiveInput: steps[len(steps)-1].StepInput}
 	m.Index = len(m.Steps) - 1
