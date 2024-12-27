@@ -139,26 +139,21 @@ func insertValue(f Field) string {
 		MONTH_IN_DAYS := 31
 		TEN_YEARS := 10
 
-		multiplier := 1
-		if utils.Random(0, 100) >= 50 {
-			multiplier = -1
-		}
-
 		switch f.variant {
 		case v.DateTime:
-			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, multiplier*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		case v.Timestamp:
-			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, multiplier*rand.Intn(YEAR_IN_DAYS+1)).Unix())
+			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Unix()*1000) // unix time to js timestamp
 		case v.Day:
-			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, multiplier*rand.Intn(MONTH_IN_DAYS+1)).Day())
+			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(MONTH_IN_DAYS+1)).Day())
 		case v.Month:
-			res = fmt.Sprintf("%d", time.Now().AddDate(0, multiplier*rand.Intn(YEAR_IN_MONTHS+1), 0).Month())
+			res = fmt.Sprintf("%d", time.Now().AddDate(0, -1*rand.Intn(YEAR_IN_MONTHS+1), 0).Month())
 		case v.Year:
-			res = fmt.Sprintf("%d", time.Now().AddDate(multiplier*rand.Intn(TEN_YEARS+1), 0, 0).Year())
+			res = fmt.Sprintf("%d", time.Now().AddDate(-1*rand.Intn(TEN_YEARS+1), 0, 0).Year())
 		case v.DateObject:
 			res = "new Date()"
 		default:
-			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, multiplier*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		}
 	}
 

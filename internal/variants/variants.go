@@ -49,7 +49,7 @@ var DateVariants = []VariantData{
 	{Timestamp, "timestamp: e.g. 1718051654"},
 	{Day, "day: 1-31"},
 	{Month, "month: 1-12"},
-	{Year, "year: current year (+-10)"},
+	{Year, "year: current year (-10)"},
 	{DateObject, "object: new Date()"},
 }
 
