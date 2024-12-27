@@ -334,61 +334,20 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		}
 		m.Steps[2].Answer.text = "User"
 		m.Steps[3].Answer.text = fmt.Sprint(length)
-
-	case "smallNoType":
-		m.Steps[0].Answer.text = ""
+	case "date":
+		m.Steps[0].Answer.text = "dates"
 		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-			{name: "b", fieldType: "number"},
-			{name: "c", fieldType: "boolean"},
+			{name: "dateTime", fieldType: "date", variant: v.DateTime},
+			{name: "timestamp", fieldType: "date", variant: v.Timestamp},
+			{name: "day", fieldType: "date", variant: v.Day},
+			{name: "month", fieldType: "date", variant: v.Month},
+			{name: "year", fieldType: "date", variant: v.Year},
+			{name: "obj", fieldType: "date", variant: v.DateObject},
 		}
-		m.Steps[2].Answer.text = ""
-		m.Steps[3].Answer.text = fmt.Sprint(length)
-	case "smallType":
-		m.Steps[0].Answer.text = ""
-		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-			{name: "b", fieldType: "number"},
-			{name: "c", fieldType: "boolean"},
-		}
-		m.Steps[2].Answer.text = "Test"
-		m.Steps[3].Answer.text = fmt.Sprint(length)
-	case "bigNoType":
-		m.Steps[0].Answer.text = ""
-		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-			{name: "b", fieldType: "number"},
-			{name: "c", fieldType: "boolean"},
-			{name: "d", fieldType: "img"},
-		}
-		m.Steps[2].Answer.text = ""
-		m.Steps[3].Answer.text = fmt.Sprint(length)
-	case "bigType":
-		m.Steps[0].Answer.text = ""
-		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-			{name: "b", fieldType: "number"},
-			{name: "c", fieldType: "boolean"},
-			{name: "d", fieldType: "img"},
-		}
-		m.Steps[2].Answer.text = "Test"
+		m.Steps[2].Answer.text = "Dates"
 		m.Steps[3].Answer.text = fmt.Sprint(length)
 
-	case "inlineType":
-		m.Steps[0].Answer.text = ""
-		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-		}
-		m.Steps[2].Answer.text = "Test"
-		m.Steps[3].Answer.text = fmt.Sprint(length)
-
-	case "inlineNoType":
-		m.Steps[0].Answer.text = ""
-		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-		}
-		m.Steps[2].Answer.text = ""
-		m.Steps[3].Answer.text = fmt.Sprint(length)
+	case "img":
 	}
 	return &m
 }

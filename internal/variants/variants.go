@@ -47,9 +47,9 @@ const (
 var DateVariants = []VariantData{
 	{DateTime, "dateTime: e.g. 27.02.2024"},
 	{Timestamp, "timestamp: e.g. 1718051654"},
-	{Day, "day: 0-31"},
-	{Month, "month: 0-12"},
-	{Year, "year: current year"},
+	{Day, "day: 1-31"},
+	{Month, "month: 1-12"},
+	{Year, "year: current year (+-10)"},
 	{DateObject, "object: new Date()"},
 }
 

@@ -3,8 +3,10 @@ package model
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	c "github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/data"
@@ -16,7 +18,16 @@ import (
 var underlyingTypes = map[string]string{
 	"strSet": "string",
 	"img":    "string",
-	"date":   "string",
+}
+
+var underlyingDateTypes = map[v.Variant]string{
+	"dateTime":  "string",
+	"timestamp": "number",
+	"day":       "number",
+	"month":     "number",
+	"year":      "number",
+	"date":      "number",
+	"object":    "Date",
 }
 
 var predefinedValues = map[string][]string{
@@ -112,8 +123,7 @@ func insertValue(f Field) string {
 		}
 		res = fmt.Sprint(utils.Random(min, max))
 	case "boolean":
-		n := utils.Random(0, 100)
-		if n >= 50 {
+		if utils.Random(0, 100) >= 50 {
 			res = "true"
 		} else {
 			res = "false"
@@ -123,6 +133,33 @@ func insertValue(f Field) string {
 		width := dimensions[0]
 		height := dimensions[1]
 		res = fmt.Sprintf("\"https://unsplash.it/%s/%s\"", width, height)
+	case "date":
+		YEAR_IN_DAYS := 365
+		YEAR_IN_MONTHS := 12
+		MONTH_IN_DAYS := 31
+		TEN_YEARS := 10
+
+		multiplier := 1
+		if utils.Random(0, 100) >= 50 {
+			multiplier = -1
+		}
+
+		switch f.variant {
+		case v.DateTime:
+			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, multiplier*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+		case v.Timestamp:
+			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, multiplier*rand.Intn(YEAR_IN_DAYS+1)).Unix())
+		case v.Day:
+			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, multiplier*rand.Intn(MONTH_IN_DAYS+1)).Day())
+		case v.Month:
+			res = fmt.Sprintf("%d", time.Now().AddDate(0, multiplier*rand.Intn(YEAR_IN_MONTHS+1), 0).Month())
+		case v.Year:
+			res = fmt.Sprintf("%d", time.Now().AddDate(multiplier*rand.Intn(TEN_YEARS+1), 0, 0).Year())
+		case v.DateObject:
+			res = "new Date()"
+		default:
+			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, multiplier*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+		}
 	}
 
 	return res
@@ -188,8 +225,12 @@ func handleType(o *OutputModel) string {
 }
 
 func getUnderlyingType(fieldType string, variant v.Variant) string {
-	if fieldType == "date" && variant == v.DateObject {
-		return "Date"
+	if fieldType == "date" {
+		for k, v := range underlyingDateTypes {
+			if k == variant {
+				return v
+			}
+		}
 	}
 
 	for k, v := range underlyingTypes {
