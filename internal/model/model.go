@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -205,6 +206,17 @@ func parseInput(m *Model, current *Step, userInput string) {
 			currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
 
 			if m.ActiveInput.mode == CustomInput {
+				dimensions := strings.Split(userInput, "x")
+				if len(dimensions) < 2 {
+					return
+				}
+				_, err := strconv.Atoi(dimensions[0])
+				_, err = strconv.Atoi(dimensions[1])
+
+				if err != nil {
+					return
+				}
+
 				currentField.variant = v.Variant(userInput)
 			} else {
 				currentField.variant = getVariantsValue(v.VariantSet(currentField.fieldType), userInput)
