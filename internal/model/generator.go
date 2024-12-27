@@ -94,7 +94,7 @@ func insertValue(f Field) string {
 			res = values[utils.Random(0, len(values)-1)]
 			break
 		}
-		length := 39 //lorem(39) -> Lorem ipsum, dolor sit amet consectetur
+		length := 39 // lorem(39) -> Lorem ipsum, dolor sit amet consectetur
 		if len(f.options) > 0 {
 			length = utils.ParseInt(f.options[0], length)
 		}
@@ -118,6 +118,11 @@ func insertValue(f Field) string {
 		} else {
 			res = "false"
 		}
+	case "img":
+		dimensions := strings.Split(string(f.variant), "x")
+		width := dimensions[0]
+		height := dimensions[1]
+		res = fmt.Sprintf("\"https://unsplash.it/%s/%s\"", width, height)
 	}
 
 	return res

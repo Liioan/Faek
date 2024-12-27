@@ -303,7 +303,7 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		m.Steps[0].Answer.text = ""
 		m.Steps[1].Answer.fields = []Field{
 			{name: "a", fieldType: "string"},
-			{name: "b", fieldType: "number"},
+			{name: "b", fieldType: "number", options: []string{"10000"}},
 			{name: "c", fieldType: "boolean"},
 			{name: "d", fieldType: "date", variant: v.Timestamp},
 			{name: "e", fieldType: "img", variant: v.HorizontalImg},
