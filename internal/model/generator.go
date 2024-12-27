@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	c "github.com/liioan/faek/internal/configuration"
+	"github.com/liioan/faek/internal/data"
 	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
@@ -16,6 +17,13 @@ var underlyingTypes = map[string]string{
 	"strSet": "string",
 	"img":    "string",
 	"date":   "string",
+}
+
+var predefinedValues = map[string][]string{
+	"name":    data.Names,
+	"surname": data.Surnames,
+	"email":   data.Emails,
+	"title":   data.Titles,
 }
 
 type OutputModel struct {
@@ -50,27 +58,68 @@ func handleObject(o *OutputModel) string {
 	res := ""
 
 	l := len(o.Fields)
-	res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 	switch {
 	case l == 1:
-	case l <= 3:
+		res += fmt.Sprintf("%s%s,\n", getIndent(&o.Settings, 1), insertValue(o.Fields[0]))
+	case l > 1 && l <= 3:
+		res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 		res += " "
 		for i, field := range o.Fields {
 			coma := ","
 			if i == l-1 {
 				coma = ""
 			}
-			res += fmt.Sprintf("%s: test%s ", field.name, coma)
+			res += fmt.Sprintf("%s: %s%s ", field.name, insertValue(field), coma)
 		}
 		res += "},\n"
 	case l >= 4:
+		res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 		res += "\n"
 		for _, field := range o.Fields {
-			res += fmt.Sprintf("%s%s: test,\n", getIndent(&o.Settings, 2), field.name)
+			res += fmt.Sprintf("%s%s: %s,\n", getIndent(&o.Settings, 2), field.name, insertValue(field))
 		}
 
 		res += fmt.Sprintf("%s},\n", getIndent(&o.Settings, 1))
 	}
+	return res
+}
+
+func insertValue(f Field) string {
+	res := ""
+
+	switch f.fieldType {
+	case "string":
+		if len(predefinedValues[f.name]) > 0 {
+			values := predefinedValues[f.name]
+			res = values[utils.Random(0, len(values)-1)]
+			break
+		}
+		length := 39 //lorem(39) -> Lorem ipsum, dolor sit amet consectetur
+		if len(f.options) > 0 {
+			length = utils.ParseInt(f.options[0], length)
+		}
+
+		res = fmt.Sprintf("\"%s\"", data.Content[0:length])
+
+	case "number":
+		min := 0
+		max := 100
+		if len(f.options) == 1 {
+			max = utils.ParseInt(f.options[0], max)
+		} else if len(f.options) >= 2 {
+			min = utils.ParseInt(f.options[0], min)
+			max = utils.ParseInt(f.options[1], max)
+		}
+		res = fmt.Sprint(utils.Random(min, max))
+	case "boolean":
+		n := utils.Random(0, 100)
+		if n >= 50 {
+			res = "true"
+		} else {
+			res = "false"
+		}
+	}
+
 	return res
 }
 
@@ -89,7 +138,7 @@ func handleType(o *OutputModel) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("const %s: %s[]\n", o.AryName, t)
+				res += fmt.Sprintf("const %s: %s[]", o.AryName, t)
 			}
 		case l > 1 && l <= 3:
 			if o.CustomType != "" {
