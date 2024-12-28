@@ -211,6 +211,10 @@ func parseInput(m *Model, current *Step, userInput string) {
 					return
 				}
 				_, err := strconv.Atoi(dimensions[0])
+				if err != nil {
+					return
+				}
+
 				_, err = strconv.Atoi(dimensions[1])
 
 				if err != nil {
@@ -252,8 +256,8 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 				for key, value := range typesWithOptions {
 					if key == stringFields[1] {
-						optionsInput := newVariantsInput(v.VariantSet(key), value)
-						m.ActiveInput.input = optionsInput
+						variantInput := newVariantsInput(v.VariantSet(key), value)
+						m.ActiveInput.input = variantInput
 						m.ActiveInput.mode = ListInput
 						return
 					}
@@ -314,12 +318,12 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 	default:
 		m.Steps[0].Answer.text = ""
 		m.Steps[1].Answer.fields = []Field{
-			{name: "a", fieldType: "string"},
-			{name: "b", fieldType: "number", options: []string{"10000"}},
-			{name: "c", fieldType: "boolean"},
-			{name: "d", fieldType: "date", variant: v.Timestamp},
-			{name: "e", fieldType: "img", variant: v.HorizontalImg},
-			{name: "f", fieldType: "strSet", options: []string{"a", "b"}},
+			{name: "str", fieldType: "string"},
+			{name: "int", fieldType: "number", options: []string{"10000"}},
+			{name: "bool", fieldType: "boolean"},
+			{name: "date", fieldType: "date", variant: v.Timestamp},
+			{name: "img", fieldType: "img", variant: v.HorizontalImg},
+			{name: "strSet", fieldType: "strSet", options: []string{"a", "b", "a_b"}},
 		}
 		m.Steps[2].Answer.text = ""
 		m.Steps[3].Answer.text = fmt.Sprint(length)
@@ -346,8 +350,16 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		}
 		m.Steps[2].Answer.text = "Dates"
 		m.Steps[3].Answer.text = fmt.Sprint(length)
-
 	case "img":
+		m.Steps[0].Answer.text = "images"
+		m.Steps[1].Answer.fields = []Field{
+			{name: "horizontal", fieldType: "img", variant: v.HorizontalImg},
+			{name: "profile", fieldType: "img", variant: v.ProfilePictureImg},
+			{name: "banner", fieldType: "img", variant: v.Banner},
+			{name: "custom", fieldType: "img", variant: v.Variant("5x5")},
+		}
+		m.Steps[2].Answer.text = "Images"
+		m.Steps[3].Answer.text = fmt.Sprint(length)
 	}
 	return &m
 }

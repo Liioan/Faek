@@ -138,7 +138,6 @@ func insertValue(f Field) string {
 		YEAR_IN_MONTHS := 12
 		MONTH_IN_DAYS := 31
 		TEN_YEARS := 10
-
 		switch f.variant {
 		case v.DateTime:
 			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
@@ -155,6 +154,10 @@ func insertValue(f Field) string {
 		default:
 			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		}
+	case "strSet":
+		randStr := f.options[utils.Random(0, len(f.options)-1)]
+		randStr = strings.Join(strings.Split(randStr, "_"), " ")
+		res = randStr
 	}
 
 	return res
