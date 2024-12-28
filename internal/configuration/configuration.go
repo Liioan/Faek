@@ -21,6 +21,13 @@ type Settings struct {
 	Indent      string `json:"indent"`
 }
 
+var defaultSettings = Settings{
+	OutputStyle: string(v.Terminal),
+	FileName:    "faekOutput.ts",
+	Language:    string(v.TypeScript),
+	Indent:      "2",
+}
+
 func getConfigDirectory() (string, error) {
 	dirname, err := os.UserHomeDir()
 	if err != nil {
@@ -36,23 +43,44 @@ func getConfigFilePath() (string, error) {
 	return dirname + settingsFilePath, nil
 }
 
+func GetUserSettings() (Settings, error) {
+	filePath, err := getConfigFilePath()
+	if err != nil {
+		return Settings{}, errors.New(e.FileDoesNotExists)
+	}
+	fileBytes, err := os.ReadFile(filePath)
+	if err != nil {
+		return Settings{}, errors.New(e.FileDoesNotExists)
+	}
+	s := Settings{}
+	err = json.Unmarshal(fileBytes, &s)
+
+	if err != nil {
+		return Settings{}, errors.New(e.CantUnmarshalJson)
+	}
+
+	return s, nil
+}
+
 func SaveUserSettings(settings *Settings) error {
 	utils.LogToDebug(settings.Language)
 
+	previousSettings, err := GetUserSettings()
+	if err != nil {
+		previousSettings = defaultSettings
+	}
+
 	if settings.FileName == "" {
-		settings.FileName = "faekOutput.ts"
+		settings.FileName = previousSettings.FileName
 	}
-
 	if settings.OutputStyle == "" {
-		settings.OutputStyle = string(v.Terminal)
+		settings.OutputStyle = previousSettings.OutputStyle
 	}
-
 	if settings.Language == "" {
-		settings.Language = string(v.TypeScript)
+		settings.Language = previousSettings.Language
 	}
-
 	if settings.Indent == "" {
-		settings.Indent = "2"
+		settings.Indent = previousSettings.Indent
 	}
 
 	settings.FileName = strings.Split(settings.FileName, ".")[0]
@@ -85,23 +113,4 @@ func SaveUserSettings(settings *Settings) error {
 		return errors.New(e.CanSaveToFile)
 	}
 	return nil
-}
-
-func GetUserSettings() (Settings, error) {
-	filePath, err := getConfigFilePath()
-	if err != nil {
-		return Settings{}, errors.New(e.FileDoesNotExists)
-	}
-	fileBytes, err := os.ReadFile(filePath)
-	if err != nil {
-		return Settings{}, errors.New(e.FileDoesNotExists)
-	}
-	s := Settings{}
-	err = json.Unmarshal(fileBytes, &s)
-
-	if err != nil {
-		return Settings{}, errors.New(e.CantUnmarshalJson)
-	}
-
-	return s, nil
 }
