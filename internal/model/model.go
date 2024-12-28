@@ -153,8 +153,8 @@ func (m Model) View() string {
 			}
 
 			table := table.New().
-				Border(lipgloss.NormalBorder()).
-				BorderStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("#fff"))).
+				Border(lipgloss.RoundedBorder()).
+				BorderStyle(lipgloss.NewStyle().Foreground(styles.White)).
 				StyleFunc(func(row, col int) lipgloss.Style {
 					switch {
 					case row == 0:

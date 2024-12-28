@@ -16,6 +16,9 @@ import (
 func main() {
 	utils.ClearConsole()
 
+	var helpMode bool
+	flag.BoolVar(&helpMode, "h", false, "display help")
+
 	var configMode bool
 	flag.BoolVar(&configMode, "c", false, "enter configuration mode")
 
@@ -28,23 +31,17 @@ func main() {
 	flag.IntVar(&length, "length", 5, "add length")
 	flag.Parse()
 
-	if debugMode {
-		settings, err := configuration.GetUserSettings()
-		if err != nil {
-			fmt.Println("Fatal: ", err)
-			os.Exit(1)
-		}
-		fmt.Printf("%v\n\n", settings)
+	if helpMode {
+		//help mode
 	}
 
+	// enter configuration mode if config is not found
 	_, err := configuration.GetUserSettings()
-
 	if err != nil {
 		configMode = true
 	}
 
 	var steps []m.Step
-
 	if configMode {
 		steps = []m.Step{
 			*m.NewListStep("Choose your default output style", "Output options:", false, v.OutputSet),
@@ -52,7 +49,6 @@ func main() {
 			*m.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
 			*m.NewTextStep("Choose indent size (default: 2)", "e.g. 4", false),
 		}
-
 	} else {
 		steps = []m.Step{
 			*m.NewTextStep("What will the array be called? (default: arr)", "e.g. users", false),
@@ -65,6 +61,12 @@ func main() {
 	model := m.NewModel(steps, configMode)
 
 	if debugMode {
+		settings, err := configuration.GetUserSettings()
+		if err != nil {
+			fmt.Println("Fatal: ", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%v\n\n", settings)
 		model = m.NewDebugModel(steps, template, length)
 	}
 
