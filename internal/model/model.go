@@ -98,14 +98,16 @@ func NewTextStep(instruction, placeholder string, repeats bool) *Step {
 }
 
 type Model struct {
-	Index         int
-	Width         int
-	Height        int
-	Finished      bool
-	Quitting      bool
+	Index       int
+	Width       int
+	Height      int
+	Finished    bool
+	Quitting    bool
+	ActiveInput activeInput
+	Steps       []Step
+
 	Configuration bool
-	ActiveInput   activeInput
-	Steps         []Step
+	Debug         bool
 }
 
 func (m Model) Init() tea.Cmd {
@@ -303,6 +305,7 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 	m := Model{Steps: steps, Configuration: false, ActiveInput: steps[len(steps)-1].StepInput}
 	m.Index = len(m.Steps) - 1
 	m.Finished = true
+	m.Debug = true
 
 	switch template {
 	default:

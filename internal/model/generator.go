@@ -53,7 +53,9 @@ func generateOutput(m *Model) string {
 	if err != nil {
 		return err.Error()
 	}
-	utils.LogToDebug(PrintInterview(outputModel))
+	if m.Debug {
+		utils.LogToDebug(PrintInterview(outputModel))
+	}
 
 	res += handleType(outputModel)
 	res += " = [\n"
