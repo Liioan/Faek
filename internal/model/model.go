@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"strconv"
+	"regexp"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -206,18 +206,8 @@ func parseInput(m *Model, current *Step, userInput string) {
 			currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
 
 			if m.ActiveInput.mode == CustomInput {
-				dimensions := strings.Split(userInput, "x")
-				if len(dimensions) < 2 {
-					return
-				}
-				_, err := strconv.Atoi(dimensions[0])
-				if err != nil {
-					return
-				}
-
-				_, err = strconv.Atoi(dimensions[1])
-
-				if err != nil {
+				regex := regexp.MustCompile(`^\d+x\d+$`)
+				if !regex.MatchString(userInput) {
 					return
 				}
 
