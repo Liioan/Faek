@@ -2,6 +2,8 @@ package model
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"regexp"
 	"strings"
 
@@ -172,7 +174,35 @@ func (m Model) View() string {
 			output += table.Render()
 			output += styles.OutputStyle.Render("You can always change your settings by running ") + styles.HighlightStyle.Render("`>faek -c``")
 		} else {
-			output += generateOutput(&m)
+			text := generateOutput(&m)
+
+			settings, err := configuration.GetUserSettings()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			output += styles.TitleStyle.Margin(0).Render("Output: \n")
+
+			switch v.Variant(settings.OutputStyle) {
+			case v.File:
+				file, err := os.Create(settings.FileName)
+				if err != nil {
+					log.Fatal(err)
+				}
+				file.Write([]byte(text))
+				output += styles.OutputStyle.Render(fmt.Sprintf("Created output file: `%s`\n\n", settings.FileName))
+			case v.Terminal:
+				if len(strings.Split(text, "\n")) > m.Height {
+					file, err := os.Create(settings.FileName)
+					if err != nil {
+						log.Fatal(err)
+					}
+					file.Write([]byte(text))
+					output += styles.OutputStyle.Render(fmt.Sprintf("Output is too big for your terminal, created output file: `%s`\n\n", settings.FileName))
+				} else {
+					output += styles.OutputStyle.Render(wordwrap.String(text, m.Width))
+				}
+			}
 		}
 
 		output += styles.QuitStyle.Render("\n\npress q or ctrl+c to exit")
@@ -292,6 +322,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	}
+
 	m.ActiveInput.input, cmd = m.ActiveInput.input.Update(msg)
 	return m, cmd
 }
