@@ -76,14 +76,13 @@ func Execute() {
 
 		fmt.Print(text)
 		model = m.NewDebugModel(steps, template, length)
+		file, err := tea.LogToFile("debug.log", "debug")
+		if err != nil {
+			fmt.Println("Fatal:", err)
+			os.Exit(1)
+		}
+		defer file.Close()
 	}
-
-	file, err := tea.LogToFile("debug.log", "debug")
-	if err != nil {
-		fmt.Println("Fatal:", err)
-		os.Exit(1)
-	}
-	defer file.Close()
 
 	program := tea.NewProgram(*model)
 	_, err = program.Run()
