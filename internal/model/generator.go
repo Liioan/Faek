@@ -220,7 +220,7 @@ func handleType(o *OutputModel) string {
 					t := getUnderlyingType(field.fieldType, field.variant)
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
 				}
-				res += "}"
+				res += "}[]"
 			}
 		}
 	}
