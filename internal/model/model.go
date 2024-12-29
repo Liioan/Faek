@@ -328,7 +328,8 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 			{name: "surname", fieldType: "string"},
 			{name: "age", fieldType: "number", options: []string{"18", "100"}},
 			{name: "email", fieldType: "string"},
-			{name: "isAdmin", fieldType: "boolean"},
+			{name: "premiumAccount", fieldType: "boolean"},
+			{name: "role", fieldType: "strSet", options: []string{"admin", "user", "mod"}},
 		}
 		m.Steps[2].Answer.text = "User"
 		m.Steps[3].Answer.text = fmt.Sprint(length)

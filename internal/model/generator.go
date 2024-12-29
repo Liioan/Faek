@@ -104,7 +104,7 @@ func insertValue(f Field) string {
 	case "string":
 		if len(predefinedValues[f.name]) > 0 {
 			values := predefinedValues[f.name]
-			res = values[utils.Random(0, len(values)-1)]
+			res = fmt.Sprintf("\"%s\"", values[utils.Random(0, len(values)-1)])
 			break
 		}
 		length := 39 // lorem(39) -> Lorem ipsum, dolor sit amet consectetur
@@ -157,9 +157,13 @@ func insertValue(f Field) string {
 			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		}
 	case "strSet":
-		randStr := f.options[utils.Random(0, len(f.options)-1)]
+		wordSet := strings.Split(data.Content[0:39], " ")
+		if len(f.options) != 0 {
+			wordSet = f.options
+		}
+		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
 		randStr = strings.Join(strings.Split(randStr, "_"), " ")
-		res = randStr
+		res = fmt.Sprintf("\"%s\"", randStr)
 	}
 
 	return res
@@ -207,7 +211,7 @@ func handleType(o *OutputModel) string {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
 					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.name, t)
+					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
 				}
 				res += fmt.Sprintf("}\n\nconst %s: %s[]", o.AryName, o.CustomType)
 			} else {
