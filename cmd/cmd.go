@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"flag"
@@ -7,6 +7,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/help"
 	m "github.com/liioan/faek/internal/model"
@@ -15,7 +16,7 @@ import (
 	v "github.com/liioan/faek/internal/variants"
 )
 
-func main() {
+func Execute() {
 	utils.ClearConsole()
 
 	var helpMode bool
