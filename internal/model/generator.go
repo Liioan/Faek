@@ -112,7 +112,12 @@ func insertValue(f Field) string {
 			length = utils.ParseInt(f.options[0], length)
 		}
 
-		res = fmt.Sprintf("`%s`", data.Content[0:length])
+		text := data.Content
+		for length > len(text) {
+			text += data.Content
+		}
+
+		res = fmt.Sprintf("`%s`", text[0:length])
 
 	case "number":
 		min := 0
