@@ -8,7 +8,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/liioan/faek/internal/configuration"
+	"github.com/liioan/faek/internal/help"
 	m "github.com/liioan/faek/internal/model"
+	"github.com/liioan/faek/internal/styles"
 	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
@@ -32,7 +34,8 @@ func main() {
 	flag.Parse()
 
 	if helpMode {
-		//help mode
+		help.ShowHelpScreen()
+		return
 	}
 
 	// enter configuration mode if config is not found
@@ -61,12 +64,16 @@ func main() {
 	model := m.NewModel(steps, configMode)
 
 	if debugMode {
+		text := styles.TitleStyle.Render("----- Debug mode -----\n")
+
 		settings, err := configuration.GetUserSettings()
 		if err != nil {
 			fmt.Println("Fatal: ", err)
 			os.Exit(1)
 		}
-		fmt.Printf("%v\n\n", settings)
+		text += styles.OutputStyle.Render(fmt.Sprintf("user settings:\n%v\n\n", settings))
+
+		fmt.Print(text)
 		model = m.NewDebugModel(steps, template, length)
 	}
 

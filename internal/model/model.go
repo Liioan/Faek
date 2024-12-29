@@ -8,11 +8,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/muesli/reflow/wordwrap"
+
 	"github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/styles"
-
 	v "github.com/liioan/faek/internal/variants"
-	"github.com/muesli/reflow/wordwrap"
 )
 
 type inputMode string
@@ -34,6 +34,7 @@ var typeConversion = map[string]string{
 	"int":       "number",
 	"float":     "number",
 	"short":     "number",
+	"long":      "number",
 	"str":       "string",
 	"char":      "string",
 	"bool":      "boolean",
@@ -331,7 +332,7 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		}
 		m.Steps[2].Answer.text = "User"
 		m.Steps[3].Answer.text = fmt.Sprint(length)
-	case "date":
+	case "dates":
 		m.Steps[0].Answer.text = "dates"
 		m.Steps[1].Answer.fields = []Field{
 			{name: "dateTime", fieldType: "date", variant: v.DateTime},
@@ -343,7 +344,7 @@ func NewDebugModel(steps []Step, template string, length int) *Model {
 		}
 		m.Steps[2].Answer.text = "Dates"
 		m.Steps[3].Answer.text = fmt.Sprint(length)
-	case "img":
+	case "imgs":
 		m.Steps[0].Answer.text = "images"
 		m.Steps[1].Answer.fields = []Field{
 			{name: "horizontal", fieldType: "img", variant: v.HorizontalImg},
