@@ -104,7 +104,7 @@ func insertValue(f Field) string {
 	case "string":
 		if len(predefinedValues[f.name]) > 0 {
 			values := predefinedValues[f.name]
-			res = fmt.Sprintf("\"%s\"", values[utils.Random(0, len(values)-1)])
+			res = fmt.Sprintf("`%s`", values[utils.Random(0, len(values)-1)])
 			break
 		}
 		length := 39 // lorem(39) -> Lorem ipsum, dolor sit amet consectetur
@@ -112,7 +112,7 @@ func insertValue(f Field) string {
 			length = utils.ParseInt(f.options[0], length)
 		}
 
-		res = fmt.Sprintf("\"%s\"", data.Content[0:length])
+		res = fmt.Sprintf("`%s`", data.Content[0:length])
 
 	case "number":
 		min := 0
@@ -134,7 +134,7 @@ func insertValue(f Field) string {
 		dimensions := strings.Split(string(f.variant), "x")
 		width := dimensions[0]
 		height := dimensions[1]
-		res = fmt.Sprintf("\"https://unsplash.it/%s/%s\"", width, height)
+		res = fmt.Sprintf("`https://unsplash.it/%s/%s`", width, height)
 	case "date":
 		YEAR_IN_DAYS := 365
 		YEAR_IN_MONTHS := 12
@@ -142,7 +142,7 @@ func insertValue(f Field) string {
 		TEN_YEARS := 10
 		switch f.variant {
 		case v.DateTime:
-			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+			res = fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		case v.Timestamp:
 			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Unix()*1000) // unix time to js timestamp
 		case v.Day:
@@ -154,7 +154,7 @@ func insertValue(f Field) string {
 		case v.DateObject:
 			res = "new Date()"
 		default:
-			res = fmt.Sprintf("\"%s\"", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+			res = fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		}
 	case "strSet":
 		wordSet := strings.Split(data.Content[0:39], " ")
@@ -163,7 +163,7 @@ func insertValue(f Field) string {
 		}
 		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
 		randStr = strings.Join(strings.Split(randStr, "_"), " ")
-		res = fmt.Sprintf("\"%s\"", randStr)
+		res = fmt.Sprintf("`%s`", randStr)
 	}
 
 	return res
