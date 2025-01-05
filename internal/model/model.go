@@ -323,6 +323,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	if m.Finished {
+		return m, cmd
+	}
+
 	m.ActiveInput.input, cmd = m.ActiveInput.input.Update(msg)
 	return m, cmd
 }
