@@ -32,7 +32,7 @@ func ShowHelpScreen() {
 		{"img", "", "img with given size"},
 		{"strSet", "[str...]", "random word from given set"},
 	}
-	text += createTable(rows, []string{"Type", "Options", "Values"}).Render()
+	text += createTable(rows, []string{"Type", "Options", "Value"}).Render()
 
 	text += "\n\n"
 
