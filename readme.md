@@ -4,84 +4,71 @@
 
 ![demo](./doc/demo.png)
 
-## predefined fields
+## usage
 
-- name (string)
-- surname, lastName, last_name (string)
-- email (string)
-- title (string)
-- content (string)
-- author (string)
+```
+$ faek [mode: -c | -h | -d [-template=<val>] [-length=<val>]]
+```
 
-## string set
+## Available types
 
-There is a defined string set type, that will choose a random word provided by the user
+| Type    | Options            | Value                              |
+| ------- | ------------------ | ---------------------------------- |
+| string  | [length]           | lorem ipsum text with given length |
+| number  | [max] or [min max] | random number within given range   |
+| boolean |                    | true/false                         |
+| date    |                    | date in given format               |
+| img     |                    | img with given size                |
+| strSet  | [str...]           | random word from given set         |
 
-### syntax
+> _tip: While using strSet to define a custom set of strings for a field you can use underscores (\_). They will be replaced with spaces. e.g.: "super_admin" -> "super admin"_
 
-`> fieldName strSet option1 option_2 options...`
+## Predefined string fields
 
-## date
+`Faek` automatically populates the following field names with random, realistic values from a predefined dataset when used in your schema:
 
-There is a defined date type, with different variants
+-   name
+-   surname
+-   email
+-   title
+-   content
+-   author
 
-### variants:
+## Debug mode
 
-- dateTime: e.g. `27.02.2024`
-- timestamp: e.g. `1718051654`
-- day: `0-31`
-- month: `0-12`
-- year: current year
-- object: `new Date()`
+`Faek` has a debug mode which can be used to quickly validate new functionality.
 
-### syntax:
+To use debug mode run faek with `debug` flag
 
-`> fieldName date variant? dayDiff?`
+```
+$ faek -d
+```
 
-## img type
+### Available templates
 
-There is a defined img type that inserts unsplash img
+There are several templates to use in debug mode:
 
-### sizes:
+| Template | Description                                          |
+| -------- | ---------------------------------------------------- |
+| types    | contains all types, no custom type, no array name    |
+| user     | simple user template with custom type and array name |
+| imgs     | contains all variants for img field                  |
+| dates    | contains all variants for date field                 |
 
-- default: `300x500`
-- vertical: `500x300`
-- profile: `100x100`
-- article: `600x400`
-- banner: `600x240`
-- custom:
+to select template use `template` flag
 
-### syntax:
+```
+$ faek -d -template=user
+```
 
-`> fieldName img size? x? y?`
+if no template is provided, types template is used by default
 
-#### example:
+### Length
 
-`> src img profile` -> {... src: "https://unsplash.it/100/100"}
+you can also specify the amount of array by using `length` flag
 
-`> src img 250 300` -> {... src: "https://unsplash.it/250/300}
+```
+$ faek -d -length=10
+```
 
-## type conversion
-
-Faek will convert some field types to ts equivalents
-
-- int -> `number`
-- float -> `number`
-- short -> `number`
-- str -> `string`
-- char -> `string`
-- bool -> `boolean`
-- stringSet -> `strSet`
-- ss -> `strSet`
-- strs -> `strSet`
-- strset -> `strSet`
-
-## number range
-
-You can specify the range of number generation for number fields
-
-### syntax:
-
-- `> fieldName number` -> 0-100
-- `> filedName number x` -> 0-x
-- `> fieldName number x y` -> x-y
+if no length is provided, length is set to 5 by default

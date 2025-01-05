@@ -1,18 +1,13 @@
 package utils
 
 import (
+	"log"
+	"math/rand"
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 )
-
-func FileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return err == nil
-}
 
 var clear map[string]func()
 
@@ -40,4 +35,26 @@ func ClearConsole() {
 	if available {
 		clear()
 	}
+}
+
+func LogToDebug(data string) {
+	file, err := os.Create("./debug.log")
+	if err != nil {
+		log.Fatal("could not create file")
+	}
+	defer file.Close()
+	file.Write([]byte(data))
+}
+
+func Random(min, max int) int {
+	return rand.Intn(max+1-min) + min
+}
+
+func ParseInt(s string, defVal int) int {
+	res := defVal
+	num, err := strconv.Atoi(s)
+	if err == nil {
+		res = num
+	}
+	return res
 }
