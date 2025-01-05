@@ -1,10 +1,10 @@
 # Faek
 
-### Faek is a simple typescript generation tool that generates mock arrays for you
+### `Faek` is a lightweight TypeScript cli tool designed to effortlessly generate mock arrays with realistic and customizable data, perfect for testing and prototyping.
 
 ![demo](./doc/demo.png)
 
-## usage
+## Usage
 
 ```
 $ faek [mode: -c | -h | -d [-template=<val>] [-length=<val>]]
@@ -33,6 +33,14 @@ $ faek [mode: -c | -h | -d [-template=<val>] [-length=<val>]]
 -   title
 -   content
 -   author
+
+## Config mode
+
+`Faek` will enter configuration mode on first startup, to enter configuration mode again, use `config` flag
+
+```
+$ faek -c
+```
 
 ## Debug mode
 
@@ -72,3 +80,10 @@ $ faek -d -length=10
 ```
 
 if no length is provided, length is set to 5 by default
+
+## Installation
+
+1. Make sure you have [golang](https://go.dev/doc/install) installed
+2. run `go mod download` to install dependencies
+3. run app with `go run .`
+4. build and install to path with `go build`, `go install`
