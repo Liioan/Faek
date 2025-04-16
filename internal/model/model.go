@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,7 +14,6 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/muesli/reflow/wordwrap"
 
-	"github.com/liioan/faek/internal/configuration"
 	c "github.com/liioan/faek/internal/configuration"
 	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/styles"
@@ -25,15 +25,6 @@ type inputMode string
 type TypesArray []string
 
 var ValidTypesArray = TypesArray{"string", "number", "boolean", "img", "strSet", "date"}
-
-func (vt TypesArray) contains(t string) bool {
-	for _, k := range ValidTypesArray {
-		if t == k {
-			return true
-		}
-	}
-	return false
-}
 
 var typeConversion = map[string]string{
 	"int":       "number",
@@ -115,7 +106,7 @@ type Model struct {
 	Quitting    bool
 	ActiveInput activeInput
 	Steps       []Step
-	Settings    configuration.Settings
+	Settings    c.Settings
 
 	ConfigurationMode bool
 	DebugMode         bool
@@ -144,14 +135,14 @@ func (m Model) View() string {
 	if m.Finished {
 		output := ""
 		if m.ConfigurationMode {
-			settings := configuration.Settings{
+			settings := c.Settings{
 				OutputStyle: m.Steps[0].Answer.text,
 				Language:    m.Steps[1].Answer.text,
 				FileName:    strings.Trim(m.Steps[2].Answer.text, " "),
 				Indent:      m.Steps[3].Answer.text,
 			}
 
-			configuration.SaveUserSettings(&settings)
+			c.SaveUserSettings(&settings)
 
 			output += styles.OutputTitleStyle.Render("Your preferences have been saved!")
 			output += "\n"
@@ -184,7 +175,7 @@ func (m Model) View() string {
 		} else {
 			text := generateOutput(&m)
 
-			settings, err := configuration.GetUserSettings()
+			settings, err := c.GetUserSettings()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -281,7 +272,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 						stringFields[1] = value
 					}
 				}
-				if ValidTypesArray.contains(stringFields[1]) {
+				if slices.Contains(ValidTypesArray, stringFields[1]) {
 					current.Answer.fields = append(current.Answer.fields, Field{name: stringFields[0], fieldType: stringFields[1]})
 				}
 
