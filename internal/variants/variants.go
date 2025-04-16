@@ -68,9 +68,12 @@ var OutputVariants = []VariantData{
 const (
 	TypeScript Variant = "typescript"
 	JavaScript Variant = "javascript"
+	JSON       Variant = "json"
+	Config     Variant = "config"
 )
 
 var LanguageVariants = []VariantData{
 	{TypeScript, "TypeScript"},
 	{JavaScript, "JavaScript"},
+	{JSON, "JSON"},
 }

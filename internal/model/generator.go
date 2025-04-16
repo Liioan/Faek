@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -10,7 +9,6 @@ import (
 
 	c "github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/data"
-	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
@@ -52,9 +50,6 @@ func generateOutput(m *Model) string {
 	outputModel, err := NewOutputModel(m)
 	if err != nil {
 		return err.Error()
-	}
-	if m.Debug {
-		utils.LogToDebug(PrintInterview(outputModel))
 	}
 
 	res += handleType(outputModel)
@@ -268,6 +263,7 @@ func getIndent(s *c.Settings, level int) string {
 
 func NewOutputModel(m *Model) (*OutputModel, error) {
 	o := OutputModel{}
+	utils.LogToDebug(fmt.Sprintf("%v", m))
 
 	//. get data from user interview
 	o.AryName = m.Steps[0].Answer.text
@@ -286,13 +282,7 @@ func NewOutputModel(m *Model) (*OutputModel, error) {
 		o.AryName = "arr"
 	}
 
-	//. settings
-	settings, err := c.GetUserSettings()
-	if err != nil {
-		return nil, errors.New(e.SettingsUnavailable)
-	}
-
-	o.Settings = settings
+	o.Settings = m.Settings
 
 	return &o, nil
 }

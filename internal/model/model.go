@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,8 @@ import (
 	"github.com/muesli/reflow/wordwrap"
 
 	"github.com/liioan/faek/internal/configuration"
+	c "github.com/liioan/faek/internal/configuration"
+	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/styles"
 	v "github.com/liioan/faek/internal/variants"
 )
@@ -100,6 +103,10 @@ func NewTextStep(instruction, placeholder string, repeats bool) *Step {
 	return &s
 }
 
+type Override struct {
+	Language v.Variant
+}
+
 type Model struct {
 	Index       int
 	Width       int
@@ -108,9 +115,10 @@ type Model struct {
 	Quitting    bool
 	ActiveInput activeInput
 	Steps       []Step
+	Settings    configuration.Settings
 
-	Configuration bool
-	Debug         bool
+	ConfigurationMode bool
+	DebugMode         bool
 }
 
 func (m Model) Init() tea.Cmd {
@@ -135,7 +143,7 @@ func (m Model) View() string {
 
 	if m.Finished {
 		output := ""
-		if m.Configuration {
+		if m.ConfigurationMode {
 			settings := configuration.Settings{
 				OutputStyle: m.Steps[0].Answer.text,
 				Language:    m.Steps[1].Answer.text,
@@ -230,7 +238,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 	}
 
 	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
-		if m.Configuration {
+		if m.ConfigurationMode {
 			current.Answer.text = string(getVariantsValue(current.OptionSet, userInput))
 			m.Next()
 			return
@@ -331,17 +339,35 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func NewModel(steps []Step, configuration bool) *Model {
-	m := Model{Steps: steps, Configuration: configuration, ActiveInput: steps[0].StepInput}
-	return &m
+func NewModel(steps []Step, configMode bool, override Override) (*Model, error) {
+	settings, err := c.GetUserSettings()
+	if err != nil && !configMode {
+		return nil, errors.New(e.SettingsUnavailable)
+	}
+
+	if override.Language != v.Config {
+		settings.Language = string(override.Language)
+	}
+
+	m := Model{Steps: steps, ConfigurationMode: configMode, ActiveInput: steps[0].StepInput, Settings: settings}
+	return &m, nil
 }
 
 // - debug
-func NewDebugModel(steps []Step, template string, length int) *Model {
-	m := Model{Steps: steps, Configuration: false, ActiveInput: steps[len(steps)-1].StepInput}
+func NewDebugModel(steps []Step, template string, length int, override Override) *Model {
+	settings, err := c.GetUserSettings()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if override.Language != v.Config {
+		settings.Language = string(override.Language)
+	}
+
+	m := Model{Steps: steps, ConfigurationMode: false, ActiveInput: steps[len(steps)-1].StepInput, Settings: settings}
 	m.Index = len(m.Steps) - 1
 	m.Finished = true
-	m.Debug = true
+	m.DebugMode = true
 
 	switch template {
 	default:

@@ -16,25 +16,44 @@ import (
 	v "github.com/liioan/faek/internal/variants"
 )
 
+type RuntimeFlags struct {
+	helpMode   bool
+	configMode bool
+	debugMode  bool
+	template   string
+	length     int
+	language   v.Variant
+}
+
 func Execute() {
 	utils.ClearConsole()
 
-	var helpMode bool
-	flag.BoolVar(&helpMode, "h", false, "display help")
+	flags := RuntimeFlags{}
 
-	var configMode bool
-	flag.BoolVar(&configMode, "c", false, "enter configuration mode")
+	//  help mode
+	flag.BoolVar(&flags.helpMode, "h", false, "display help")
 
-	var debugMode bool
-	var template string
-	var length int
+	//  config mode
+	flag.BoolVar(&flags.configMode, "c", false, "enter configuration mode")
 
-	flag.BoolVar(&debugMode, "d", false, "enter debug mode")
-	flag.StringVar(&template, "template", "types", "create types template")
-	flag.IntVar(&length, "length", 5, "add length")
+	//  config mode
+	flag.BoolVar(&flags.debugMode, "d", false, "enter debug mode")
+	flag.StringVar(&flags.template, "template", "types", "create types template")
+	flag.IntVar(&flags.length, "length", 5, "add length")
+
+	// config override
+	var tsFlag bool
+	var jsFlag bool
+	var jsonFlag bool
+	flag.BoolVar(&tsFlag, "ts", false, "overrides configuration - changes language to ts")
+	flag.BoolVar(&jsFlag, "js", false, "overrides configuration - changes language to js")
+	flag.BoolVar(&jsonFlag, "json", false, "overrides configuration - changes language to json")
+
 	flag.Parse()
 
-	if helpMode {
+	flags.language = getLangOverride(tsFlag, jsFlag, jsonFlag)
+
+	if flags.helpMode {
 		help.ShowHelpScreen()
 		return
 	}
@@ -42,11 +61,11 @@ func Execute() {
 	// enter configuration mode if config is not found
 	_, err := configuration.GetUserSettings()
 	if err != nil {
-		configMode = true
+		flags.configMode = true
 	}
 
 	var steps []m.Step
-	if configMode {
+	if flags.configMode {
 		steps = []m.Step{
 			*m.NewListStep("Choose your default output style", "Output options:", false, v.OutputSet),
 			*m.NewListStep("Choose your preferred language (default: TypeScript)", "Language options:", false, v.LanguageSet),
@@ -62,9 +81,12 @@ func Execute() {
 		}
 	}
 
-	model := m.NewModel(steps, configMode)
+	model, err := m.NewModel(steps, flags.configMode, m.Override{Language: flags.language})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	if debugMode {
+	if flags.debugMode {
 		text := styles.TitleStyle.Render("----- Debug mode -----\n")
 
 		settings, err := configuration.GetUserSettings()
@@ -74,8 +96,10 @@ func Execute() {
 		}
 		text += styles.OutputStyle.Render(fmt.Sprintf("user settings:\n%v\n\n", settings))
 
+		text += styles.OutputStyle.Render(fmt.Sprintf("runtime override:\n%v\n\n", flags))
+
 		fmt.Print(text)
-		model = m.NewDebugModel(steps, template, length)
+		model = m.NewDebugModel(steps, flags.template, flags.length, m.Override{Language: flags.language})
 		file, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
 			fmt.Println("Fatal:", err)
@@ -89,4 +113,15 @@ func Execute() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getLangOverride(tsFlag, jsFlag, jsonFlag bool) v.Variant {
+	if tsFlag {
+		return v.TypeScript
+	} else if jsFlag {
+		return v.JavaScript
+	} else if jsonFlag {
+		return v.JSON
+	}
+	return v.Variant("config")
 }
