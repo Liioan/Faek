@@ -7,7 +7,7 @@
 ## Usage
 
 ```
-$ faek [mode: -c | -h | -d [-template=<val>] [-length=<val>]]
+$ faek [mode: -c | -h | -d [-template=<val>] [-length=<val>]] [language: -ts | -js | -json]
 ```
 
 ## Available types
@@ -27,12 +27,12 @@ $ faek [mode: -c | -h | -d [-template=<val>] [-length=<val>]]
 
 `Faek` automatically populates the following field names with random, realistic values from a predefined dataset when used in your schema:
 
--   name
--   surname
--   email
--   title
--   content
--   author
+- name
+- surname
+- email
+- title
+- content
+- author
 
 ## Config mode
 
