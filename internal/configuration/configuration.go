@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	e "github.com/liioan/faek/internal/errors"
-	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
 
@@ -15,16 +14,16 @@ const settingsFilePath = "/faek_settings.json"
 const settingsDirectoryPath = "/.config/faek"
 
 type Settings struct {
-	OutputStyle string `json:"outputStyle"`
-	FileName    string `json:"fileName"`
-	Language    string `json:"lang"`
-	Indent      string `json:"indent"`
+	OutputStyle string    `json:"outputStyle"`
+	FileName    string    `json:"fileName"`
+	Language    v.Variant `json:"lang"`
+	Indent      string    `json:"indent"`
 }
 
 var defaultSettings = Settings{
 	OutputStyle: string(v.Terminal),
 	FileName:    "faekOutput.ts",
-	Language:    string(v.TypeScript),
+	Language:    v.TypeScript,
 	Indent:      "2",
 }
 
@@ -63,7 +62,6 @@ func GetUserSettings() (Settings, error) {
 }
 
 func SaveUserSettings(settings *Settings) error {
-	utils.LogToDebug(settings.Language)
 
 	previousSettings, err := GetUserSettings()
 	if err != nil {
@@ -84,10 +82,13 @@ func SaveUserSettings(settings *Settings) error {
 	}
 
 	settings.FileName = strings.Split(settings.FileName, ".")[0]
-	if settings.Language == string(v.TypeScript) {
+	switch settings.Language {
+	case v.TypeScript:
 		settings.FileName += ".ts"
-	} else {
+	case v.JavaScript:
 		settings.FileName += ".js"
+	case v.JSON:
+		settings.FileName += ".json"
 	}
 
 	bytes, err := json.Marshal(settings)

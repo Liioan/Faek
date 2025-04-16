@@ -35,7 +35,7 @@ var predefinedValues = map[string][]string{
 	"title":   data.Titles,
 }
 
-type OutputModel struct {
+type OutputMetadata struct {
 	AryName    string
 	Fields     []Field
 	CustomType string
@@ -44,26 +44,51 @@ type OutputModel struct {
 	Settings c.Settings
 }
 
-func generateOutput(m *Model) string {
+func (m *Model) generateOutput() string {
 	res := ""
 
-	outputModel, err := NewOutputModel(m)
-	if err != nil {
-		return err.Error()
+	outputMetadata := NewOutputMetadata(m)
+
+	res += handleDeclaration(outputMetadata)
+
+	if outputMetadata.Settings.Language != v.JSON {
+		res += " = [\n"
+	} else {
+		res += "'["
 	}
 
-	res += handleType(outputModel)
-	res += " = [\n"
-	for range outputModel.Len {
-		res += handleObject(outputModel)
+	for i := range outputMetadata.Len {
+		separator := ","
+		if i == outputMetadata.Len-1 {
+			separator = ""
+		}
+		res += handleObject(outputMetadata)
+		res += separator
 	}
-	res += "];"
+	if outputMetadata.Settings.Language != v.JSON {
+		res += "];"
+	} else {
+		res += "]'"
+	}
 
 	return res
 }
 
-func handleObject(o *OutputModel) string {
+func handleObject(o *OutputMetadata) string {
 	res := ""
+
+	if o.Settings.Language == v.JSON {
+		res += "{"
+		for i, field := range o.Fields {
+			separator := ","
+			if i == len(o.Fields)-1 {
+				separator = ""
+			}
+			res += fmt.Sprintf("\"%s\":%s%s", field.name, strings.ReplaceAll(insertValue(field), "`", "\""), separator)
+		}
+		res += "}"
+		return res
+	}
 
 	l := len(o.Fields)
 	switch {
@@ -169,11 +194,11 @@ func insertValue(f Field) string {
 	return res
 }
 
-func handleType(o *OutputModel) string {
+func handleDeclaration(o *OutputMetadata) string {
 	lang := o.Settings.Language
 	res := ""
 
-	switch v.Variant(lang) {
+	switch lang {
 	case v.JavaScript:
 		res += fmt.Sprintf("const %s", o.AryName)
 	case v.TypeScript:
@@ -223,6 +248,7 @@ func handleType(o *OutputModel) string {
 				res += "}[]"
 			}
 		}
+	case v.JSON:
 	}
 
 	return res
@@ -261,8 +287,8 @@ func getIndent(s *c.Settings, level int) string {
 	}
 }
 
-func NewOutputModel(m *Model) (*OutputModel, error) {
-	o := OutputModel{}
+func NewOutputMetadata(m *Model) *OutputMetadata {
+	o := OutputMetadata{}
 	utils.LogToDebug(fmt.Sprintf("%v", m))
 
 	//. get data from user interview
@@ -284,10 +310,10 @@ func NewOutputModel(m *Model) (*OutputModel, error) {
 
 	o.Settings = m.Settings
 
-	return &o, nil
+	return &o
 }
 
-func PrintInterview(o *OutputModel) string {
+func PrintInterview(o *OutputMetadata) string {
 	res := ""
 
 	res += "Array name: "

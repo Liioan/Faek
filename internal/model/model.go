@@ -137,7 +137,7 @@ func (m Model) View() string {
 		if m.ConfigurationMode {
 			settings := c.Settings{
 				OutputStyle: m.Steps[0].Answer.text,
-				Language:    m.Steps[1].Answer.text,
+				Language:    v.Variant(m.Steps[1].Answer.text),
 				FileName:    strings.Trim(m.Steps[2].Answer.text, " "),
 				Indent:      m.Steps[3].Answer.text,
 			}
@@ -149,7 +149,7 @@ func (m Model) View() string {
 
 			rows := [][]string{
 				{"Output style", settings.OutputStyle},
-				{"Language", settings.Language},
+				{"Language", string(settings.Language)},
 				{"File name", settings.FileName},
 				{"Indent", settings.Indent},
 			}
@@ -173,7 +173,7 @@ func (m Model) View() string {
 			output += table.Render()
 			output += styles.OutputStyle.Render("You can always change your settings by running ") + styles.HighlightStyle.Render("`>faek -c``")
 		} else {
-			text := generateOutput(&m)
+			text := m.generateOutput()
 
 			settings, err := c.GetUserSettings()
 			if err != nil {
@@ -191,7 +191,15 @@ func (m Model) View() string {
 				file.Write([]byte(text))
 				output += styles.OutputStyle.Render(fmt.Sprintf("Created output file: `%s`\n\n", settings.FileName))
 			case v.Terminal:
-				if len(strings.Split(text, "\n")) > m.Height {
+				if m.Settings.Language == v.JSON {
+					file, err := os.Create(settings.FileName)
+					if err != nil {
+						log.Fatal(err)
+					}
+					file.Write([]byte(text))
+					output += styles.OutputStyle.Render(fmt.Sprintf("JSON is not supported in terminal, created output file: : `%s`\n\n", settings.FileName))
+
+				} else if len(strings.Split(text, "\n")) > m.Height {
 					file, err := os.Create(settings.FileName)
 					if err != nil {
 						log.Fatal(err)
@@ -337,7 +345,7 @@ func NewModel(steps []Step, configMode bool, override Override) (*Model, error) 
 	}
 
 	if override.Language != v.Config {
-		settings.Language = string(override.Language)
+		settings.Language = override.Language
 	}
 
 	m := Model{Steps: steps, ConfigurationMode: configMode, ActiveInput: steps[0].StepInput, Settings: settings}
@@ -352,7 +360,7 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 	}
 
 	if override.Language != v.Config {
-		settings.Language = string(override.Language)
+		settings.Language = override.Language
 	}
 
 	m := Model{Steps: steps, ConfigurationMode: false, ActiveInput: steps[len(steps)-1].StepInput, Settings: settings}

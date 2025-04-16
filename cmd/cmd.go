@@ -96,7 +96,7 @@ func Execute() {
 		}
 		text += styles.OutputStyle.Render(fmt.Sprintf("user settings:\n%v\n\n", settings))
 
-		text += styles.OutputStyle.Render(fmt.Sprintf("runtime override:\n%v\n\n", flags))
+		text += styles.OutputStyle.Render(fmt.Sprintf("runtime flags:\n%v\n\n", flags))
 
 		fmt.Print(text)
 		model = m.NewDebugModel(steps, flags.template, flags.length, m.Override{Language: flags.language})
