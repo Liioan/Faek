@@ -82,14 +82,6 @@ func SaveUserSettings(settings *Settings) error {
 	}
 
 	settings.FileName = strings.Split(settings.FileName, ".")[0]
-	switch settings.Language {
-	case v.TypeScript:
-		settings.FileName += ".ts"
-	case v.JavaScript:
-		settings.FileName += ".js"
-	case v.JSON:
-		settings.FileName += ".json"
-	}
 
 	bytes, err := json.Marshal(settings)
 	if err != nil {
@@ -114,4 +106,18 @@ func SaveUserSettings(settings *Settings) error {
 		return errors.New(e.CanSaveToFile)
 	}
 	return nil
+}
+
+func (s Settings) GetFullFileName() string {
+	res := s.FileName
+	switch s.Language {
+	case v.TypeScript:
+		res += ".ts"
+	case v.JavaScript:
+		res += ".js"
+	case v.JSON:
+		res += ".json"
+	}
+
+	return res
 }

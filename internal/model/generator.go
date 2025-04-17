@@ -54,7 +54,7 @@ func (m *Model) generateOutput() string {
 	if outputMetadata.Settings.Language != v.JSON {
 		res += " = [\n"
 	} else {
-		res += "'["
+		res += "["
 	}
 
 	for i := range outputMetadata.Len {
@@ -68,7 +68,7 @@ func (m *Model) generateOutput() string {
 	if outputMetadata.Settings.Language != v.JSON {
 		res += "];"
 	} else {
-		res += "]'"
+		res += "]"
 	}
 
 	return res

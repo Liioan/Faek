@@ -3,3 +3,7 @@ debug.log
 .DS_Store
 test.ts
 /bin
+
+dev.ts
+dev.js
+dev.json

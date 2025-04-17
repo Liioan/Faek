@@ -150,7 +150,7 @@ func (m Model) View() string {
 			rows := [][]string{
 				{"Output style", settings.OutputStyle},
 				{"Language", string(settings.Language)},
-				{"File name", settings.FileName},
+				{"File name", settings.GetFullFileName()},
 				{"Indent", settings.Indent},
 			}
 
@@ -175,37 +175,34 @@ func (m Model) View() string {
 		} else {
 			text := m.generateOutput()
 
-			settings, err := c.GetUserSettings()
-			if err != nil {
-				log.Fatal(err)
-			}
+			settings := m.Settings
 
 			output += styles.TitleStyle.Margin(0).Render("Output: \n")
 
 			switch v.Variant(settings.OutputStyle) {
 			case v.File:
-				file, err := os.Create(settings.FileName)
+				file, err := os.Create(settings.GetFullFileName())
 				if err != nil {
 					log.Fatal(err)
 				}
 				file.Write([]byte(text))
-				output += styles.OutputStyle.Render(fmt.Sprintf("Created output file: `%s`\n\n", settings.FileName))
+				output += styles.OutputStyle.Render(fmt.Sprintf("Created output file: `%s`\n\n", settings.GetFullFileName()))
 			case v.Terminal:
 				if m.Settings.Language == v.JSON {
-					file, err := os.Create(settings.FileName)
+					file, err := os.Create(settings.GetFullFileName())
 					if err != nil {
 						log.Fatal(err)
 					}
 					file.Write([]byte(text))
-					output += styles.OutputStyle.Render(fmt.Sprintf("JSON is not supported in terminal, created output file: : `%s`\n\n", settings.FileName))
+					output += styles.OutputStyle.Render(fmt.Sprintf("JSON is not supported in terminal, created output file: `%s`\n\n", settings.GetFullFileName()))
 
 				} else if len(strings.Split(text, "\n")) > m.Height {
-					file, err := os.Create(settings.FileName)
+					file, err := os.Create(settings.GetFullFileName())
 					if err != nil {
 						log.Fatal(err)
 					}
 					file.Write([]byte(text))
-					output += styles.OutputStyle.Render(fmt.Sprintf("Output is too big for your terminal, created output file: `%s`\n\n", settings.FileName))
+					output += styles.OutputStyle.Render(fmt.Sprintf("Output is too big for your terminal, created output file: `%s`\n\n", settings.GetFullFileName()))
 				} else {
 					output += styles.OutputStyle.Render(wordwrap.String(text, m.Width))
 				}
