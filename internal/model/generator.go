@@ -289,7 +289,6 @@ func getIndent(s *c.Settings, level int) string {
 
 func NewOutputMetadata(m *Model) *OutputMetadata {
 	o := OutputMetadata{}
-	utils.LogToDebug(fmt.Sprintf("%v", m))
 
 	//. get data from user interview
 	o.AryName = m.Steps[0].Answer.text
