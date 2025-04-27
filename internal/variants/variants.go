@@ -69,7 +69,6 @@ const (
 	TypeScript Variant = "typescript"
 	JavaScript Variant = "javascript"
 	JSON       Variant = "json"
-	Config     Variant = "config"
 )
 
 var LanguageVariants = []VariantData{
@@ -77,3 +76,5 @@ var LanguageVariants = []VariantData{
 	{JavaScript, "JavaScript"},
 	{JSON, "JSON"},
 }
+
+const Config Variant = "config" //- default for config override

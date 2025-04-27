@@ -22,36 +22,15 @@ type RuntimeFlags struct {
 	debugMode  bool
 	template   string
 	length     int
-	language   v.Variant
+
+	language v.Variant
+	output   v.Variant
 }
 
 func Execute() {
 	utils.ClearConsole()
 
-	flags := RuntimeFlags{}
-
-	//  help mode
-	flag.BoolVar(&flags.helpMode, "h", false, "display help")
-
-	//  config mode
-	flag.BoolVar(&flags.configMode, "c", false, "enter configuration mode")
-
-	//  config mode
-	flag.BoolVar(&flags.debugMode, "d", false, "enter debug mode")
-	flag.StringVar(&flags.template, "template", "types", "create types template")
-	flag.IntVar(&flags.length, "length", 5, "add length")
-
-	// config override
-	var tsFlag bool
-	var jsFlag bool
-	var jsonFlag bool
-	flag.BoolVar(&tsFlag, "ts", false, "overrides configuration - changes language to ts")
-	flag.BoolVar(&jsFlag, "js", false, "overrides configuration - changes language to js")
-	flag.BoolVar(&jsonFlag, "json", false, "overrides configuration - changes language to json")
-
-	flag.Parse()
-
-	flags.language = getLangOverride(tsFlag, jsFlag, jsonFlag)
+	flags := parseFlags()
 
 	if flags.helpMode {
 		help.ShowHelpScreen()
@@ -81,7 +60,7 @@ func Execute() {
 		}
 	}
 
-	model, err := m.NewModel(steps, flags.configMode, m.Override{Language: flags.language})
+	model, err := m.NewModel(steps, flags.configMode, m.Override{Language: flags.language, Output: flags.output})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -115,6 +94,51 @@ func Execute() {
 	}
 }
 
+func parseFlags() RuntimeFlags {
+	flags := RuntimeFlags{}
+
+	//  help mode
+	flag.BoolVar(&flags.helpMode, "h", false, "display help")
+
+	//  config mode
+	flag.BoolVar(&flags.configMode, "c", false, "enter configuration mode")
+
+	//  config mode
+	flag.BoolVar(&flags.debugMode, "d", false, "enter debug mode")
+	flag.StringVar(&flags.template, "template", "types", "create types template")
+	flag.IntVar(&flags.length, "length", 5, "add length")
+
+	// language override
+	var tsFlag bool
+	var jsFlag bool
+	var jsonFlag bool
+	flag.BoolVar(&tsFlag, "ts", false, "overrides configuration - changes language to ts")
+	flag.BoolVar(&jsFlag, "js", false, "overrides configuration - changes language to js")
+	flag.BoolVar(&jsonFlag, "json", false, "overrides configuration - changes language to json")
+
+	// output override
+	var fileFlag bool
+	var terminalFlag bool
+	flag.BoolVar(&fileFlag, "file", false, "overrides configuration - changes output to file")
+	flag.BoolVar(&terminalFlag, "terminal", false, "overrides configuration - changes output to terminal")
+
+	flag.Parse()
+
+	flags.language = getLangOverride(tsFlag, jsFlag, jsonFlag)
+	flags.output = getOutputOverride(fileFlag, terminalFlag)
+
+	return flags
+}
+
+func getOutputOverride(fileFlag, terminalFlag bool) v.Variant {
+	if fileFlag {
+		return v.File
+	} else if terminalFlag {
+		return v.Terminal
+	}
+	return v.Config
+}
+
 func getLangOverride(tsFlag, jsFlag, jsonFlag bool) v.Variant {
 	if tsFlag {
 		return v.TypeScript
@@ -123,5 +147,5 @@ func getLangOverride(tsFlag, jsFlag, jsonFlag bool) v.Variant {
 	} else if jsonFlag {
 		return v.JSON
 	}
-	return v.Variant("config")
+	return v.Config
 }

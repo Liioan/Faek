@@ -96,6 +96,7 @@ func NewTextStep(instruction, placeholder string, repeats bool) *Step {
 
 type Override struct {
 	Language v.Variant
+	Output   v.Variant
 }
 
 type Model struct {
@@ -136,7 +137,7 @@ func (m Model) View() string {
 		output := ""
 		if m.ConfigurationMode {
 			settings := c.Settings{
-				OutputStyle: m.Steps[0].Answer.text,
+				OutputStyle: v.Variant(m.Steps[0].Answer.text),
 				Language:    v.Variant(m.Steps[1].Answer.text),
 				FileName:    strings.Trim(m.Steps[2].Answer.text, " "),
 				Indent:      m.Steps[3].Answer.text,
@@ -148,7 +149,7 @@ func (m Model) View() string {
 			output += "\n"
 
 			rows := [][]string{
-				{"Output style", settings.OutputStyle},
+				{"Output style", string(settings.OutputStyle)},
 				{"Language", string(settings.Language)},
 				{"File name", settings.GetFullFileName()},
 				{"Indent", settings.Indent},
@@ -179,7 +180,7 @@ func (m Model) View() string {
 
 			output += styles.TitleStyle.Margin(0).Render("Output: \n")
 
-			switch v.Variant(settings.OutputStyle) {
+			switch settings.OutputStyle {
 			case v.File:
 				file, err := os.Create(settings.GetFullFileName())
 				if err != nil {
@@ -343,6 +344,10 @@ func NewModel(steps []Step, configMode bool, override Override) (*Model, error) 
 
 	if override.Language != v.Config {
 		settings.Language = override.Language
+	}
+
+	if override.Output != v.Config {
+		settings.OutputStyle = override.Output
 	}
 
 	m := Model{Steps: steps, ConfigurationMode: configMode, ActiveInput: steps[0].StepInput, Settings: settings}

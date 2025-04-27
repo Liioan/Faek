@@ -14,14 +14,14 @@ const settingsFilePath = "/faek_settings.json"
 const settingsDirectoryPath = "/.config/faek"
 
 type Settings struct {
-	OutputStyle string    `json:"outputStyle"`
 	FileName    string    `json:"fileName"`
 	Language    v.Variant `json:"lang"`
+	OutputStyle v.Variant `json:"outputStyle"`
 	Indent      string    `json:"indent"`
 }
 
 var defaultSettings = Settings{
-	OutputStyle: string(v.Terminal),
+	OutputStyle: v.Terminal,
 	FileName:    "faekOutput.ts",
 	Language:    v.TypeScript,
 	Indent:      "2",
