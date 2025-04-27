@@ -58,12 +58,7 @@ func (m *Model) generateOutput() string {
 	}
 
 	for i := range outputMetadata.Len {
-		separator := ","
-		if i == outputMetadata.Len-1 {
-			separator = ""
-		}
-		res += handleObject(outputMetadata)
-		res += separator
+		res += handleObject(outputMetadata, i)
 	}
 	if outputMetadata.Settings.Language != v.JSON {
 		res += "];"
@@ -74,10 +69,14 @@ func (m *Model) generateOutput() string {
 	return res
 }
 
-func handleObject(o *OutputMetadata) string {
+func handleObject(o *OutputMetadata, iteration int) string {
 	res := ""
 
 	if o.Settings.Language == v.JSON {
+		separator := ","
+		if iteration == o.Len-1 {
+			separator = ""
+		}
 		res += "{"
 		for i, field := range o.Fields {
 			separator := ","
@@ -87,6 +86,7 @@ func handleObject(o *OutputMetadata) string {
 			res += fmt.Sprintf("\"%s\":%s%s", field.name, strings.ReplaceAll(insertValue(field), "`", "\""), separator)
 		}
 		res += "}"
+		res += separator
 		return res
 	}
 
