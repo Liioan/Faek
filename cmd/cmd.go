@@ -60,7 +60,9 @@ func Execute() {
 		}
 	}
 
-	model, err := m.NewModel(steps, flags.configMode, m.Override{Language: flags.language, Output: flags.output})
+	overrideFlags := m.Override{Language: flags.language, Output: flags.output}
+
+	model, err := m.NewModel(steps, flags.configMode, overrideFlags)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,7 +80,7 @@ func Execute() {
 		text += styles.OutputStyle.Render(fmt.Sprintf("runtime flags:\n%v\n\n", flags))
 
 		fmt.Print(text)
-		model = m.NewDebugModel(steps, flags.template, flags.length, m.Override{Language: flags.language})
+		model = m.NewDebugModel(steps, flags.template, flags.length, overrideFlags)
 		file, err := tea.LogToFile("debug.log", "debug")
 		if err != nil {
 			fmt.Println("Fatal:", err)

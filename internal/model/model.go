@@ -342,13 +342,7 @@ func NewModel(steps []Step, configMode bool, override Override) (*Model, error) 
 		return nil, errors.New(e.SettingsUnavailable)
 	}
 
-	if override.Language != v.Config {
-		settings.Language = override.Language
-	}
-
-	if override.Output != v.Config {
-		settings.OutputStyle = override.Output
-	}
+	overrideSettings(&settings, override)
 
 	m := Model{Steps: steps, ConfigurationMode: configMode, ActiveInput: steps[0].StepInput, Settings: settings}
 	return &m, nil
@@ -361,9 +355,7 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 		log.Fatal(err)
 	}
 
-	if override.Language != v.Config {
-		settings.Language = override.Language
-	}
+	overrideSettings(&settings, override)
 
 	m := Model{Steps: steps, ConfigurationMode: false, ActiveInput: steps[len(steps)-1].StepInput, Settings: settings}
 	m.Index = len(m.Steps) - 1
@@ -419,4 +411,14 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 		m.Steps[3].Answer.text = fmt.Sprint(length)
 	}
 	return &m
+}
+
+func overrideSettings(s *c.Settings, o Override) {
+	if o.Language != v.Config {
+		s.Language = o.Language
+	}
+
+	if o.Output != v.Config {
+		s.OutputStyle = o.Output
+	}
 }
