@@ -7,7 +7,9 @@
 ## Usage
 
 ```
-$ faek [mode: -c | -h | -d [-template=<val>] [-len=<val>]] [language: -ts | -js | -json] [output: -file | -terminal]
+$ faek [mode: -c | -h | -d [-template=<val>] [-len=<val>]]
+       [language: -ts | -js | -json]
+       [output: -file | -terminal]
 ```
 
 ## Available types

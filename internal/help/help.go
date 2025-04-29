@@ -11,7 +11,8 @@ import (
 
 func ShowHelpScreen() {
 	text := fmt.Sprintf("%s\n\n", s.TitleStyle.Render("----- Help -----"))
-	text += fmt.Sprintf("usage: %s\n\n", s.OutputStyle.Margin(0).Render("faek [mode: -c | -h | -d [-template=<val>] [-len=<val>]] [language: -ts | -js | -json] [output: -file | -terminal]"))
+	text += fmt.Sprintf("usage: %s\n", s.OutputStyle.Margin(0).Render("faek [mode: -c | -h | -d [-template=<val>] [-len=<val>]]"))
+	text += fmt.Sprintf("%s\n\n", s.OutputStyle.Margin(0).MarginLeft(12).Render("[language: -ts | -js | -json]\n[output: -file | -terminal]"))
 
 	text += "Available debug templates:\n"
 	rows := [][]string{
