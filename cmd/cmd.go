@@ -108,7 +108,7 @@ func parseFlags() RuntimeFlags {
 	//  config mode
 	flag.BoolVar(&flags.debugMode, "d", false, "enter debug mode")
 	flag.StringVar(&flags.template, "template", "types", "create types template")
-	flag.IntVar(&flags.length, "length", 5, "add length")
+	flag.IntVar(&flags.length, "len", 5, "add length")
 
 	// language override
 	var tsFlag bool
