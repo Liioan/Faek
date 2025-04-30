@@ -17,7 +17,6 @@ import (
 	c "github.com/liioan/faek/internal/configuration"
 	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/styles"
-	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
 
@@ -238,11 +237,8 @@ func parseInput(m *Model, current *Step, userInput string) {
 		return
 	}
 
-	utils.LogToDebug(fmt.Sprint(current.Variants))
-
 	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
 		if m.ConfigurationMode {
-			utils.LogToDebug(userInput)
 			current.Answer.text = string(getVariantsValue(current.Variants, userInput))
 			m.Next()
 			return
@@ -274,13 +270,14 @@ func parseInput(m *Model, current *Step, userInput string) {
 				return
 			}
 		} else {
-			stringFields := strings.Fields(strings.ToLower(userInput))
+			stringFields := strings.Fields(userInput)
 			l := len(stringFields)
 			if l == 1 {
 				return
 			}
 			if l >= 2 {
 				for key, value := range typeConversion {
+					stringFields[1] = strings.ToLower(stringFields[1])
 					if stringFields[1] == key {
 						stringFields[1] = value
 					}

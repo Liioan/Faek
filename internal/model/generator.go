@@ -124,8 +124,8 @@ func insertValue(f Field) string {
 
 	switch f.fieldType {
 	case "string":
-		if len(predefinedValues[f.name]) > 0 {
-			values := predefinedValues[f.name]
+		if len(predefinedValues[strings.ToLower(f.name)]) > 0 {
+			values := predefinedValues[strings.ToLower(f.name)]
 			res = fmt.Sprintf("`%s`", values[utils.Random(0, len(values)-1)])
 			break
 		}
