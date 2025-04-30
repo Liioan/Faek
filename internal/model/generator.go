@@ -240,7 +240,7 @@ func handleDeclaration(o *OutputMetadata) string {
 					t := getUnderlyingType(field.fieldType, field.variant)
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
 				}
-				res += fmt.Sprintf("}\n\nconst %s: %s[]", o.AryName, o.CustomType)
+				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
 			} else {
 				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.AryName)
 				for _, field := range o.Fields {
@@ -265,7 +265,7 @@ func handleExport(o *OutputMetadata, selected v.Variant) string {
 	case v.Inline:
 		res += "export "
 	case v.ExportDefault:
-		res += fmt.Sprintf("\n\nexport default %s", o.AryName)
+		res += fmt.Sprintf("\n\nexport default %s;", o.AryName)
 	}
 
 	return res

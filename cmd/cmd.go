@@ -25,6 +25,7 @@ type RuntimeFlags struct {
 
 	language v.Variant
 	output   v.Variant
+	export   v.Variant
 }
 
 func Execute() {
@@ -62,7 +63,7 @@ func Execute() {
 
 	}
 
-	overrideFlags := m.Override{Language: flags.language, Output: flags.output}
+	overrideFlags := m.Override{Language: flags.language, Output: flags.output, Export: flags.export}
 
 	model, err := m.NewModel(steps, flags.configMode, overrideFlags)
 	if err != nil {
@@ -125,6 +126,16 @@ func parseFlags() RuntimeFlags {
 	var terminalFlag bool
 	flag.BoolVar(&fileFlag, "file", false, "overrides configuration - changes output to file")
 	flag.BoolVar(&terminalFlag, "terminal", false, "overrides configuration - changes output to terminal")
+
+	flag.BoolFunc("export", "overrides configuration - sets export", func(s string) error {
+		if len(s) == 0 {
+			flags.export = v.Config
+		} else {
+			flags.export = v.Variant(s)
+		}
+
+		return nil
+	})
 
 	flag.Parse()
 

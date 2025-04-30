@@ -98,6 +98,7 @@ func NewTextStep(instruction, placeholder string, repeats bool) *Step {
 type Override struct {
 	Language v.Variant
 	Output   v.Variant
+	Export   v.Variant
 }
 
 type Model struct {
@@ -433,5 +434,9 @@ func overrideSettings(s *c.Settings, o Override) {
 
 	if o.Output != v.Config {
 		s.OutputStyle = o.Output
+	}
+
+	if o.Export == v.NoExport || o.Export == v.ExportDefault || o.Export == v.Inline {
+		s.Export = o.Export
 	}
 }
