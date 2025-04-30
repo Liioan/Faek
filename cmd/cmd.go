@@ -46,10 +46,11 @@ func Execute() {
 	var steps []m.Step
 	if flags.configMode {
 		steps = []m.Step{
-			*m.NewListStep("Choose your default output style", "Output options:", false, v.OutputSet),
-			*m.NewListStep("Choose your preferred language (default: TypeScript)", "Language options:", false, v.LanguageSet),
+			*m.NewListStep("Choose your default output style", "Output options:", false, v.OutputVariants),
+			*m.NewListStep("Choose your preferred language", "Language options:", false, v.LanguageVariants),
 			*m.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
 			*m.NewTextStep("Choose indent size (default: 2)", "e.g. 4", false),
+			*m.NewListStep("Choose preferred export", "Export options:", false, v.ExportVariants),
 		}
 	} else {
 		steps = []m.Step{
@@ -58,6 +59,7 @@ func Execute() {
 			*m.NewTextStep("Create type for your object? (default: no type, input: type name)", "e.g. Post", false),
 			*m.NewTextStep("How many items will be in this array (default 5)", "e.g. 5", false),
 		}
+
 	}
 
 	overrideFlags := m.Override{Language: flags.language, Output: flags.output}

@@ -6,19 +6,8 @@ import (
 	v "github.com/liioan/faek/internal/variants"
 )
 
-func newVariantsInput(optionSet v.VariantSet, instruction string) *listInputField {
-	variants := []v.VariantData{}
+func newVariantsInput(variants []v.VariantData, instruction string) *listInputField {
 
-	switch optionSet {
-	case v.DateSet:
-		variants = v.DateVariants
-	case v.ImgSet:
-		variants = v.ImgVariants
-	case v.OutputSet:
-		variants = v.OutputVariants
-	case v.LanguageSet:
-		variants = v.LanguageVariants
-	}
 	l := []list.Item{}
 	for _, option := range variants {
 		l = append(l, item(option.Value))
@@ -26,20 +15,7 @@ func newVariantsInput(optionSet v.VariantSet, instruction string) *listInputFiel
 	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
 }
 
-func getVariantsValue(optionSet v.VariantSet, userInput string) v.Variant {
-	variants := []v.VariantData{}
-
-	switch optionSet {
-	case v.DateSet:
-		variants = v.DateVariants
-	case v.ImgSet:
-		variants = v.ImgVariants
-	case v.OutputSet:
-		variants = v.OutputVariants
-	case v.LanguageSet:
-		variants = v.LanguageVariants
-	}
-
+func getVariantsValue(variants []v.VariantData, userInput string) v.Variant {
 	for _, option := range variants {
 		if option.Value == userInput {
 			return option.Key

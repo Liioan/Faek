@@ -18,6 +18,7 @@ type Settings struct {
 	Language    v.Variant `json:"lang"`
 	OutputStyle v.Variant `json:"outputStyle"`
 	Indent      string    `json:"indent"`
+	Export      v.Variant `json:"export"`
 }
 
 var defaultSettings = Settings{
@@ -25,6 +26,7 @@ var defaultSettings = Settings{
 	FileName:    "faekOutput.ts",
 	Language:    v.TypeScript,
 	Indent:      "2",
+	Export:      v.NoExport,
 }
 
 func getConfigDirectory() (string, error) {

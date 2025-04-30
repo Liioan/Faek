@@ -9,13 +9,6 @@ type VariantData struct {
 
 type VariantSet string
 
-const (
-	DateSet     VariantSet = "date"
-	ImgSet      VariantSet = "img"
-	OutputSet   VariantSet = "output"
-	LanguageSet VariantSet = "lang"
-)
-
 // - generator options
 const (
 	HorizontalImg     Variant = "300x500"
@@ -75,6 +68,26 @@ var LanguageVariants = []VariantData{
 	{TypeScript, "TypeScript"},
 	{JavaScript, "JavaScript"},
 	{JSON, "JSON"},
+}
+
+const (
+	NoExport      Variant = "off"
+	Export        Variant = "inline"
+	ExportDefault Variant = "default"
+)
+
+var ExportVariants = []VariantData{
+	{NoExport, "No export"},
+	{Export, "Export inline"},
+	{ExportDefault, "Export default"},
+}
+
+var VariantSets = map[string][]VariantData{
+	"img":    ImgVariants,
+	"date":   DateVariants,
+	"lang":   LanguageVariants,
+	"output": OutputVariants,
+	"export": ExportVariants,
 }
 
 const Config Variant = "config" //- default for config override

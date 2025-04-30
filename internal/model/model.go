@@ -17,6 +17,7 @@ import (
 	c "github.com/liioan/faek/internal/configuration"
 	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/styles"
+	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
 
@@ -70,17 +71,17 @@ type Step struct {
 		text   string
 		fields []Field
 	}
-	OptionSet v.VariantSet
-	Repeats   bool
+	Variants []v.VariantData
+	Repeats  bool
 }
 
-func NewListStep(title, instruction string, repeats bool, optionSet v.VariantSet) *Step {
+func NewListStep(title, instruction string, repeats bool, variants []v.VariantData) *Step {
 	i := activeInput{
-		input: newVariantsInput(optionSet, instruction),
+		input: newVariantsInput(variants, instruction),
 		mode:  ListInput,
 	}
 
-	s := Step{Instruction: title, Repeats: repeats, StepInput: i, OptionSet: optionSet}
+	s := Step{Instruction: title, Repeats: repeats, StepInput: i, Variants: variants}
 	return &s
 }
 
@@ -141,6 +142,7 @@ func (m Model) View() string {
 				Language:    v.Variant(m.Steps[1].Answer.text),
 				FileName:    strings.Trim(m.Steps[2].Answer.text, " "),
 				Indent:      m.Steps[3].Answer.text,
+				Export:      v.Variant(m.Steps[4].Answer.text),
 			}
 
 			c.SaveUserSettings(&settings)
@@ -153,6 +155,7 @@ func (m Model) View() string {
 				{"Language", string(settings.Language)},
 				{"File name", settings.GetFullFileName()},
 				{"Indent", settings.Indent},
+				{"Export", string(settings.Export)},
 			}
 
 			table := table.New().
@@ -234,9 +237,12 @@ func parseInput(m *Model, current *Step, userInput string) {
 		return
 	}
 
+	utils.LogToDebug(fmt.Sprint(current.Variants))
+
 	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
 		if m.ConfigurationMode {
-			current.Answer.text = string(getVariantsValue(current.OptionSet, userInput))
+			utils.LogToDebug(userInput)
+			current.Answer.text = string(getVariantsValue(current.Variants, userInput))
 			m.Next()
 			return
 		} else {
@@ -251,7 +257,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 				currentField.variant = v.Variant(userInput)
 			} else {
-				currentField.variant = getVariantsValue(v.VariantSet(currentField.fieldType), userInput)
+				currentField.variant = getVariantsValue(current.Variants, userInput)
 			}
 			m.ActiveInput = m.Steps[m.Index].StepInput
 		}
@@ -284,7 +290,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 				for key, value := range typesWithOptions {
 					if key == stringFields[1] {
-						variantInput := newVariantsInput(v.VariantSet(key), value)
+						variantInput := newVariantsInput(v.VariantSets[key], value)
 						m.ActiveInput.input = variantInput
 						m.ActiveInput.mode = ListInput
 						return
@@ -327,6 +333,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.ActiveInput.input.setValue("")
 				return m, nil
 			} else {
+				parseInput(&m, current, m.ActiveInput.input.Value())
 				m.Finished = true
 				m.Quitting = true
 				return m, tea.Quit
