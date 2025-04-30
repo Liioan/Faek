@@ -72,13 +72,13 @@ var LanguageVariants = []VariantData{
 
 const (
 	NoExport      Variant = "off"
-	Export        Variant = "inline"
+	Inline        Variant = "inline"
 	ExportDefault Variant = "default"
 )
 
 var ExportVariants = []VariantData{
 	{NoExport, "No export"},
-	{Export, "Export inline"},
+	{Inline, "Export inline"},
 	{ExportDefault, "Export default"},
 }
 

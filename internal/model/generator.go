@@ -66,6 +66,8 @@ func (m *Model) generateOutput() string {
 		res += "]"
 	}
 
+	res += handleExport(outputMetadata, v.ExportDefault)
+
 	return res
 }
 
@@ -209,7 +211,7 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("const %s: %s[]", o.AryName, t)
+				res += fmt.Sprintf("%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, t)
 			}
 		case l > 1 && l <= 3:
 			if o.CustomType != "" {
@@ -218,9 +220,9 @@ func handleDeclaration(o *OutputMetadata) string {
 					t := getUnderlyingType(field.fieldType, field.variant)
 					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.name, t)
 				}
-				res += fmt.Sprintf("}\n\nconst %s: %s[]", o.AryName, o.CustomType)
+				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("const %s: { ", o.AryName)
+				res += fmt.Sprintf("%sconst %s: { ", handleExport(o, v.Inline), o.AryName)
 				for i, field := range o.Fields {
 					coma := ","
 					if i == l-1 {
@@ -240,7 +242,7 @@ func handleDeclaration(o *OutputMetadata) string {
 				}
 				res += fmt.Sprintf("}\n\nconst %s: %s[]", o.AryName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("const %s: {\n", o.AryName)
+				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.AryName)
 				for _, field := range o.Fields {
 					t := getUnderlyingType(field.fieldType, field.variant)
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
@@ -248,7 +250,22 @@ func handleDeclaration(o *OutputMetadata) string {
 				res += "}[]"
 			}
 		}
-	case v.JSON:
+	}
+
+	return res
+}
+
+func handleExport(o *OutputMetadata, selected v.Variant) string {
+	if o.Settings.Export != selected || o.Settings.Language == v.JSON {
+		return ""
+	}
+
+	res := ""
+	switch o.Settings.Export {
+	case v.Inline:
+		res += "export "
+	case v.ExportDefault:
+		res += fmt.Sprintf("\n\nexport default %s", o.AryName)
 	}
 
 	return res
