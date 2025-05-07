@@ -7,7 +7,6 @@ import (
 )
 
 func newVariantsInput(variants []v.VariantData, instruction string) *listInputField {
-
 	l := []list.Item{}
 	for _, option := range variants {
 		l = append(l, item(option.Value))

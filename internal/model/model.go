@@ -326,6 +326,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		case "enter":
+
 			if m.Index < len(m.Steps)-1 {
 				parseInput(&m, current, m.ActiveInput.input.Value())
 				m.ActiveInput.input.setValue("")
