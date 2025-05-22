@@ -166,13 +166,16 @@ func (m Model) View() string {
 	}
 
 	instruction := ""
-	if m.Index == 1 {
+	if m.Index == 1 && !m.ConfigurationMode {
 		instruction = current.AvailableInputs[current.InputIdx].instruction
 	} else {
 		instruction = current.StepInput.instruction
 	}
 
-	if (m.Index == 1 && current.InputIdx == NEXT_STEP_INPUT) || (m.Index == 2 && current.InputIdx == CONFIRM_OBJ_INPUT) {
+	isNextStepInput := m.Index == 1 && current.InputIdx == NEXT_STEP_INPUT
+	isReviewStepInput := m.Index == 2 && current.InputIdx == CONFIRM_OBJ_INPUT
+
+	if (isNextStepInput || isReviewStepInput) && !m.ConfigurationMode {
 		rows := [][]string{}
 
 		for _, field := range m.Steps[1].Answer.fields {
@@ -233,7 +236,11 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 	switch current.StepType {
 	case NormalStep:
-		current.Answer.text = userInput
+		if len(current.Variants) != 0 {
+			current.Answer.text = string(getVariantsValue(current.Variants, userInput))
+		} else {
+			current.Answer.text = userInput
+		}
 		m.Next()
 		return
 	case PropStep:

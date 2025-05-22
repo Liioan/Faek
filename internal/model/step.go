@@ -25,6 +25,7 @@ type Step struct {
 		text   string
 		fields []Field
 	}
+	Variants []v.VariantData
 
 	StepType stepType
 
@@ -47,7 +48,7 @@ func CreateListStep(title, instruction string, variants []v.VariantData) *Step {
 
 	i := newListInputField(l, itemDelegate{getStyle: fn}, 50, 12, instruction)
 
-	s := Step{StepInput: activeInput{instruction: title, input: i}, StepType: NormalStep}
+	s := Step{StepInput: activeInput{instruction: title, input: i}, StepType: NormalStep, Variants: variants}
 	return &s
 }
 
