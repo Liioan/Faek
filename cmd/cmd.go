@@ -47,18 +47,20 @@ func Execute() {
 	var steps []m.Step
 	if flags.configMode {
 		steps = []m.Step{
-			*m.NewListStep("Choose your default output style", "Output options:", false, v.OutputVariants),
-			*m.NewListStep("Choose your preferred language", "Language options:", false, v.LanguageVariants),
-			*m.NewTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts", false),
-			*m.NewTextStep("Choose indent size (default: 2)", "e.g. 4", false),
-			*m.NewListStep("Choose preferred export", "Export options:", false, v.ExportVariants),
+			*m.CreateListStep("Choose your default output style", "Output options:", v.OutputVariants),
+			*m.CreateListStep("Choose your preferred language", "Language options:", v.LanguageVariants),
+			*m.CreateTextStep("Choose filename for output file (default: faekOutput.ts)", "e.g. output.ts"),
+			*m.CreateTextStep("Choose indent size (default: 2)", "e.g. 4"),
+			*m.CreateListStep("Choose preferred export", "Export options:", v.ExportVariants),
 		}
 	} else {
+		propStep := m.CreatePropsStep()
 		steps = []m.Step{
-			*m.NewTextStep("What will the array be called? (default: arr)", "e.g. users", false),
-			*m.NewTextStep("Write your field (to continue press enter without input)", "e.g. name string", true),
-			*m.NewTextStep("Create type for your object? (default: no type, input: type name)", "e.g. Post", false),
-			*m.NewTextStep("How many items will be in this array (default 5)", "e.g. 5", false),
+			*m.CreateTextStep("What will the array be called? (default: arr)", "e.g. users"),
+			*propStep,
+			*m.CreateEditStep(propStep),
+			*m.CreateOptionalStep("Type", "Create type for your object?", []string{"yes", "no"}, "Write your type name", "e.g. Post"),
+			*m.CreateTextStep("How many items will be in this array (default 5)", "e.g. 5"),
 		}
 
 	}

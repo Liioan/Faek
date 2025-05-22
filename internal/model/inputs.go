@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/liioan/faek/internal/styles"
 )
 
@@ -84,7 +85,13 @@ type item string
 
 func (i item) FilterValue() string { return "" }
 
-type itemDelegate struct{}
+type itemDelegate struct {
+	getStyle func(s ...string) *lipgloss.Style
+}
+
+func listDefaultStyle(s ...string) *lipgloss.Style {
+	return &styles.SelectedItemStyle
+}
 
 func (d itemDelegate) Height() int                             { return 1 }
 func (d itemDelegate) Spacing() int                            { return 0 }
@@ -100,7 +107,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	fn := styles.ItemStyle.Render
 	if index == m.Index() {
 		fn = func(s ...string) string {
-			return styles.SelectedItemStyle.Render("> " + strings.Join(s, " "))
+			return d.getStyle(s...).Render("> " + strings.Join(s, " "))
 		}
 	}
 

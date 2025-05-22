@@ -46,6 +46,23 @@ var DateVariants = []VariantData{
 	{DateObject, "object: new Date()"},
 }
 
+var AllTypes = []string{
+	"string",
+	"number",
+	"bool",
+	"date",
+	"img",
+	"string enum",
+	"null",
+	"undefined",
+}
+var StringTypes = []string{
+	"name",
+	"surname",
+	"email",
+	"title",
+}
+
 //- configuration options
 
 const (

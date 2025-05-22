@@ -9,51 +9,23 @@ import (
 	"slices"
 	"strings"
 
+	list "github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	table "github.com/charmbracelet/lipgloss/table"
+
 	"github.com/muesli/reflow/wordwrap"
 
+	// internal
 	c "github.com/liioan/faek/internal/configuration"
 	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/styles"
 	v "github.com/liioan/faek/internal/variants"
 )
 
-type inputMode string
-
-type TypesArray []string
-
-var ValidTypesArray = TypesArray{"string", "number", "boolean", "img", "strSet", "date"}
-
-var typeConversion = map[string]string{
-	"int":       "number",
-	"float":     "number",
-	"short":     "number",
-	"long":      "number",
-	"str":       "string",
-	"char":      "string",
-	"bool":      "boolean",
-	"stringSet": "strSet",
-	"ss":        "strSet",
-	"strs":      "strSet",
-	"strset":    "strSet",
-}
-
-var typesWithOptions = map[string]string{
-	"date": "Choose a date format: ",
-	"img":  "Choose a size of the image: ",
-}
-
-const (
-	TextInput   inputMode = "text"
-	ListInput   inputMode = "list"
-	CustomInput inputMode = "custom"
-)
-
 type activeInput struct {
-	input InputComponent
-	mode  inputMode
+	input       InputComponent
+	instruction string
 }
 
 type Field struct {
@@ -63,42 +35,13 @@ type Field struct {
 	options   []string
 }
 
-type Step struct {
-	Instruction string
-	StepInput   activeInput
-	Answer      struct {
-		text   string
-		fields []Field
-	}
-	Variants []v.VariantData
-	Repeats  bool
-}
-
-func NewListStep(title, instruction string, repeats bool, variants []v.VariantData) *Step {
-	i := activeInput{
-		input: newVariantsInput(variants, instruction),
-		mode:  ListInput,
-	}
-
-	s := Step{Instruction: title, Repeats: repeats, StepInput: i, Variants: variants}
-	return &s
-}
-
-func NewTextStep(instruction, placeholder string, repeats bool) *Step {
-	i := activeInput{
-		input: newTextInputField(placeholder),
-		mode:  TextInput,
-	}
-
-	s := Step{Instruction: instruction, Repeats: repeats, StepInput: i}
-	return &s
-}
-
 type Override struct {
 	Language v.Variant
 	Output   v.Variant
 	Export   v.Variant
 }
+
+// ------- model -------
 
 type Model struct {
 	Index       int
@@ -222,90 +165,216 @@ func (m Model) View() string {
 		return styles.QuitStyle.Render("Quitting")
 	}
 
+	instruction := ""
+	if m.Index == 1 {
+		instruction = current.AvailableInputs[current.InputIdx].instruction
+	} else {
+		instruction = current.StepInput.instruction
+	}
+
+	if (m.Index == 1 && current.InputIdx == NEXT_STEP_INPUT) || (m.Index == 2 && current.InputIdx == CONFIRM_OBJ_INPUT) {
+		rows := [][]string{}
+
+		for _, field := range m.Steps[1].Answer.fields {
+			rows = append(rows, []string{field.name, field.fieldType, string(field.variant)})
+		}
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			wordwrap.String(styles.TitleStyle.Render(instruction), m.Width),
+			styles.AnswerStyle.Render(m.ActiveInput.input.View()),
+			styles.AnswerStyle.Render("current properties: "),
+			createTable(rows, []string{"Name", "Type", "Option"}).Render())
+	}
+
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		wordwrap.String(styles.TitleStyle.Render(current.Instruction), m.Width),
+		wordwrap.String(styles.TitleStyle.Render(current.StepInput.instruction), m.Width),
 		styles.AnswerStyle.Render(m.ActiveInput.input.View()),
 	)
 }
 
+const (
+	NEXT_STEP_INPUT     = 0
+	PROPERTY_NAME_INPUT = 1
+	PROPERTY_TYPE_INPUT = 2
+	STRING_DATA_INPUT   = 3
+	DATE_VARIANT_INPUT  = 4
+	IMG_VARIANT_INPUT   = 5
+	CUSTOM_SIZE_INPUT   = 6
+	RANGE_INPUT         = 7
+	STRING_SET_INPUT    = 8
+)
+
+const (
+	OPTIONAL_STEP_1 = 0
+	OPTIONAL_STEP_2 = 1
+)
+
+const (
+	CONFIRM_OBJ_INPUT = 0
+	DELETE_PROP_INPUT = 1
+)
+
+func updateLastField(userInput v.Variant, current *Step, m *Model) {
+	lastField := &current.Answer.fields[len(current.Answer.fields)-1]
+	lastField.variant = userInput
+	current.InputIdx = NEXT_STEP_INPUT
+	m.ActiveInput = current.AvailableInputs[current.InputIdx]
+}
+
 func parseInput(m *Model, current *Step, userInput string) {
+
 	userInput = strings.Trim(userInput, " ")
 
-	if userInput == "Custom" {
-		m.ActiveInput = activeInput{input: newTextInputField("custom dimension e.g. 200x300"), mode: CustomInput}
+	if len(userInput) == 0 && (m.Index == 1 || m.Index == 3) {
 		return
 	}
 
-	if m.ActiveInput.mode == ListInput || m.ActiveInput.mode == CustomInput {
-		if m.ConfigurationMode {
-			current.Answer.text = string(getVariantsValue(current.Variants, userInput))
-			m.Next()
-			return
-		} else {
-			fieldsLen := len(m.Steps[m.Index].Answer.fields)
-			currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
-
-			if m.ActiveInput.mode == CustomInput {
-				regex := regexp.MustCompile(`^\d+x\d+$`)
-				if !regex.MatchString(userInput) {
+	switch current.StepType {
+	case NormalStep:
+		current.Answer.text = userInput
+		m.Next()
+		return
+	case PropStep:
+		switch current.InputIdx {
+		case PROPERTY_NAME_INPUT:
+			for _, f := range current.Answer.fields {
+				if f.name == userInput {
 					return
 				}
-
-				currentField.variant = v.Variant(userInput)
-			} else {
-				currentField.variant = getVariantsValue(current.Variants, userInput)
 			}
-			m.ActiveInput = m.Steps[m.Index].StepInput
-		}
-		return
-	}
 
-	if current.Repeats {
-		if userInput == "" {
-			if len(current.Answer.fields) > 0 {
+			current.Answer.text = userInput
+			current.InputIdx++
+			m.ActiveInput = current.AvailableInputs[current.InputIdx]
+
+		case PROPERTY_TYPE_INPUT:
+			fieldName := current.Answer.text
+			fieldType := userInput
+			current.Answer.fields = append(current.Answer.fields, Field{name: fieldName, fieldType: fieldType})
+
+			switch fieldType {
+			case "string":
+				current.InputIdx = STRING_DATA_INPUT
+			case "number":
+				current.InputIdx = RANGE_INPUT
+			case "string enum":
+				current.InputIdx = STRING_SET_INPUT
+			case "date":
+				current.InputIdx = DATE_VARIANT_INPUT
+			case "img":
+				current.InputIdx = IMG_VARIANT_INPUT
+			default:
+				current.InputIdx = NEXT_STEP_INPUT
+			}
+
+			m.ActiveInput = current.AvailableInputs[current.InputIdx]
+
+		case NEXT_STEP_INPUT:
+			if userInput == "no" {
+				current.Answer.text = ""
 				m.Next()
 				return
 			} else {
-				return
+				current.InputIdx++
+				m.ActiveInput = current.AvailableInputs[current.InputIdx]
 			}
-		} else {
-			stringFields := strings.Fields(userInput)
-			l := len(stringFields)
-			if l == 1 {
-				return
-			}
-			if l >= 2 {
-				for key, value := range typeConversion {
-					stringFields[1] = strings.ToLower(stringFields[1])
-					if stringFields[1] == key {
-						stringFields[1] = value
-					}
-				}
-				if slices.Contains(ValidTypesArray, stringFields[1]) {
-					current.Answer.fields = append(current.Answer.fields, Field{name: stringFields[0], fieldType: stringFields[1]})
-				}
 
-				for key, value := range typesWithOptions {
-					if key == stringFields[1] {
-						variantInput := newVariantsInput(v.VariantSets[key], value)
-						m.ActiveInput.input = variantInput
-						m.ActiveInput.mode = ListInput
-						return
-					}
-				}
-
-				if l > 2 {
-					fieldsLen := len(m.Steps[m.Index].Answer.fields)
-					currentField := &m.Steps[m.Index].Answer.fields[fieldsLen-1]
-					currentField.options = append(currentField.options, stringFields[2:]...)
-				}
+		case IMG_VARIANT_INPUT:
+			if userInput == "Custom" {
+				current.InputIdx = CUSTOM_SIZE_INPUT
+				m.ActiveInput = current.AvailableInputs[current.InputIdx]
+			} else {
+				selectedVariant := getVariantsValue(v.ImgVariants, userInput)
+				updateLastField(selectedVariant, current, m)
 			}
-			return
+
+		case CUSTOM_SIZE_INPUT:
+			regex := regexp.MustCompile(`^\d+x\d+$`)
+			if regex.MatchString(userInput) {
+				updateLastField(v.Variant(userInput), current, m)
+			}
+
+		case RANGE_INPUT:
+			regex := regexp.MustCompile(`^\d+\s\d+$`)
+			if regex.MatchString(userInput) {
+				updateLastField(v.Variant(userInput), current, m)
+			}
+
+		case DATE_VARIANT_INPUT:
+			selectedVariant := getVariantsValue(v.DateVariants, userInput)
+			updateLastField(selectedVariant, current, m)
+		default:
+			updateLastField(v.Variant(userInput), current, m)
 		}
+	case OptionalStep:
+		switch current.InputIdx {
+		case OPTIONAL_STEP_1:
+			if userInput == "no" {
+				m.Next()
+			} else {
+				current.InputIdx++
+				m.ActiveInput = current.AvailableInputs[current.InputIdx]
+			}
+		case OPTIONAL_STEP_2:
+			current.Answer.text = userInput
+			m.Next()
+		}
+	case EditStep:
+		if current.InputIdx == DELETE_PROP_INPUT {
+
+			propStep := &m.Steps[1]
+
+			propIdx := 0
+			for i, prop := range propStep.Answer.fields {
+				if userInput == strings.Trim(fmt.Sprintf("%s %s %s", prop.name, prop.fieldType, prop.variant), " ") {
+					propIdx = i
+					break
+				}
+			}
+
+			propStep.Answer.fields = slices.Delete(propStep.Answer.fields, propIdx, propIdx+1)
+			current.InputIdx = 0
+			m.ActiveInput = current.AvailableInputs[current.InputIdx]
+			if len(propStep.Answer.fields) == 0 {
+				m.Index--
+				propStep.InputIdx = 1
+				m.ActiveInput = propStep.AvailableInputs[propStep.InputIdx]
+				return
+			}
+
+			return
+
+		}
+
+		switch userInput {
+		case "confirm":
+			m.Next()
+		case "add prop":
+			m.Index--
+			m.Steps[1].InputIdx = 1
+			m.ActiveInput = m.Steps[1].AvailableInputs[m.Steps[1].InputIdx]
+
+		case "delete prop":
+			current.InputIdx = DELETE_PROP_INPUT
+			props := []list.Item{item("cancel")}
+			for _, f := range m.Steps[1].Answer.fields {
+				props = append(props, item(fmt.Sprintf("%s %s %s", f.name, f.fieldType, f.variant)))
+			}
+
+			i := newListInputField(props, itemDelegate{func(s ...string) *lipgloss.Style {
+				if strings.Contains(s[0], "cancel") {
+					return &styles.SelectedItemStyle
+				}
+				return &styles.DestructiveItemStyle
+			}}, 50, 14, "Which prop should be deleted?")
+			current.AvailableInputs[DELETE_PROP_INPUT].input = i
+			m.ActiveInput = current.AvailableInputs[current.InputIdx]
+		}
+
 	}
-	current.Answer.text = userInput
-	m.Next()
+
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -437,4 +506,23 @@ func overrideSettings(s *c.Settings, o Override) {
 	if o.Export == v.NoExport || o.Export == v.ExportDefault || o.Export == v.Inline {
 		s.Export = o.Export
 	}
+}
+
+func createTable(rows [][]string, headers []string) *table.Table {
+	t := table.New().
+		Border(lipgloss.RoundedBorder()).
+		BorderStyle(lipgloss.NewStyle().Foreground(styles.White)).
+		StyleFunc(func(row, col int) lipgloss.Style {
+			switch {
+			case row == 0:
+				return styles.TableHeaderStyle
+			case row%2 == 0:
+				return styles.TableEvenRowStyle
+			default:
+				return styles.TableOddRowStyle
+			}
+		}).
+		Headers(headers...).
+		Rows(rows...)
+	return t
 }
