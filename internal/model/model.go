@@ -230,12 +230,11 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 	userInput = strings.Trim(userInput, " ")
 
-	if len(userInput) == 0 && (m.Index == 1 || m.Index == 3) {
-		return
-	}
-
 	switch current.StepType {
 	case NormalStep:
+		if len(userInput) == 0 {
+			return
+		}
 		if len(current.Variants) != 0 {
 			current.Answer.text = string(getVariantsValue(current.Variants, userInput))
 		} else {
@@ -304,7 +303,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 			}
 
 		case RANGE_INPUT:
-			regex := regexp.MustCompile(`^\d+\s\d+$`)
+			regex := regexp.MustCompile(`^(\d+\s\d+|\d+)?$`)
 			if regex.MatchString(userInput) {
 				updateLastField(v.Variant(userInput), current, m)
 			}
@@ -325,6 +324,9 @@ func parseInput(m *Model, current *Step, userInput string) {
 				m.ActiveInput = current.AvailableInputs[current.InputIdx]
 			}
 		case OPTIONAL_STEP_2:
+			if len(userInput) == 0 {
+				return
+			}
 			current.Answer.text = userInput
 			m.Next()
 		}
