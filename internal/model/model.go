@@ -23,18 +23,6 @@ import (
 	v "github.com/liioan/faek/internal/variants"
 )
 
-type activeInput struct {
-	input       InputComponent
-	instruction string
-}
-
-type Field struct {
-	name      string
-	fieldType string
-	variant   v.Variant
-	options   []string
-}
-
 type Override struct {
 	Language v.Variant
 	Output   v.Variant
@@ -232,7 +220,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 	switch current.StepType {
 	case NormalStep:
-		if len(userInput) == 0 {
+		if len(userInput) == 0 && m.Index != 0 {
 			return
 		}
 		if len(current.Variants) != 0 {
@@ -457,26 +445,26 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 		m.Steps[0].Answer.text = ""
 		m.Steps[1].Answer.fields = []Field{
 			{name: "str", fieldType: "string"},
-			{name: "int", fieldType: "number", options: []string{"10000"}},
+			{name: "int", fieldType: "number", variant: v.Variant("10000")},
 			{name: "bool", fieldType: "boolean"},
 			{name: "date", fieldType: "date", variant: v.Timestamp},
 			{name: "img", fieldType: "img", variant: v.HorizontalImg},
-			{name: "strSet", fieldType: "strSet", options: []string{"a", "b", "a_b"}},
+			{name: "strSet", fieldType: "string enum", variant: v.Variant("a b a_b")},
 		}
-		m.Steps[2].Answer.text = ""
-		m.Steps[3].Answer.text = fmt.Sprint(length)
+		m.Steps[3].Answer.text = ""
+		m.Steps[4].Answer.text = fmt.Sprint(length)
 	case "user":
 		m.Steps[0].Answer.text = "users"
 		m.Steps[1].Answer.fields = []Field{
 			{name: "name", fieldType: "string"},
 			{name: "surname", fieldType: "string"},
-			{name: "age", fieldType: "number", options: []string{"18", "100"}},
+			{name: "age", fieldType: "number", variant: v.Variant("18 100")},
 			{name: "email", fieldType: "string"},
 			{name: "premiumAccount", fieldType: "boolean"},
-			{name: "role", fieldType: "strSet", options: []string{"admin", "user", "mod"}},
+			{name: "role", fieldType: "string enum", variant: v.Variant("user admin mod")},
 		}
-		m.Steps[2].Answer.text = "User"
-		m.Steps[3].Answer.text = fmt.Sprint(length)
+		m.Steps[3].Answer.text = "User"
+		m.Steps[4].Answer.text = fmt.Sprint(length)
 	case "dates":
 		m.Steps[0].Answer.text = "dates"
 		m.Steps[1].Answer.fields = []Field{
@@ -487,8 +475,8 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 			{name: "year", fieldType: "date", variant: v.Year},
 			{name: "obj", fieldType: "date", variant: v.DateObject},
 		}
-		m.Steps[2].Answer.text = "Dates"
-		m.Steps[3].Answer.text = fmt.Sprint(length)
+		m.Steps[3].Answer.text = "Dates"
+		m.Steps[4].Answer.text = fmt.Sprint(length)
 	case "imgs":
 		m.Steps[0].Answer.text = "images"
 		m.Steps[1].Answer.fields = []Field{
@@ -497,8 +485,8 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 			{name: "banner", fieldType: "img", variant: v.Banner},
 			{name: "custom", fieldType: "img", variant: v.Variant("5x5")},
 		}
-		m.Steps[2].Answer.text = "Images"
-		m.Steps[3].Answer.text = fmt.Sprint(length)
+		m.Steps[3].Answer.text = "Images"
+		m.Steps[4].Answer.text = fmt.Sprint(length)
 	}
 	return &m
 }

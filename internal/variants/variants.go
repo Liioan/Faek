@@ -49,7 +49,7 @@ var DateVariants = []VariantData{
 var AllTypes = []string{
 	"string",
 	"number",
-	"bool",
+	"boolean",
 	"date",
 	"img",
 	"string enum",

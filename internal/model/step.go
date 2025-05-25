@@ -19,6 +19,17 @@ const (
 	PropStep     = "prop"
 )
 
+type activeInput struct {
+	input       InputComponent
+	instruction string
+}
+
+type Field struct {
+	name      string
+	fieldType string
+	variant   v.Variant
+}
+
 type Step struct {
 	StepInput activeInput
 	Answer    struct {

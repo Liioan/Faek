@@ -47,7 +47,9 @@ type OutputMetadata struct {
 func (m *Model) generateOutput() string {
 	res := ""
 
-	outputMetadata := NewOutputMetadata(m)
+	outputMetadata := CreateOutputMetadata(m)
+
+	utils.LogToDebug(PrintInterview(outputMetadata))
 
 	res += handleDeclaration(outputMetadata)
 
@@ -124,31 +126,26 @@ func insertValue(f Field) string {
 
 	switch f.fieldType {
 	case "string":
-		if len(predefinedValues[strings.ToLower(f.name)]) > 0 {
-			values := predefinedValues[strings.ToLower(f.name)]
+		if len(predefinedValues[string(f.variant)]) > 0 {
+			values := predefinedValues[string(f.variant)]
 			res = fmt.Sprintf("`%s`", values[utils.Random(0, len(values)-1)])
 			break
 		}
 		length := 39 // lorem(39) -> Lorem ipsum, dolor sit amet consectetur
-		if len(f.options) > 0 {
-			length = utils.ParseInt(f.options[0], length)
-		}
 
 		text := data.Content
-		for length > len(text) {
-			text += data.Content
-		}
-
 		res = fmt.Sprintf("`%s`", text[0:length])
 
 	case "number":
 		min := 0
 		max := 100
-		if len(f.options) == 1 {
-			max = utils.ParseInt(f.options[0], max)
-		} else if len(f.options) >= 2 {
-			min = utils.ParseInt(f.options[0], min)
-			max = utils.ParseInt(f.options[1], max)
+		numRange := strings.Split(string(f.variant), " ")
+
+		if len(numRange) == 1 {
+			max = utils.ParseInt(numRange[0], max)
+		} else if len(numRange) >= 2 {
+			min = utils.ParseInt(numRange[0], min)
+			max = utils.ParseInt(numRange[1], max)
 		}
 		res = fmt.Sprint(utils.Random(min, max))
 	case "boolean":
@@ -183,13 +180,14 @@ func insertValue(f Field) string {
 		default:
 			res = fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 		}
-	case "strSet":
+	case "string enum":
 		wordSet := strings.Split(data.Content[0:39], " ")
-		if len(f.options) != 0 {
-			wordSet = f.options
+		v := strings.Split(string(f.variant), " ")
+		if len(v) != 0 {
+			wordSet = v
 		}
+		wordSet = parseStringEnum(wordSet)
 		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
-		randStr = strings.Join(strings.Split(randStr, "_"), " ")
 		res = fmt.Sprintf("`%s`", randStr)
 	}
 
@@ -280,6 +278,22 @@ func getUnderlyingType(fieldType string, variant v.Variant) string {
 		}
 	}
 
+	if fieldType == "string enum" {
+		//- () for string enum in type def
+		res := "("
+		wordSet := parseStringEnum(strings.Split(string(variant), " "))
+
+		for i, w := range wordSet {
+			separator := " | "
+			if i == len(wordSet)-1 {
+				separator = ""
+			}
+			res += fmt.Sprintf(`"%s"%s`, w, separator)
+		}
+		res += ")"
+		return res
+	}
+
 	for k, v := range underlyingTypes {
 		if k == fieldType {
 			return v
@@ -287,6 +301,15 @@ func getUnderlyingType(fieldType string, variant v.Variant) string {
 	}
 
 	return fieldType
+}
+
+func parseStringEnum(wordSet []string) []string {
+	res := []string{}
+	for _, s := range wordSet {
+		res = append(res, strings.ReplaceAll(s, "_", " "))
+	}
+
+	return res
 }
 
 func getIndent(s *c.Settings, level int) string {
@@ -304,17 +327,17 @@ func getIndent(s *c.Settings, level int) string {
 	}
 }
 
-func NewOutputMetadata(m *Model) *OutputMetadata {
+func CreateOutputMetadata(m *Model) *OutputMetadata {
 	o := OutputMetadata{}
 
 	//. get data from user interview
 	o.AryName = m.Steps[0].Answer.text
 	o.Fields = m.Steps[1].Answer.fields
-	o.CustomType = m.Steps[2].Answer.text
+	o.CustomType = m.Steps[3].Answer.text
 	if o.CustomType != "" {
 		o.CustomType = strings.ToUpper(string(o.CustomType[0])) + o.CustomType[1:]
 	}
-	l, err := strconv.Atoi(m.Steps[3].Answer.text)
+	l, err := strconv.Atoi(m.Steps[4].Answer.text)
 	if err != nil {
 		l = 5
 	}
@@ -336,7 +359,7 @@ func PrintInterview(o *OutputMetadata) string {
 	res += o.AryName + "\n\n"
 	res += "Fields: \n"
 	for _, f := range o.Fields {
-		res += fmt.Sprintf("%s %s %v %v \n", f.name, f.fieldType, f.options, f.variant)
+		res += fmt.Sprintf("%s %s %v \n", f.name, f.fieldType, f.variant)
 	}
 	res += "\n"
 	res += "Custom type: "
