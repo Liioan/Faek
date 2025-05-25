@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 )
 
 var clear map[string]func()
@@ -55,6 +56,19 @@ func ParseInt(s string, defVal int) int {
 	num, err := strconv.Atoi(s)
 	if err == nil {
 		res = num
+	}
+	return res
+}
+
+func ToCameCase(s string) string {
+	res := ""
+	f := strings.Fields(s)
+	for i, s := range f {
+		if i == 0 {
+			res += s
+		} else {
+			res += strings.ToUpper(string(s[0])) + s[1:]
+		}
 	}
 	return res
 }

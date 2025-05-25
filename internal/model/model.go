@@ -20,6 +20,7 @@ import (
 	c "github.com/liioan/faek/internal/configuration"
 	e "github.com/liioan/faek/internal/errors"
 	"github.com/liioan/faek/internal/styles"
+	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
 
@@ -180,7 +181,7 @@ func (m Model) View() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		wordwrap.String(styles.TitleStyle.Render(current.StepInput.instruction), m.Width),
+		wordwrap.String(styles.TitleStyle.Render(instruction), m.Width),
 		styles.AnswerStyle.Render(m.ActiveInput.input.View()),
 	)
 }
@@ -226,20 +227,24 @@ func parseInput(m *Model, current *Step, userInput string) {
 		if len(current.Variants) != 0 {
 			current.Answer.text = string(getVariantsValue(current.Variants, userInput))
 		} else {
-			current.Answer.text = userInput
+			current.Answer.text = utils.ToCameCase(userInput)
 		}
 		m.Next()
 		return
 	case PropStep:
 		switch current.InputIdx {
 		case PROPERTY_NAME_INPUT:
+			if len(userInput) == 0 {
+				return
+			}
+
 			for _, f := range current.Answer.fields {
 				if f.name == userInput {
 					return
 				}
 			}
 
-			current.Answer.text = userInput
+			current.Answer.text = utils.ToCameCase(userInput)
 			current.InputIdx++
 			m.ActiveInput = current.AvailableInputs[current.InputIdx]
 
@@ -319,7 +324,13 @@ func parseInput(m *Model, current *Step, userInput string) {
 			m.Next()
 		}
 	case EditStep:
+
 		if current.InputIdx == DELETE_PROP_INPUT {
+			if userInput == "cancel" {
+				current.InputIdx = CONFIRM_OBJ_INPUT
+				m.ActiveInput = current.AvailableInputs[current.InputIdx]
+				return
+			}
 
 			propStep := &m.Steps[1]
 

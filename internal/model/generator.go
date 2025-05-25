@@ -49,8 +49,6 @@ func (m *Model) generateOutput() string {
 
 	outputMetadata := CreateOutputMetadata(m)
 
-	utils.LogToDebug(PrintInterview(outputMetadata))
-
 	res += handleDeclaration(outputMetadata)
 
 	if outputMetadata.Settings.Language != v.JSON {

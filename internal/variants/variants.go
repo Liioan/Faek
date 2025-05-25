@@ -61,6 +61,8 @@ var StringTypes = []string{
 	"surname",
 	"email",
 	"title",
+	"content",
+	"text",
 }
 
 //- configuration options
