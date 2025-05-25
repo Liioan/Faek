@@ -131,6 +131,10 @@ func insertValue(f Field) string {
 		}
 		length := 39 // lorem(39) -> Lorem ipsum, dolor sit amet consectetur
 
+		if f.variant == v.Variant("content") {
+			length = len(data.Content) - 1
+		}
+
 		text := data.Content
 		res = fmt.Sprintf("`%s`", text[0:length])
 

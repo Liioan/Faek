@@ -132,7 +132,7 @@ func (m Model) View() string {
 					file.Write([]byte(text))
 					output += styles.OutputStyle.Render(fmt.Sprintf("JSON is not supported in terminal, created output file: `%s`\n\n", settings.GetFullFileName()))
 
-				} else if len(strings.Split(text, "\n")) > m.Height {
+				} else if len(strings.Split(wordwrap.String(text, m.Width), "\n")) > m.Height {
 					file, err := os.Create(settings.GetFullFileName())
 					if err != nil {
 						log.Fatal(err)
