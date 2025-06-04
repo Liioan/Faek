@@ -59,7 +59,7 @@ func Execute() {
 			*m.CreateTextStep("What will the array be called? (default: arr)", "e.g. users"),
 			*propStep,
 			*m.CreateEditStep(propStep),
-			*m.CreateOptionalStep("Type", "Create type for your object?", []string{"yes", "no"}, "Write your type name", "e.g. Post"),
+			*m.CreateOptionalStep("Type", "Create type for your object?", []string{"no", "yes"}, "Write your type name", "e.g. Post"),
 			*m.CreateTextStep("How many items will be in this array (default 5)", "e.g. 5"),
 		}
 

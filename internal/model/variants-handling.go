@@ -2,16 +2,15 @@ package model
 
 import (
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/liioan/faek/internal/constance"
 	v "github.com/liioan/faek/internal/variants"
 )
 
-func newVariantsInput(variants []v.VariantData, instruction string) *listInputField {
-	l := []list.Item{}
-	for _, option := range variants {
-		l = append(l, item(option.Value))
+func getVariantList(v []v.VariantData) []list.Item {
+	res := []list.Item{}
+	for _, i := range v {
+		res = append(res, item(i.Value))
 	}
-	return newListInputField(l, itemDelegate{}, constance.DefaultWidth, constance.ListHeight, instruction)
+	return res
 }
 
 func getVariantsValue(variants []v.VariantData, userInput string) v.Variant {

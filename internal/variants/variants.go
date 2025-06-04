@@ -53,16 +53,17 @@ var AllTypes = []string{
 	"date",
 	"img",
 	"string enum",
+	"id",
 	"null",
 	"undefined",
 }
 var StringTypes = []string{
+	"text",
 	"name",
 	"surname",
 	"email",
 	"title",
 	"content",
-	"text",
 }
 
 //- configuration options
@@ -99,6 +100,16 @@ var ExportVariants = []VariantData{
 	{NoExport, "No export"},
 	{Inline, "Export inline"},
 	{ExportDefault, "Export default"},
+}
+
+const (
+	UUID   Variant = "UUID"
+	NanoID Variant = "NanoId"
+)
+
+var IDVariants = []VariantData{
+	{UUID, "UUID"},
+	{NanoID, "NanoID"},
 }
 
 var VariantSets = map[string][]VariantData{

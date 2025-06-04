@@ -16,6 +16,7 @@ import (
 var underlyingTypes = map[string]string{
 	"strSet": "string",
 	"img":    "string",
+	"id":     "string",
 }
 
 var underlyingDateTypes = map[v.Variant]string{
@@ -191,6 +192,8 @@ func insertValue(f Field) string {
 		wordSet = parseStringEnum(wordSet)
 		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
 		res = fmt.Sprintf("`%s`", randStr)
+	case "id":
+		res = "`BLANK_ID`"
 	case "null":
 		res = "null"
 	case "undefined":

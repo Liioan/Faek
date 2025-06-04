@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
+	c "github.com/liioan/faek/internal/constance"
 	"github.com/liioan/faek/internal/styles"
 	v "github.com/liioan/faek/internal/variants"
 )
@@ -57,7 +58,7 @@ func CreateListStep(title, instruction string, variants []v.VariantData) *Step {
 		return &styles.SelectedItemStyle
 	}
 
-	i := newListInputField(l, itemDelegate{getStyle: fn}, 50, 12, instruction)
+	i := newListInputField(l, itemDelegate{getStyle: fn}, c.DefaultWidth, 12, instruction)
 
 	s := Step{StepInput: activeInput{instruction: title, input: i}, StepType: NormalStep, Variants: variants}
 	return &s
@@ -89,26 +90,21 @@ func CreatePropsStep() *Step {
 		return &styles.SelectedItemStyle
 	}
 
-	dateTypes := []list.Item{}
-	for _, d := range v.DateVariants {
-		dateTypes = append(dateTypes, item(d.Value))
-	}
-
-	imgTypes := []list.Item{}
-	for _, i := range v.ImgVariants {
-		imgTypes = append(imgTypes, item(i.Value))
-	}
+	dateTypes := getVariantList(v.DateVariants)
+	imgTypes := getVariantList(v.ImgVariants)
+	idTypes := getVariantList(v.IDVariants)
 
 	i := []activeInput{
-		{instruction: "Create your object", input: newListInputField(nextType, itemDelegate{fn}, 50, 6, "Create another property?")},
+		{instruction: "Create your object", input: newListInputField(nextType, itemDelegate{fn}, c.DefaultWidth, 6, "Create another property?")},
 		{instruction: "Write property name", input: newTextInputField("e.g. email")},
-		{instruction: "Choose type", input: newListInputField(types, itemDelegate{listDefaultStyle}, 50, 14, "available types")},
-		{instruction: "Choose type of string data", input: newListInputField(stringTypes, itemDelegate{listDefaultStyle}, 50, 14, "available data")},
-		{instruction: "Choose date variant", input: newListInputField(dateTypes, itemDelegate{listDefaultStyle}, 50, 14, "available date variants")},
-		{instruction: "Choose img variant", input: newListInputField(imgTypes, itemDelegate{listDefaultStyle}, 50, 14, "available img variants")},
+		{instruction: "Choose type", input: newListInputField(types, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available types")},
+		{instruction: "Choose type of string data", input: newListInputField(stringTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available data")},
+		{instruction: "Choose date variant", input: newListInputField(dateTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available date variants")},
+		{instruction: "Choose img variant", input: newListInputField(imgTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available img variants")},
 		{instruction: "Write your dimensions: ", input: newTextInputField("e.g. 200x300")},
 		{instruction: "Write your range", input: newTextInputField("e.g. 18 60")},
 		{instruction: "Write your string set", input: newTextInputField("e.g. user mod admin")},
+		{instruction: "Choose id type", input: newListInputField(idTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available id types")},
 	}
 	s := Step{StepType: PropStep, InputIdx: 1, AvailableInputs: i, StepInput: i[1]}
 	return &s
@@ -126,7 +122,7 @@ func CreateEditStep(propStep *Step) *Step {
 	options := []list.Item{item("confirm"), item("add prop"), item("delete prop")}
 
 	i := []activeInput{
-		{instruction: "Create your object", input: newListInputField(options, itemDelegate{fn}, 50, 8, "confirm your object structure")},
+		{instruction: "Create your object", input: newListInputField(options, itemDelegate{fn}, c.DefaultWidth, 8, "confirm your object structure")},
 		{instruction: "Delete prop"},
 	}
 
@@ -148,7 +144,7 @@ func CreateOptionalStep(listInstruction, listTitle string, options []string, tex
 	}
 
 	i := []activeInput{
-		{instruction: listInstruction, input: newListInputField(l, itemDelegate{fn}, 50, 14, listTitle)},
+		{instruction: listInstruction, input: newListInputField(l, itemDelegate{fn}, c.DefaultWidth, c.ListHeight, listTitle)},
 		{instruction: textInstruction, input: newTextInputField(textPlaceholder)},
 	}
 

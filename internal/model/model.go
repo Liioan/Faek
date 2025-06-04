@@ -196,7 +196,17 @@ const (
 	CUSTOM_SIZE_INPUT   = 6
 	RANGE_INPUT         = 7
 	STRING_SET_INPUT    = 8
+	ID_VARIANT_INPUT    = 9
 )
+
+var typesToId = map[string]int{
+	"string":      STRING_DATA_INPUT,
+	"number":      RANGE_INPUT,
+	"string enum": STRING_SET_INPUT,
+	"date":        DATE_VARIANT_INPUT,
+	"img":         IMG_VARIANT_INPUT,
+	"id":          ID_VARIANT_INPUT,
+}
 
 const (
 	OPTIONAL_STEP_1 = 0
@@ -253,20 +263,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 			fieldType := userInput
 			current.Answer.fields = append(current.Answer.fields, Field{name: fieldName, fieldType: fieldType})
 
-			switch fieldType {
-			case "string":
-				current.InputIdx = STRING_DATA_INPUT
-			case "number":
-				current.InputIdx = RANGE_INPUT
-			case "string enum":
-				current.InputIdx = STRING_SET_INPUT
-			case "date":
-				current.InputIdx = DATE_VARIANT_INPUT
-			case "img":
-				current.InputIdx = IMG_VARIANT_INPUT
-			default:
-				current.InputIdx = NEXT_STEP_INPUT
-			}
+			current.InputIdx = typesToId[userInput]
 
 			m.ActiveInput = current.AvailableInputs[current.InputIdx]
 
@@ -304,6 +301,11 @@ func parseInput(m *Model, current *Step, userInput string) {
 		case DATE_VARIANT_INPUT:
 			selectedVariant := getVariantsValue(v.DateVariants, userInput)
 			updateLastField(selectedVariant, current, m)
+
+		case ID_VARIANT_INPUT:
+			selectedVariant := getVariantsValue(v.IDVariants, userInput)
+			updateLastField(selectedVariant, current, m)
+
 		default:
 			updateLastField(v.Variant(userInput), current, m)
 		}
