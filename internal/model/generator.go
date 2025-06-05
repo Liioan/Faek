@@ -193,7 +193,15 @@ func insertValue(f Field) string {
 		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
 		res = fmt.Sprintf("`%s`", randStr)
 	case "id":
-		res = "`BLANK_ID`"
+		switch f.variant {
+		case v.UUID:
+			uuid, err := utils.UUIDv4()
+			if err != nil {
+				res = "`60a0c89e-84c9-41c8-a731-31f6e0a31138`"
+			} else {
+				res = fmt.Sprintf("`%s`", uuid)
+			}
+		}
 	case "null":
 		res = "null"
 	case "undefined":
