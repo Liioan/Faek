@@ -195,11 +195,16 @@ func insertValue(f Field) string {
 	case "id":
 		switch f.variant {
 		case v.UUID:
-			uuid, err := utils.UUIDv4()
-			if err != nil {
+			if uuid, err := utils.UUIDv4(); err != nil {
 				res = "`60a0c89e-84c9-41c8-a731-31f6e0a31138`"
 			} else {
 				res = fmt.Sprintf("`%s`", uuid)
+			}
+		case v.NanoID:
+			if id, err := utils.NanoID(); err != nil {
+				res = "V1StGXR8_Z5jdHi6B-myT"
+			} else {
+				res = fmt.Sprintf("`%s`", id)
 			}
 		}
 	case "null":

@@ -3,6 +3,8 @@ package utils
 import (
 	"crypto/rand"
 	"fmt"
+
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 func UUIDv4() (string, error) {
@@ -26,4 +28,8 @@ func UUIDv4() (string, error) {
 		uuid[8:10],
 		uuid[10:16],
 	), nil
+}
+
+func NanoID() (string, error) {
+	return gonanoid.New()
 }

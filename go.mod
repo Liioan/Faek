@@ -8,6 +8,8 @@ require (
 	github.com/charmbracelet/lipgloss v0.13.0
 )
 
+require github.com/matoous/go-nanoid/v2 v2.1.0 // indirect
+
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
