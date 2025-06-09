@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -60,15 +61,14 @@ func ParseInt(s string, defVal int) int {
 	return res
 }
 
-func ToCameCase(s string) string {
+func ToCameCase(original string) string {
 	res := ""
-	f := strings.Fields(s)
-	for i, s := range f {
+	for i, s := range strings.Fields(original) {
 		if i == 0 {
 			res += s
-		} else {
-			res += strings.ToUpper(string(s[0])) + s[1:]
+			continue
 		}
+		res += fmt.Sprint(strings.ToUpper(s)[0]) + s[1:]
 	}
 	return res
 }

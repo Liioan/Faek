@@ -326,7 +326,6 @@ func parseInput(m *Model, current *Step, userInput string) {
 			m.Next()
 		}
 	case EditStep:
-
 		if current.InputIdx == DELETE_PROP_INPUT {
 			if userInput == "cancel" {
 				current.InputIdx = CONFIRM_OBJ_INPUT
@@ -353,9 +352,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 				m.ActiveInput = propStep.AvailableInputs[propStep.InputIdx]
 				return
 			}
-
 			return
-
 		}
 
 		switch userInput {

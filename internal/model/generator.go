@@ -301,7 +301,6 @@ func getUnderlyingType(fieldType string, variant v.Variant) string {
 	}
 
 	if fieldType == "string enum" {
-		//- () for string enum in type def
 		res := "("
 		wordSet := parseStringEnum(strings.Split(string(variant), " "))
 
@@ -374,6 +373,7 @@ func CreateOutputMetadata(m *Model) *OutputMetadata {
 	return &o
 }
 
+// - debug
 func PrintInterview(o *OutputMetadata) string {
 	res := ""
 
