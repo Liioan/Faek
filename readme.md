@@ -4,6 +4,13 @@
 
 ![demo](./doc/demo.png)
 
+## Installation
+
+1. Make sure you have [golang](https://go.dev/doc/install) installed
+2. run `go mod download` to install dependencies
+3. run app with `go run .`
+4. build and install to path with `go build`, `go install`
+
 ## Usage
 
 ```
@@ -16,7 +23,7 @@ $ faek [mode: -c | -h | -d [-template=<val>] [-len=<val>]]
 
 | Type    | Options            | Value                              |
 | ------- | ------------------ | ---------------------------------- |
-| string  | [length]           | lorem ipsum text with given length |
+| string  |                    | lorem ipsum text with given length |
 | number  | [max] or [min max] | random number within given range   |
 | boolean |                    | true/false                         |
 | date    |                    | date in given format               |
@@ -75,17 +82,10 @@ if no template is provided, types template is used by default
 
 ### Length
 
-you can also specify the amount of array by using `length` flag
+you can also specify the amount of array by using `len` flag
 
 ```
-$ faek -d -length=10
+$ faek -d -len=10
 ```
 
 if no length is provided, length is set to 5 by default
-
-## Installation
-
-1. Make sure you have [golang](https://go.dev/doc/install) installed
-2. run `go mod download` to install dependencies
-3. run app with `go run .`
-4. build and install to path with `go build`, `go install`

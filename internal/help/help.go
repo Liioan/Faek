@@ -26,7 +26,7 @@ func ShowHelpScreen() {
 	text += "\n\n"
 	text += "Available types:\n"
 	rows = [][]string{
-		{"string", "[length]", "lorem ipsum text with given length"},
+		{"string", "", "lorem ipsum text with given length"},
 		{"number", "[max] | [min max]", "random number within given range"},
 		{"boolean", "", "true/false"},
 		{"date", "", "date in given format"},
