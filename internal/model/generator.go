@@ -151,38 +151,23 @@ func insertValue(f Field) string {
 			max = utils.ParseInt(numRange[1], max)
 		}
 		res = fmt.Sprint(utils.Random(min, max))
+
 	case "boolean":
 		if utils.Random(0, 100) >= 50 {
 			res = "true"
 		} else {
 			res = "false"
 		}
+
 	case "img":
 		dimensions := strings.Split(string(f.variant), "x")
 		width := dimensions[0]
 		height := dimensions[1]
 		res = fmt.Sprintf("`https://unsplash.it/%s/%s`", width, height)
+
 	case "date":
-		YEAR_IN_DAYS := 365
-		YEAR_IN_MONTHS := 12
-		MONTH_IN_DAYS := 31
-		TEN_YEARS := 10
-		switch f.variant {
-		case v.DateTime:
-			res = fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
-		case v.Timestamp:
-			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Unix()*1000) // unix time to js timestamp
-		case v.Day:
-			res = fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(MONTH_IN_DAYS+1)).Day())
-		case v.Month:
-			res = fmt.Sprintf("%d", time.Now().AddDate(0, -1*rand.Intn(YEAR_IN_MONTHS+1), 0).Month())
-		case v.Year:
-			res = fmt.Sprintf("%d", time.Now().AddDate(-1*rand.Intn(TEN_YEARS+1), 0, 0).Year())
-		case v.DateObject:
-			res = "new Date()"
-		default:
-			res = fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
-		}
+		res = getDate(f.variant)
+
 	case "string enum":
 		wordSet := strings.Split(data.Content[0:39], " ")
 		v := strings.Split(string(f.variant), " ")
@@ -192,6 +177,7 @@ func insertValue(f Field) string {
 		wordSet = parseStringEnum(wordSet)
 		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
 		res = fmt.Sprintf("`%s`", randStr)
+
 	case "id":
 		switch f.variant {
 		case v.UUID:
@@ -206,9 +192,11 @@ func insertValue(f Field) string {
 			} else {
 				res = fmt.Sprintf("`%s`", id)
 			}
+
 		}
 	case "null":
 		res = "null"
+
 	case "undefined":
 		res = "undefined"
 	}
@@ -345,6 +333,30 @@ func getIndent(s *c.Settings, level int) string {
 		if len(str) > length {
 			return str[0:length]
 		}
+	}
+}
+
+func getDate(variant v.Variant) string {
+	YEAR_IN_DAYS := 365
+	YEAR_IN_MONTHS := 12
+	MONTH_IN_DAYS := 31
+	TEN_YEARS := 10
+
+	switch variant {
+	case v.DateTime:
+		return fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
+	case v.Timestamp:
+		return fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Unix()*1000) // unix time to js timestamp
+	case v.Day:
+		return fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(MONTH_IN_DAYS+1)).Day())
+	case v.Month:
+		return fmt.Sprintf("%d", time.Now().AddDate(0, -1*rand.Intn(YEAR_IN_MONTHS+1), 0).Month())
+	case v.Year:
+		return fmt.Sprintf("%d", time.Now().AddDate(-1*rand.Intn(TEN_YEARS+1), 0, 0).Year())
+	case v.DateObject:
+		return "new Date()"
+	default:
+		return fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
 	}
 }
 
