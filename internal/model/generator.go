@@ -202,7 +202,7 @@ func insertValue(f Field) string {
 			}
 		case v.NanoID:
 			if id, err := utils.NanoID(); err != nil {
-				res = "V1StGXR8_Z5jdHi6B-myT"
+				res = "`V1StGXR8_Z5jdHi6B-myT`"
 			} else {
 				res = fmt.Sprintf("`%s`", id)
 			}
