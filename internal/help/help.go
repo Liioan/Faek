@@ -44,7 +44,6 @@ func ShowHelpScreen() {
 		"email",
 		"title",
 		"content",
-		"author",
 	).
 		EnumeratorStyle(s.HighlightStyle.Margin(0).MarginLeft(1)).
 		ItemStyle(s.OutputStyle.Margin(0).MarginLeft(1))

@@ -41,7 +41,6 @@ $ faek [mode: -c | -h | -d [-template=<val>] [-len=<val>]]
 - email
 - title
 - content
-- author
 
 ## Config mode
 
