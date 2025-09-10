@@ -168,7 +168,7 @@ func (m Model) View() string {
 		rows := [][]string{}
 
 		for _, field := range m.Steps[1].Answer.fields {
-			rows = append(rows, []string{field.name, field.fieldType, string(field.variant)})
+			rows = append(rows, []string{field.getName(), field.getType(), string(field.getVariant())})
 		}
 
 		return lipgloss.JoinVertical(
@@ -219,8 +219,8 @@ const (
 )
 
 func updateLastField(userInput v.Variant, current *Step, m *Model) {
-	lastField := &current.Answer.fields[len(current.Answer.fields)-1]
-	lastField.variant = userInput
+	lastField := current.Answer.fields[len(current.Answer.fields)-1]
+	current.Answer.fields[len(current.Answer.fields)-1] = lastField.clone(string(userInput))
 	current.InputIdx = NEXT_STEP_INPUT
 	m.ActiveInput = current.AvailableInputs[current.InputIdx]
 }
@@ -249,7 +249,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 			}
 
 			for _, f := range current.Answer.fields {
-				if f.name == userInput {
+				if f.getName() == userInput {
 					return
 				}
 			}
@@ -261,7 +261,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 		case PROPERTY_TYPE_INPUT:
 			fieldName := current.Answer.text
 			fieldType := userInput
-			current.Answer.fields = append(current.Answer.fields, Field{name: fieldName, fieldType: fieldType})
+			current.Answer.fields = append(current.Answer.fields, CreateProperty(fieldName, fieldType))
 
 			current.InputIdx = typesToId[userInput]
 
@@ -337,7 +337,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 
 			propIdx := 0
 			for i, prop := range propStep.Answer.fields {
-				if userInput == strings.Trim(fmt.Sprintf("%s %s %s", prop.name, prop.fieldType, prop.variant), " ") {
+				if userInput == strings.Trim(fmt.Sprintf("%s %s %s", prop.getName(), prop.getType(), prop.getVariant()), " ") {
 					propIdx = i
 					break
 				}
@@ -367,7 +367,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 			current.InputIdx = DELETE_PROP_INPUT
 			props := []list.Item{item("cancel")}
 			for _, f := range m.Steps[1].Answer.fields {
-				props = append(props, item(fmt.Sprintf("%s %s %s", f.name, f.fieldType, f.variant)))
+				props = append(props, item(fmt.Sprintf("%s %s %s", f.getName(), f.getType(), f.getVariant())))
 			}
 
 			i := newListInputField(props, itemDelegate{func(s ...string) *lipgloss.Style {

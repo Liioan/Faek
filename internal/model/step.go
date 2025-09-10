@@ -25,17 +25,11 @@ type activeInput struct {
 	instruction string
 }
 
-type Field struct {
-	name      string
-	fieldType string
-	variant   v.Variant
-}
-
 type Step struct {
 	StepInput activeInput
 	Answer    struct {
 		text   string
-		fields []Field
+		fields []Property
 	}
 	Variants []v.VariantData
 

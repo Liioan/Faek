@@ -2,14 +2,11 @@ package model
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 
 	c "github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/data"
-	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
 )
 
@@ -38,7 +35,7 @@ var predefinedValues = map[string][]string{
 
 type OutputMetadata struct {
 	AryName    string
-	Fields     []Field
+	Fields     []Property
 	CustomType string
 	Len        int
 
@@ -86,7 +83,7 @@ func handleObject(o *OutputMetadata, iteration int) string {
 			if i == len(o.Fields)-1 {
 				separator = ""
 			}
-			res += fmt.Sprintf("\"%s\":%s%s", field.name, strings.ReplaceAll(insertValue(field), "`", "\""), separator)
+			res += fmt.Sprintf("\"%s\":%s%s", field.getName(), strings.ReplaceAll(field.generateValue(), "`", "\""), separator)
 		}
 		res += "}"
 		res += separator
@@ -96,7 +93,7 @@ func handleObject(o *OutputMetadata, iteration int) string {
 	l := len(o.Fields)
 	switch {
 	case l == 1:
-		res += fmt.Sprintf("%s%s,\n", getIndent(&o.Settings, 1), insertValue(o.Fields[0]))
+		res += fmt.Sprintf("%s%s,\n", getIndent(&o.Settings, 1), o.Fields[0].generateValue())
 	case l > 1 && l <= 3:
 		res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 		res += " "
@@ -105,102 +102,18 @@ func handleObject(o *OutputMetadata, iteration int) string {
 			if i == l-1 {
 				coma = ""
 			}
-			res += fmt.Sprintf("%s: %s%s ", field.name, insertValue(field), coma)
+			res += fmt.Sprintf("%s: %s%s ", field.getName(), field.generateValue(), coma)
 		}
 		res += "},\n"
 	case l >= 4:
 		res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 		res += "\n"
 		for _, field := range o.Fields {
-			res += fmt.Sprintf("%s%s: %s,\n", getIndent(&o.Settings, 2), field.name, insertValue(field))
+			res += fmt.Sprintf("%s%s: %s,\n", getIndent(&o.Settings, 2), field.getName(), field.generateValue())
 		}
 
 		res += fmt.Sprintf("%s},\n", getIndent(&o.Settings, 1))
 	}
-	return res
-}
-
-func insertValue(f Field) string {
-	res := ""
-
-	switch f.fieldType {
-	case "string":
-		if len(predefinedValues[string(f.variant)]) > 0 {
-			values := predefinedValues[string(f.variant)]
-			res = fmt.Sprintf("`%s`", values[utils.Random(0, len(values)-1)])
-			break
-		}
-		length := 39 // lorem(39) -> Lorem ipsum, dolor sit amet consectetur
-
-		if f.variant == v.Variant("content") {
-			length = len(data.Content) - 1
-		}
-
-		text := data.Content
-		res = fmt.Sprintf("`%s`", text[0:length])
-
-	case "number":
-		min := 0
-		max := 100
-		numRange := strings.Split(string(f.variant), " ")
-
-		if len(numRange) == 1 {
-			max = utils.ParseInt(numRange[0], max)
-		} else if len(numRange) >= 2 {
-			min = utils.ParseInt(numRange[0], min)
-			max = utils.ParseInt(numRange[1], max)
-		}
-		res = fmt.Sprint(utils.Random(min, max))
-
-	case "boolean":
-		if utils.Random(0, 100) >= 50 {
-			res = "true"
-		} else {
-			res = "false"
-		}
-
-	case "img":
-		dimensions := strings.Split(string(f.variant), "x")
-		width := dimensions[0]
-		height := dimensions[1]
-		res = fmt.Sprintf("`https://unsplash.it/%s/%s`", width, height)
-
-	case "date":
-		res = getDate(f.variant)
-
-	case "string enum":
-		wordSet := strings.Split(data.Content[0:39], " ")
-		v := strings.Split(string(f.variant), " ")
-		if len(v) != 0 {
-			wordSet = v
-		}
-		wordSet = parseStringEnum(wordSet)
-		randStr := wordSet[utils.Random(0, len(wordSet)-1)]
-		res = fmt.Sprintf("`%s`", randStr)
-
-	case "id":
-		switch f.variant {
-		case v.UUID:
-			if uuid, err := utils.UUIDv4(); err != nil {
-				res = "`60a0c89e-84c9-41c8-a731-31f6e0a31138`"
-			} else {
-				res = fmt.Sprintf("`%s`", uuid)
-			}
-		case v.NanoID:
-			if id, err := utils.NanoID(); err != nil {
-				res = "`V1StGXR8_Z5jdHi6B-myT`"
-			} else {
-				res = fmt.Sprintf("`%s`", id)
-			}
-
-		}
-	case "null":
-		res = "null"
-
-	case "undefined":
-		res = "undefined"
-	}
-
 	return res
 }
 
@@ -215,7 +128,7 @@ func handleDeclaration(o *OutputMetadata) string {
 		l := len(o.Fields)
 		switch {
 		case l == 1:
-			t := getUnderlyingType(o.Fields[0].fieldType, o.Fields[0].variant)
+			t := getUnderlyingType(o.Fields[0].getType(), o.Fields[0].getVariant())
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
@@ -225,8 +138,8 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
-					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.name, t)
+					t := getUnderlyingType(field.getType(), field.getVariant())
+					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
 			} else {
@@ -236,8 +149,8 @@ func handleDeclaration(o *OutputMetadata) string {
 					if i == l-1 {
 						coma = ""
 					}
-					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s: %s%s ", field.name, t, coma)
+					t := getUnderlyingType(field.getType(), field.getVariant())
+					res += fmt.Sprintf("%s: %s%s ", field.getName(), t, coma)
 				}
 				res += "}[]"
 			}
@@ -245,15 +158,15 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
-					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
+					t := getUnderlyingType(field.getType(), field.getVariant())
+					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
 			} else {
 				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.AryName)
 				for _, field := range o.Fields {
-					t := getUnderlyingType(field.fieldType, field.variant)
-					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.name, t)
+					t := getUnderlyingType(field.getType(), field.getVariant())
+					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += "}[]"
 			}
@@ -336,30 +249,6 @@ func getIndent(s *c.Settings, level int) string {
 	}
 }
 
-func getDate(variant v.Variant) string {
-	YEAR_IN_DAYS := 365
-	YEAR_IN_MONTHS := 12
-	MONTH_IN_DAYS := 31
-	TEN_YEARS := 10
-
-	switch variant {
-	case v.DateTime:
-		return fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
-	case v.Timestamp:
-		return fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Unix()*1000) // unix time to js timestamp
-	case v.Day:
-		return fmt.Sprintf("%d", time.Now().AddDate(0, 0, -1*rand.Intn(MONTH_IN_DAYS+1)).Day())
-	case v.Month:
-		return fmt.Sprintf("%d", time.Now().AddDate(0, -1*rand.Intn(YEAR_IN_MONTHS+1), 0).Month())
-	case v.Year:
-		return fmt.Sprintf("%d", time.Now().AddDate(-1*rand.Intn(TEN_YEARS+1), 0, 0).Year())
-	case v.DateObject:
-		return "new Date()"
-	default:
-		return fmt.Sprintf("`%s`", time.Now().AddDate(0, 0, -1*rand.Intn(YEAR_IN_DAYS+1)).Format("2.1.2006"))
-	}
-}
-
 func CreateOutputMetadata(m *Model) *OutputMetadata {
 	o := OutputMetadata{}
 
@@ -393,7 +282,7 @@ func PrintInterview(o *OutputMetadata) string {
 	res += o.AryName + "\n\n"
 	res += "Fields: \n"
 	for _, f := range o.Fields {
-		res += fmt.Sprintf("%s %s %v \n", f.name, f.fieldType, f.variant)
+		res += fmt.Sprintf("%s %s %v \n", f.getName(), f.getType(), f.getVariant())
 	}
 	res += "\n"
 	res += "Custom type: "
