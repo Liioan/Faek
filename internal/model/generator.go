@@ -83,7 +83,7 @@ func handleObject(o *OutputMetadata, iteration int) string {
 			if i == len(o.Fields)-1 {
 				separator = ""
 			}
-			res += fmt.Sprintf("\"%s\":%s%s", field.getName(), strings.ReplaceAll(field.generateValue(), "`", "\""), separator)
+			res += fmt.Sprintf("\"%s\":%s%s", field.getName(), strings.ReplaceAll(field.generateValue(o.Settings), "`", "\""), separator)
 		}
 		res += "}"
 		res += separator
@@ -93,7 +93,7 @@ func handleObject(o *OutputMetadata, iteration int) string {
 	l := len(o.Fields)
 	switch {
 	case l == 1:
-		res += fmt.Sprintf("%s%s,\n", getIndent(&o.Settings, 1), o.Fields[0].generateValue())
+		res += fmt.Sprintf("%s%s,\n", getIndent(&o.Settings, 1), o.Fields[0].generateValue(o.Settings))
 	case l > 1 && l <= 3:
 		res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 		res += " "
@@ -102,14 +102,14 @@ func handleObject(o *OutputMetadata, iteration int) string {
 			if i == l-1 {
 				coma = ""
 			}
-			res += fmt.Sprintf("%s: %s%s ", field.getName(), field.generateValue(), coma)
+			res += fmt.Sprintf("%s: %s%s ", field.getName(), field.generateValue(o.Settings), coma)
 		}
 		res += "},\n"
 	case l >= 4:
 		res += fmt.Sprintf("%s{", getIndent(&o.Settings, 1))
 		res += "\n"
 		for _, field := range o.Fields {
-			res += fmt.Sprintf("%s%s: %s,\n", getIndent(&o.Settings, 2), field.getName(), field.generateValue())
+			res += fmt.Sprintf("%s%s: %s,\n", getIndent(&o.Settings, 2), field.getName(), field.generateValue(o.Settings))
 		}
 
 		res += fmt.Sprintf("%s},\n", getIndent(&o.Settings, 1))

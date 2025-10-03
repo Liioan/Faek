@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	c "github.com/liioan/faek/internal/configuration"
 	"github.com/liioan/faek/internal/data"
 	"github.com/liioan/faek/internal/utils"
 	v "github.com/liioan/faek/internal/variants"
@@ -14,7 +15,7 @@ import (
 type Property interface {
 	getName() string
 	getType() string
-	generateValue() string
+	generateValue(c.Settings) string
 	getVariant() v.Variant
 	setVariant(v.Variant)
 	clone(...string) Property
@@ -46,7 +47,7 @@ func (p PlaceholderProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p PlaceholderProperty) generateValue() string {
+func (p PlaceholderProperty) generateValue(settings c.Settings) string {
 	return ""
 }
 
@@ -55,6 +56,7 @@ func (p PlaceholderProperty) generateValue() string {
 type ObjectProperty struct {
 	name            string
 	propertyType    string
+	nestLevel       int
 	innerProperties []Property
 	variant         v.Variant
 }
@@ -80,9 +82,12 @@ func (p ObjectProperty) getVariant() v.Variant {
 }
 
 // TODO nested objects
-func (p ObjectProperty) generateValue() string {
-	res := ""
-
+func (p ObjectProperty) generateValue(settings c.Settings) string {
+	res := "{\n"
+	for _, innerProp := range p.innerProperties {
+		res += fmt.Sprintf("%s%s: %s,\n", getIndent(&settings, 2), innerProp.getName(), innerProp.generateValue(settings))
+	}
+	res += "},\n"
 	return res
 }
 
@@ -114,7 +119,7 @@ func (p StringProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p StringProperty) generateValue() string {
+func (p StringProperty) generateValue(settings c.Settings) string {
 	variant := string(p.variant)
 	if len(predefinedValues[variant]) > 0 {
 		values := predefinedValues[variant]
@@ -159,7 +164,7 @@ func (p NumberProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p NumberProperty) generateValue() string {
+func (p NumberProperty) generateValue(settings c.Settings) string {
 	variant := string(p.variant)
 
 	min := 0
@@ -204,7 +209,7 @@ func (p BooleanProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p BooleanProperty) generateValue() string {
+func (p BooleanProperty) generateValue(settings c.Settings) string {
 	if utils.Random(0, 100) >= 50 {
 		return "true"
 	} else {
@@ -240,7 +245,7 @@ func (p ImageProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p ImageProperty) generateValue() string {
+func (p ImageProperty) generateValue(settings c.Settings) string {
 	variant := string(p.variant)
 
 	dimensions := strings.Split(variant, "x")
@@ -278,7 +283,7 @@ func (p DateProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p DateProperty) generateValue() string {
+func (p DateProperty) generateValue(settings c.Settings) string {
 	variant := p.variant
 
 	YEAR_IN_DAYS := 365
@@ -332,7 +337,7 @@ func (p IdProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p IdProperty) generateValue() string {
+func (p IdProperty) generateValue(settings c.Settings) string {
 	switch p.variant {
 	case v.UUID:
 		uuid, err := utils.UUIDv4()
@@ -380,7 +385,7 @@ func (p EnumProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p EnumProperty) generateValue() string {
+func (p EnumProperty) generateValue(settings c.Settings) string {
 	variant := string(p.variant)
 
 	wordSet := strings.Split(data.Content[0:39], " ")
@@ -422,7 +427,7 @@ func (p NullProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p NullProperty) generateValue() string {
+func (p NullProperty) generateValue(settings c.Settings) string {
 	return "null"
 }
 
@@ -452,7 +457,7 @@ func (p UndefinedProperty) getVariant() v.Variant {
 	return p.variant
 }
 
-func (p UndefinedProperty) generateValue() string {
+func (p UndefinedProperty) generateValue(settings c.Settings) string {
 	return "null"
 }
 
