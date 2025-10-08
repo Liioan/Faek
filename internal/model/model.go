@@ -197,15 +197,18 @@ const (
 	RANGE_INPUT         = 7
 	STRING_SET_INPUT    = 8
 	ID_VARIANT_INPUT    = 9
+	PERSONAL_DATA_INPUT = 10
+	ADDRESS_INPUT       = 11
 )
 
 var typesToId = map[string]int{
-	"string":      STRING_DATA_INPUT,
-	"number":      RANGE_INPUT,
-	"string enum": STRING_SET_INPUT,
-	"date":        DATE_VARIANT_INPUT,
-	"img":         IMG_VARIANT_INPUT,
-	"id":          ID_VARIANT_INPUT,
+	"string":        STRING_DATA_INPUT,
+	"personal data": PERSONAL_DATA_INPUT,
+	"number":        RANGE_INPUT,
+	"string enum":   STRING_SET_INPUT,
+	"date":          DATE_VARIANT_INPUT,
+	"img":           IMG_VARIANT_INPUT,
+	"id":            ID_VARIANT_INPUT,
 }
 
 const (
@@ -264,7 +267,6 @@ func parseInput(m *Model, current *Step, userInput string) {
 			current.Answer.fields = append(current.Answer.fields, CreateProperty(fieldName, fieldType))
 
 			current.InputIdx = typesToId[userInput]
-
 			m.ActiveInput = current.AvailableInputs[current.InputIdx]
 
 		case NEXT_STEP_INPUT:
@@ -305,6 +307,14 @@ func parseInput(m *Model, current *Step, userInput string) {
 		case ID_VARIANT_INPUT:
 			selectedVariant := getVariantsValue(v.IDVariants, userInput)
 			updateLastField(selectedVariant, current, m)
+
+		case PERSONAL_DATA_INPUT:
+			if userInput == "address" {
+				current.InputIdx = ADDRESS_INPUT
+				m.ActiveInput = current.AvailableInputs[current.InputIdx]
+			} else {
+				updateLastField(v.Variant(userInput), current, m)
+			}
 
 		default:
 			updateLastField(v.Variant(userInput), current, m)

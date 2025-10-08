@@ -48,6 +48,7 @@ var DateVariants = []VariantData{
 
 var AllTypes = []string{
 	"string",
+	"personal data",
 	"number",
 	"boolean",
 	"date",
@@ -59,11 +60,22 @@ var AllTypes = []string{
 }
 var StringTypes = []string{
 	"text",
+	"title",
+	"content",
+}
+
+var PersonalData = []string{
 	"name",
 	"surname",
 	"email",
-	"title",
-	"content",
+	"address",
+}
+
+var AddressTypes = []string{
+	"city",
+	"street",
+	"country",
+	"zip-code",
 }
 
 //- configuration options

@@ -65,17 +65,11 @@ func CreateTextStep(instruction, placeholder string) *Step {
 }
 
 func CreatePropsStep() *Step {
-	types := []list.Item{}
-	for _, option := range v.AllTypes {
-		types = append(types, item(option))
-	}
+	types := createItemList(v.AllTypes)
 
 	nextType := []list.Item{item("yes"), item("no")}
 
-	stringTypes := []list.Item{}
-	for _, s := range v.StringTypes {
-		stringTypes = append(stringTypes, item(s))
-	}
+	stringTypes := createItemList(v.StringTypes)
 
 	fn := func(s ...string) *lipgloss.Style {
 		if strings.Contains(s[0], "no") {
@@ -88,6 +82,9 @@ func CreatePropsStep() *Step {
 	imgTypes := getVariantList(v.ImgVariants)
 	idTypes := getVariantList(v.IDVariants)
 
+	personalDataTypes := createItemList(v.PersonalData)
+	addressTypes := createItemList(v.AddressTypes)
+
 	i := []activeInput{
 		{instruction: "Create your object", input: newListInputField(nextType, itemDelegate{fn}, c.DefaultWidth, 6, "Create another property?")},
 		{instruction: "Write property name", input: newTextInputField("e.g. email")},
@@ -99,6 +96,8 @@ func CreatePropsStep() *Step {
 		{instruction: "Write your range", input: newTextInputField("e.g. 18 60")},
 		{instruction: "Write your string set", input: newTextInputField("e.g. user mod admin")},
 		{instruction: "Choose id type", input: newListInputField(idTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available id types")},
+		{instruction: "Choose personal data type", input: newListInputField(personalDataTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available personal data types")},
+		{instruction: "Choose address type", input: newListInputField(addressTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available address types")},
 	}
 	s := Step{StepType: PropStep, InputIdx: 1, AvailableInputs: i, StepInput: i[1]}
 	return &s
@@ -143,4 +142,12 @@ func CreateOptionalStep(listInstruction, listTitle string, options []string, tex
 	}
 
 	return &Step{StepType: OptionalStep, InputIdx: 0, AvailableInputs: i, StepInput: i[0]}
+}
+
+func createItemList(types []string) []list.Item {
+	res := []list.Item{}
+	for _, s := range types {
+		res = append(res, item(s))
+	}
+	return res
 }

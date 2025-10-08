@@ -461,6 +461,37 @@ func (p UndefinedProperty) generateValue(settings c.Settings) string {
 	return "null"
 }
 
+// ~~~~~ Personal Data ~~~~~~
+type PersonalDataProperty struct {
+	name         string
+	propertyType string
+	variant      v.Variant
+}
+
+func (p PersonalDataProperty) clone(other ...string) Property {
+	return CreateProperty(p.name, p.propertyType, other...)
+}
+
+func (p PersonalDataProperty) setVariant(variant v.Variant) {
+	p.variant = variant
+}
+
+func (p PersonalDataProperty) getName() string {
+	return p.name
+}
+
+func (p PersonalDataProperty) getType() string {
+	return p.propertyType
+}
+
+func (p PersonalDataProperty) getVariant() v.Variant {
+	return p.variant
+}
+
+func (p PersonalDataProperty) generateValue(settings c.Settings) string {
+	return "null"
+}
+
 func CreateProperty(name, propType string, other ...string) Property {
 	var variant v.Variant
 	if len(other) == 1 {
@@ -487,7 +518,8 @@ func CreateProperty(name, propType string, other ...string) Property {
 		res = NullProperty{name: name, propertyType: propType, variant: variant}
 	case "undefined":
 		res = UndefinedProperty{name: name, propertyType: propType, variant: variant}
-
+	case "personal data":
+		res = PersonalDataProperty{name: name, propertyType: propType, variant: variant}
 	}
 	return res
 }
