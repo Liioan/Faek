@@ -93,3 +93,62 @@ var Emails = []string{
 }
 
 var Content string = "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quaerat, hic eius distinctio nihil tempore quibusdam temporibus aperiam libero, accusantium sapiente culpa amet atque, quos molestias delectus corrupti reiciendis. Quam ipsa voluptate numquam laboriosam exercitationem quos, nisi eligendi vitae tempora molestias maxime. Quis in fugiat eveniet debitis provident, veritatis nulla quas ex obcaecati! Id dolores commodi porro odit quae, molestiae dicta iste nihil veritatis explicabo placeat? Aliquam iure, dolore vitae consequatur beatae voluptatem voluptatum autem aliquid, est, fuga id saepe! Accusamus enim fugit nobis dolor vel repudiandae odit, assumenda voluptate quo eligendi amet repellat modi quas? Ex porro obcaecati distinctio similique error, inventore mollitia, recusandae assumenda eius voluptatem non amet. Sequi officiis asperiores beatae. At, quis nesciunt! Architecto, asperiores veniam a laboriosam officia fuga mollitia tempora tenetur eius provident facilis consequuntur nisi ipsa omnis molestiae quisquam quaerat optio repellendus laudantium placeat error exercitationem accusantium animi. Maxime architecto, numquam alias repellat nam sed unde quod neque enim quis sequi consectetur perferendis ducimus recusandae dolorem libero fuga sint aliquam mollitia quaerat qui quas. Quisquam possimus deleniti eum ut voluptate praesentium dolorum autem reprehenderit! Modi itaque molestias iusto quos tenetur, consequatur esse iure incidunt. Alias veniam voluptatum voluptate. Cupiditate, excepturi impedit aperiam fuga culpa debitis"
+
+var Countries = []string{
+	"Japan",
+	"Canada",
+	"Sweden",
+	"Germany",
+	"Australia",
+	"Poland",
+	"Italy",
+	"France",
+	"Spain",
+	"Italy",
+}
+
+var Cities = []string{
+	"Avelmere",
+	"Northstead",
+	"Belhaven",
+	"Corvella",
+	"Eastmarsh",
+	"Lyndora",
+	"Stonebridge",
+	"Varenport",
+	"Crestmoor",
+	"Silverhaven",
+	"Durnvale",
+	"Westmere",
+	"Elmbrook",
+	"Rivenshore",
+	"Haldenburg",
+	"Briarhollow",
+	"Novara Bay",
+	"Thornwick",
+	"Caldris",
+	"Windholm",
+}
+
+var streets = []string{
+	"Willowcrest Avenue",
+	"Emberfield Road",
+	"Silverpine Lane",
+	"Marlowe Crescent",
+	"Thornhaven Street",
+	"Ashbrook Drive",
+	"Larkspur Way",
+	"Copperhill Boulevard",
+	"Wrenhaven Terrace",
+	"Ironwood Court",
+	"Maple Hollow Road",
+	"Crestview Parkway",
+	"Rosebridge Street",
+	"Elmshade Avenue",
+	"Bluehaven Drive",
+	"Sparrowgate Lane",
+	"Windmere Crescent",
+	"Foxglove Road",
+	"Alderbrook Street",
+	"Evermere Way",
+}
