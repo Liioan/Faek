@@ -72,3 +72,5 @@ func ToCameCase(original string) string {
 	}
 	return res
 }
+
+const Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWZYX"

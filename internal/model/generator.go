@@ -10,27 +10,14 @@ import (
 	v "github.com/liioan/faek/internal/variants"
 )
 
-var underlyingTypes = map[string]string{
-	"strSet": "string",
-	"img":    "string",
-	"id":     "string",
-}
-
-var underlyingDateTypes = map[v.Variant]string{
-	"dateTime":  "string",
-	"timestamp": "number",
-	"day":       "number",
-	"month":     "number",
-	"year":      "number",
-	"date":      "number",
-	"object":    "Date",
-}
-
 var predefinedValues = map[string][]string{
 	"name":    data.Names,
 	"surname": data.Surnames,
 	"email":   data.Emails,
 	"title":   data.Titles,
+	"city":    data.Cities,
+	"street":  data.Streets,
+	"country": data.Countries,
 }
 
 type OutputMetadata struct {
@@ -128,7 +115,7 @@ func handleDeclaration(o *OutputMetadata) string {
 		l := len(o.Fields)
 		switch {
 		case l == 1:
-			t := getUnderlyingType(o.Fields[0].getType(), o.Fields[0].getVariant())
+			t := o.Fields[0].getType()
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
@@ -138,7 +125,7 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
-					t := getUnderlyingType(field.getType(), field.getVariant())
+					t := field.getType()
 					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
@@ -149,7 +136,7 @@ func handleDeclaration(o *OutputMetadata) string {
 					if i == l-1 {
 						coma = ""
 					}
-					t := getUnderlyingType(field.getType(), field.getVariant())
+					t := field.getType()
 					res += fmt.Sprintf("%s: %s%s ", field.getName(), t, coma)
 				}
 				res += "}[]"
@@ -158,14 +145,14 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
-					t := getUnderlyingType(field.getType(), field.getVariant())
+					t := field.getType()
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
 			} else {
 				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.AryName)
 				for _, field := range o.Fields {
-					t := getUnderlyingType(field.getType(), field.getVariant())
+					t := field.getType()
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += "}[]"
@@ -190,39 +177,6 @@ func handleExport(o *OutputMetadata, selected v.Variant) string {
 	}
 
 	return res
-}
-
-func getUnderlyingType(fieldType string, variant v.Variant) string {
-	if fieldType == "date" {
-		for k, v := range underlyingDateTypes {
-			if k == variant {
-				return v
-			}
-		}
-	}
-
-	if fieldType == "string enum" {
-		res := "("
-		wordSet := parseStringEnum(strings.Split(string(variant), " "))
-
-		for i, w := range wordSet {
-			separator := " | "
-			if i == len(wordSet)-1 {
-				separator = ""
-			}
-			res += fmt.Sprintf(`"%s"%s`, w, separator)
-		}
-		res += ")"
-		return res
-	}
-
-	for k, v := range underlyingTypes {
-		if k == fieldType {
-			return v
-		}
-	}
-
-	return fieldType
 }
 
 func parseStringEnum(wordSet []string) []string {

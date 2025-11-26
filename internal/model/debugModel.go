@@ -37,10 +37,10 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 	case "user":
 		m.Steps[0].Answer.text = "users"
 		m.Steps[1].Answer.fields = []Property{
-			StringProperty{name: "name", propertyType: "string", variant: v.Variant("name")},
-			StringProperty{name: "surname", propertyType: "string", variant: v.Variant("surname")},
+			PersonalDataProperty{name: "name", propertyType: "personal data", variant: v.Variant("name")},
+			PersonalDataProperty{name: "surname", propertyType: "personal data", variant: v.Variant("surname")},
 			NumberProperty{name: "age", propertyType: "number", variant: v.Variant("18 100")},
-			StringProperty{name: "email", propertyType: "string", variant: v.Variant("email")},
+			PersonalDataProperty{name: "email", propertyType: "personal data", variant: v.Variant("email")},
 			BooleanProperty{name: "premiumAccount", propertyType: "boolean"},
 			EnumProperty{name: "role", propertyType: "string enum", variant: v.Variant("user admin mod")},
 		}
@@ -67,6 +67,18 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 			ImageProperty{name: "custom", propertyType: "img", variant: v.Variant("5x5")},
 		}
 		m.Steps[3].Answer.text = "Images"
+		m.Steps[4].Answer.text = fmt.Sprint(length)
+	case "personal":
+		m.Steps[0].Answer.text = "personalData"
+		m.Steps[1].Answer.fields = []Property{
+			PersonalDataProperty{name: "name", propertyType: "personal data", variant: v.Variant("name")},
+			PersonalDataProperty{name: "surname", propertyType: "personal data", variant: v.Variant("surname")},
+			PersonalDataProperty{name: "email", propertyType: "personal data", variant: v.Variant("email")},
+			PersonalDataProperty{name: "city", propertyType: "personal data", variant: v.Variant("city")},
+			PersonalDataProperty{name: "street", propertyType: "personal data", variant: v.Variant("street")},
+			PersonalDataProperty{name: "country", propertyType: "personal data", variant: v.Variant("country")},
+		}
+		m.Steps[3].Answer.text = "PersonalData"
 		m.Steps[4].Answer.text = fmt.Sprint(length)
 	}
 	return &m

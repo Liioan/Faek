@@ -238,7 +238,7 @@ func (p ImageProperty) setVariant(variant v.Variant) {
 }
 
 func (p ImageProperty) getType() string {
-	return p.propertyType
+	return "string"
 }
 
 func (p ImageProperty) getVariant() v.Variant {
@@ -256,6 +256,17 @@ func (p ImageProperty) generateValue(settings c.Settings) string {
 }
 
 // ~~~~~~~~~~~~~ Date ~~~~~~~~~~~~~
+
+var underlyingDateTypes = map[v.Variant]string{
+	"dateTime":      "string",
+	"timestamp":     "number",
+	"day":           "number",
+	"month":         "number",
+	"year":          "number",
+	"date":          "number",
+	"object":        "Date",
+	"personal data": "string",
+}
 
 type DateProperty struct {
 	name         string
@@ -276,6 +287,11 @@ func (p DateProperty) getName() string {
 }
 
 func (p DateProperty) getType() string {
+	for k, v := range underlyingDateTypes {
+		if k == p.getVariant() {
+			return v
+		}
+	}
 	return p.propertyType
 }
 
@@ -378,7 +394,18 @@ func (p EnumProperty) getName() string {
 }
 
 func (p EnumProperty) getType() string {
-	return p.propertyType
+	res := "("
+	wordSet := parseStringEnum(strings.Split(string(p.getVariant()), " "))
+
+	for i, w := range wordSet {
+		separator := " | "
+		if i == len(wordSet)-1 {
+			separator = ""
+		}
+		res += fmt.Sprintf(`"%s"%s`, w, separator)
+	}
+	res += ")"
+	return res
 }
 
 func (p EnumProperty) getVariant() v.Variant {
@@ -481,7 +508,7 @@ func (p PersonalDataProperty) getName() string {
 }
 
 func (p PersonalDataProperty) getType() string {
-	return p.propertyType
+	return "string"
 }
 
 func (p PersonalDataProperty) getVariant() v.Variant {
@@ -489,7 +516,33 @@ func (p PersonalDataProperty) getVariant() v.Variant {
 }
 
 func (p PersonalDataProperty) generateValue(settings c.Settings) string {
-	return "null"
+	variant := string(p.variant)
+
+	if len(predefinedValues[variant]) > 0 {
+		values := predefinedValues[variant]
+		return fmt.Sprintf("`%s`", values[utils.Random(0, len(values)-1)])
+	}
+
+	res := "`"
+
+	for _, char := range variant {
+		switch char {
+		case '-':
+			res += "-"
+		case '_':
+			res += " "
+		case 'd':
+			res += fmt.Sprint(utils.Random(0, 9))
+		case 'a':
+			res += strings.ToLower(string(utils.Alphabet[utils.Random(0, 25)]))
+		case 'A':
+			res += string(utils.Alphabet[utils.Random(0, 25)])
+		}
+	}
+
+	res += "`"
+
+	return res
 }
 
 func CreateProperty(name, propType string, other ...string) Property {

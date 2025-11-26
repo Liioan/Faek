@@ -1,11 +1,13 @@
 package model
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
+	l "github.com/charmbracelet/lipgloss/list"
 	c "github.com/liioan/faek/internal/constance"
 	"github.com/liioan/faek/internal/styles"
 	v "github.com/liioan/faek/internal/variants"
@@ -85,6 +87,17 @@ func CreatePropsStep() *Step {
 	personalDataTypes := createItemList(v.PersonalData)
 	addressTypes := createItemList(v.AddressTypes)
 
+	zipCodePatterns := l.New(
+		"digit: d",
+		"character: a|A",
+		"hyphen: '-'",
+		"space: '_'",
+	).
+		EnumeratorStyle(styles.HighlightStyle.Margin(0).MarginLeft(1)).
+		ItemStyle(styles.OutputStyle.Margin(0).MarginLeft(1))
+
+	test := fmt.Sprintf("Create a pattern of your zip-code\n\n%s", zipCodePatterns.String())
+
 	i := []activeInput{
 		{instruction: "Create your object", input: newListInputField(nextType, itemDelegate{fn}, c.DefaultWidth, 6, "Create another property?")},
 		{instruction: "Write property name", input: newTextInputField("e.g. email")},
@@ -98,6 +111,7 @@ func CreatePropsStep() *Step {
 		{instruction: "Choose id type", input: newListInputField(idTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available id types")},
 		{instruction: "Choose personal data type", input: newListInputField(personalDataTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available personal data types")},
 		{instruction: "Choose address type", input: newListInputField(addressTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available address types")},
+		{instruction: test, input: newTextInputField("e.g. dd-ddd")},
 	}
 	s := Step{StepType: PropStep, InputIdx: 1, AvailableInputs: i, StepInput: i[1]}
 	return &s

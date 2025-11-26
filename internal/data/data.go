@@ -130,7 +130,7 @@ var Cities = []string{
 	"Windholm",
 }
 
-var streets = []string{
+var Streets = []string{
 	"Willowcrest Avenue",
 	"Emberfield Road",
 	"Silverpine Lane",

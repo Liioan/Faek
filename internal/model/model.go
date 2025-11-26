@@ -199,6 +199,7 @@ const (
 	ID_VARIANT_INPUT    = 9
 	PERSONAL_DATA_INPUT = 10
 	ADDRESS_INPUT       = 11
+	ZIP_CODE_INPUT      = 12
 )
 
 var typesToId = map[string]int{
@@ -209,6 +210,7 @@ var typesToId = map[string]int{
 	"date":          DATE_VARIANT_INPUT,
 	"img":           IMG_VARIANT_INPUT,
 	"id":            ID_VARIANT_INPUT,
+	"zip-code":      ZIP_CODE_INPUT,
 }
 
 const (
@@ -311,6 +313,14 @@ func parseInput(m *Model, current *Step, userInput string) {
 		case PERSONAL_DATA_INPUT:
 			if userInput == "address" {
 				current.InputIdx = ADDRESS_INPUT
+				m.ActiveInput = current.AvailableInputs[current.InputIdx]
+			} else {
+				updateLastField(v.Variant(userInput), current, m)
+			}
+
+		case ADDRESS_INPUT:
+			if userInput == "zip-code" {
+				current.InputIdx = ZIP_CODE_INPUT
 				m.ActiveInput = current.AvailableInputs[current.InputIdx]
 			} else {
 				updateLastField(v.Variant(userInput), current, m)
