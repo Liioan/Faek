@@ -115,7 +115,7 @@ func handleDeclaration(o *OutputMetadata) string {
 		l := len(o.Fields)
 		switch {
 		case l == 1:
-			t := o.Fields[0].getType()
+			t := o.Fields[0].getUnderlyingType()
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
 			} else {
@@ -125,7 +125,7 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
-					t := field.getType()
+					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
@@ -136,7 +136,7 @@ func handleDeclaration(o *OutputMetadata) string {
 					if i == l-1 {
 						coma = ""
 					}
-					t := field.getType()
+					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s: %s%s ", field.getName(), t, coma)
 				}
 				res += "}[]"
@@ -145,14 +145,14 @@ func handleDeclaration(o *OutputMetadata) string {
 			if o.CustomType != "" {
 				res += fmt.Sprintf("type %s = {\n", o.CustomType)
 				for _, field := range o.Fields {
-					t := field.getType()
+					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
 			} else {
 				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.AryName)
 				for _, field := range o.Fields {
-					t := field.getType()
+					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
 				res += "}[]"
@@ -236,7 +236,7 @@ func PrintInterview(o *OutputMetadata) string {
 	res += o.AryName + "\n\n"
 	res += "Fields: \n"
 	for _, f := range o.Fields {
-		res += fmt.Sprintf("%s %s %v \n", f.getName(), f.getType(), f.getVariant())
+		res += fmt.Sprintf("%s %s %v \n", f.getName(), f.getUnderlyingType(), f.getVariant())
 	}
 	res += "\n"
 	res += "Custom type: "

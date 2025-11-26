@@ -15,6 +15,7 @@ import (
 type Property interface {
 	getName() string
 	getType() string
+	getUnderlyingType() string
 	generateValue(c.Settings) string
 	getVariant() v.Variant
 	setVariant(v.Variant)
@@ -37,6 +38,10 @@ func (p PlaceholderProperty) setVariant(variant v.Variant) {
 
 func (p PlaceholderProperty) getName() string {
 	return p.name
+}
+
+func (p PlaceholderProperty) getUnderlyingType() string {
+	return ""
 }
 
 func (p PlaceholderProperty) getType() string {
@@ -71,6 +76,10 @@ func (p ObjectProperty) setVariant(variant v.Variant) {
 
 func (p ObjectProperty) getName() string {
 	return p.name
+}
+
+func (p ObjectProperty) getUnderlyingType() string {
+	return p.propertyType
 }
 
 func (p ObjectProperty) getType() string {
@@ -109,6 +118,10 @@ func (p StringProperty) setVariant(variant v.Variant) {
 
 func (p StringProperty) getName() string {
 	return p.name
+}
+
+func (p StringProperty) getUnderlyingType() string {
+	return p.propertyType
 }
 
 func (p StringProperty) getType() string {
@@ -156,6 +169,10 @@ func (p NumberProperty) getName() string {
 	return p.name
 }
 
+func (p NumberProperty) getUnderlyingType() string {
+	return ""
+}
+
 func (p NumberProperty) getType() string {
 	return p.propertyType
 }
@@ -201,6 +218,10 @@ func (p BooleanProperty) getName() string {
 	return p.name
 }
 
+func (p BooleanProperty) getUnderlyingType() string {
+	return p.propertyType
+}
+
 func (p BooleanProperty) getType() string {
 	return p.propertyType
 }
@@ -237,8 +258,12 @@ func (p ImageProperty) setVariant(variant v.Variant) {
 	p.variant = variant
 }
 
-func (p ImageProperty) getType() string {
+func (p ImageProperty) getUnderlyingType() string {
 	return "string"
+}
+
+func (p ImageProperty) getType() string {
+	return p.propertyType
 }
 
 func (p ImageProperty) getVariant() v.Variant {
@@ -286,12 +311,16 @@ func (p DateProperty) getName() string {
 	return p.name
 }
 
-func (p DateProperty) getType() string {
+func (p DateProperty) getUnderlyingType() string {
 	for k, v := range underlyingDateTypes {
 		if k == p.getVariant() {
 			return v
 		}
 	}
+	return p.propertyType
+}
+
+func (p DateProperty) getType() string {
 	return p.propertyType
 }
 
@@ -345,6 +374,10 @@ func (p IdProperty) getName() string {
 	return p.name
 }
 
+func (p IdProperty) getUnderlyingType() string {
+	return "string"
+}
+
 func (p IdProperty) getType() string {
 	return p.propertyType
 }
@@ -393,7 +426,7 @@ func (p EnumProperty) getName() string {
 	return p.name
 }
 
-func (p EnumProperty) getType() string {
+func (p EnumProperty) getUnderlyingType() string {
 	res := "("
 	wordSet := parseStringEnum(strings.Split(string(p.getVariant()), " "))
 
@@ -406,6 +439,10 @@ func (p EnumProperty) getType() string {
 	}
 	res += ")"
 	return res
+}
+
+func (p EnumProperty) getType() string {
+	return p.propertyType
 }
 
 func (p EnumProperty) getVariant() v.Variant {
@@ -446,6 +483,10 @@ func (p NullProperty) getName() string {
 	return p.name
 }
 
+func (p NullProperty) getUnderlyingType() string {
+	return "null"
+}
+
 func (p NullProperty) getType() string {
 	return p.propertyType
 }
@@ -474,6 +515,10 @@ func (p UndefinedProperty) getName() string {
 }
 func (p UndefinedProperty) setVariant(variant v.Variant) {
 	p.variant = variant
+}
+
+func (p UndefinedProperty) getUnderlyingType() string {
+	return "undefined"
 }
 
 func (p UndefinedProperty) getType() string {
@@ -507,12 +552,19 @@ func (p PersonalDataProperty) getName() string {
 	return p.name
 }
 
-func (p PersonalDataProperty) getType() string {
+func (p PersonalDataProperty) getUnderlyingType() string {
 	return "string"
 }
 
+func (p PersonalDataProperty) getType() string {
+	return p.propertyType
+}
+
 func (p PersonalDataProperty) getVariant() v.Variant {
-	return p.variant
+	if len(predefinedValues[string(p.variant)]) != 0 {
+		return p.variant
+	}
+	return "zip-code"
 }
 
 func (p PersonalDataProperty) generateValue(settings c.Settings) string {
