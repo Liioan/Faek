@@ -77,6 +77,7 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 			PersonalDataProperty{name: "city", propertyType: "personal data", variant: v.Variant("city")},
 			PersonalDataProperty{name: "street", propertyType: "personal data", variant: v.Variant("street")},
 			PersonalDataProperty{name: "country", propertyType: "personal data", variant: v.Variant("country")},
+			PersonalDataProperty{name: "zip-code", propertyType: "personal data", variant: v.Variant("dd-ddd")},
 		}
 		m.Steps[3].Answer.text = "PersonalData"
 		m.Steps[4].Answer.text = fmt.Sprint(length)
