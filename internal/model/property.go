@@ -61,7 +61,7 @@ func (p PlaceholderProperty) generateValue(settings c.Settings) string {
 type ObjectProperty struct {
 	name            string
 	propertyType    string
-	nestLevel       int
+	nextLevel       int
 	innerProperties []Property
 	variant         v.Variant
 }

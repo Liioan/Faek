@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	list "github.com/charmbracelet/bubbles/list"
@@ -422,7 +423,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 			}
 		case "enter":
-
 			if m.Index < len(m.Steps)-1 {
 				parseInput(&m, current, m.ActiveInput.input.Value())
 				m.ActiveInput.input.setValue("")
@@ -432,6 +432,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Finished = true
 				m.Quitting = true
 				return m, tea.Quit
+			}
+		case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+			if m.ActiveInput.input.GetInputType() == ListInput {
+				selected, _ := strconv.Atoi(msg.String())
+				m.ActiveInput.input.SelectItem(selected)
 			}
 		}
 	}

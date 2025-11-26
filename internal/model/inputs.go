@@ -12,17 +12,34 @@ import (
 	"github.com/liioan/faek/internal/styles"
 )
 
+type InputType string
+
+const (
+	TextInput InputType = "text"
+	ListInput InputType = "list"
+)
+
 type InputComponent interface {
 	Value() string
 	setValue(string)
 	Update(tea.Msg) (InputComponent, tea.Cmd)
 	View() string
+	GetInputType() InputType
+	SelectItem(int)
 }
 
 //------- TextInput component -------
 
 type textInputField struct {
 	textInput textinput.Model
+}
+
+func (a *textInputField) GetInputType() InputType {
+	return TextInput
+}
+
+func (a *textInputField) SelectItem(_ int) {
+	return
 }
 
 func newTextInputField(placeholder string) *textInputField {
@@ -116,6 +133,21 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 type listInputField struct {
 	listInput list.Model
+}
+
+func (a *listInputField) GetInputType() InputType {
+	return ListInput
+}
+
+func (a *listInputField) SelectItem(num int) {
+	selected := num - 1
+	if selected == -1 {
+		selected = 10
+	}
+	if selected > len(a.listInput.Items())-1 {
+		selected = len(a.listInput.Items()) - 1
+	}
+	a.listInput.Select(selected)
 }
 
 func newListInputField(items []list.Item, delegate list.ItemDelegate, width, height int, title string) *listInputField {
