@@ -553,6 +553,9 @@ func (p PersonalDataProperty) getName() string {
 }
 
 func (p PersonalDataProperty) getUnderlyingType() string {
+	if p.variant == "phone number" {
+		return "number"
+	}
 	return "string"
 }
 
@@ -561,7 +564,7 @@ func (p PersonalDataProperty) getType() string {
 }
 
 func (p PersonalDataProperty) getVariant() v.Variant {
-	if len(predefinedValues[string(p.variant)]) != 0 {
+	if len(predefinedValues[string(p.variant)]) != 0 || p.variant == "phone number" {
 		return p.variant
 	}
 	return "zip-code"
@@ -575,6 +578,15 @@ func (p PersonalDataProperty) generateValue(settings c.Settings) string {
 		return fmt.Sprintf("`%s`", values[utils.Random(0, len(values)-1)])
 	}
 
+	if p.variant == "phone number" {
+		res := ""
+		for range 9 {
+			res += fmt.Sprint(utils.Random(0, 9))
+		}
+		return res
+	}
+
+	//- zip-code
 	res := "`"
 
 	for _, char := range variant {

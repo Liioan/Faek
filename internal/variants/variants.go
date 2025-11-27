@@ -68,6 +68,7 @@ var PersonalData = []string{
 	"name",
 	"surname",
 	"email",
+	"phone number",
 	"address",
 }
 

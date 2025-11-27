@@ -74,6 +74,7 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 			PersonalDataProperty{name: "name", propertyType: "personal data", variant: v.Variant("name")},
 			PersonalDataProperty{name: "surname", propertyType: "personal data", variant: v.Variant("surname")},
 			PersonalDataProperty{name: "email", propertyType: "personal data", variant: v.Variant("email")},
+			PersonalDataProperty{name: "phone", propertyType: "personal data", variant: v.Variant("phone number")},
 			PersonalDataProperty{name: "city", propertyType: "personal data", variant: v.Variant("city")},
 			PersonalDataProperty{name: "street", propertyType: "personal data", variant: v.Variant("street")},
 			PersonalDataProperty{name: "country", propertyType: "personal data", variant: v.Variant("country")},
