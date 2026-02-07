@@ -21,7 +21,7 @@ var predefinedValues = map[string][]string{
 }
 
 type OutputMetadata struct {
-	AryName    string
+	ArrName    string
 	Fields     []Property
 	CustomType string
 	Len        int
@@ -35,6 +35,12 @@ func (m *Model) generateOutput() string {
 	outputMetadata := CreateOutputMetadata(m)
 
 	res += handleDeclaration(outputMetadata)
+
+	if outputMetadata.Settings.Language != v.JSON &&
+		outputMetadata.Len == 1 {
+		res += fmt.Sprintf(" = %s;", outputMetadata.Fields[0].generateValue(outputMetadata.Settings))
+		return res
+	}
 
 	if outputMetadata.Settings.Language != v.JSON {
 		res += " = [\n"
@@ -110,16 +116,20 @@ func handleDeclaration(o *OutputMetadata) string {
 
 	switch lang {
 	case v.JavaScript:
-		res += fmt.Sprintf("const %s", o.AryName)
+		res += fmt.Sprintf("const %s", o.ArrName)
 	case v.TypeScript:
 		l := len(o.Fields)
+		if o.Len == 1 {
+			res += fmt.Sprintf("const %s: %s", o.ArrName, o.Fields[0].getType())
+			return res
+		}
 		switch {
 		case l == 1:
 			t := o.Fields[0].getUnderlyingType()
 			if o.CustomType != "" {
-				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.AryName, o.CustomType)
+				res += fmt.Sprintf("type %s = %s;\n\nconst %s: %s[]", o.CustomType, t, o.ArrName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, t)
+				res += fmt.Sprintf("%sconst %s: %s[]", handleExport(o, v.Inline), o.ArrName, t)
 			}
 		case l > 1 && l <= 3:
 			if o.CustomType != "" {
@@ -128,9 +138,9 @@ func handleDeclaration(o *OutputMetadata) string {
 					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s%s: %s\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
-				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
+				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.ArrName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("%sconst %s: { ", handleExport(o, v.Inline), o.AryName)
+				res += fmt.Sprintf("%sconst %s: { ", handleExport(o, v.Inline), o.ArrName)
 				for i, field := range o.Fields {
 					coma := ","
 					if i == l-1 {
@@ -148,9 +158,9 @@ func handleDeclaration(o *OutputMetadata) string {
 					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
 				}
-				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.AryName, o.CustomType)
+				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(o, v.Inline), o.ArrName, o.CustomType)
 			} else {
-				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.AryName)
+				res += fmt.Sprintf("%sconst %s: {\n", handleExport(o, v.Inline), o.ArrName)
 				for _, field := range o.Fields {
 					t := field.getUnderlyingType()
 					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&o.Settings, 1), field.getName(), t)
@@ -173,7 +183,7 @@ func handleExport(o *OutputMetadata, selected v.Variant) string {
 	case v.Inline:
 		res += "export "
 	case v.ExportDefault:
-		res += fmt.Sprintf("\n\nexport default %s;", o.AryName)
+		res += fmt.Sprintf("\n\nexport default %s;", o.ArrName)
 	}
 
 	return res
@@ -207,7 +217,7 @@ func CreateOutputMetadata(m *Model) *OutputMetadata {
 	o := OutputMetadata{}
 
 	//. get data from user interview
-	o.AryName = m.Steps[0].Answer.text
+	o.ArrName = m.Steps[0].Answer.text
 	o.Fields = m.Steps[1].Answer.fields
 	o.CustomType = m.Steps[3].Answer.text
 	if o.CustomType != "" {
@@ -219,8 +229,8 @@ func CreateOutputMetadata(m *Model) *OutputMetadata {
 	}
 	o.Len = l
 
-	if o.AryName == "" {
-		o.AryName = "arr"
+	if o.ArrName == "" {
+		o.ArrName = "arr"
 	}
 
 	o.Settings = m.Settings
@@ -233,7 +243,7 @@ func PrintInterview(o *OutputMetadata) string {
 	res := ""
 
 	res += "Array name: "
-	res += o.AryName + "\n\n"
+	res += o.ArrName + "\n\n"
 	res += "Fields: \n"
 	for _, f := range o.Fields {
 		res += fmt.Sprintf("%s %s %v \n", f.getName(), f.getUnderlyingType(), f.getVariant())

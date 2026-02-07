@@ -39,7 +39,6 @@ func (a *textInputField) GetInputType() InputType {
 }
 
 func (a *textInputField) SelectItem(_ int) {
-	return
 }
 
 func newTextInputField(placeholder string) *textInputField {
