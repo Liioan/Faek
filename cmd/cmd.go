@@ -39,10 +39,11 @@ func Execute() {
 	}
 
 	// enter configuration mode if config is not found
-	_, err := configuration.GetUserSettings()
+	settings, err := configuration.GetUserSettings()
 	if err != nil {
 		flags.configMode = true
 	}
+	overrideFlags := m.Override{Language: flags.language, Output: flags.output, Export: flags.export}
 
 	var steps []m.Step
 	if flags.configMode {
@@ -55,6 +56,7 @@ func Execute() {
 		}
 	} else {
 		propStep := m.CreatePropsStep()
+
 		steps = []m.Step{
 			*m.CreateTextStep("What will the array be called? (default: arr)", "e.g. users"),
 			*propStep,
@@ -65,8 +67,6 @@ func Execute() {
 
 	}
 
-	overrideFlags := m.Override{Language: flags.language, Output: flags.output, Export: flags.export}
-
 	model, err := m.NewModel(steps, flags.configMode, overrideFlags)
 	if err != nil {
 		log.Fatal(err)
@@ -75,11 +75,6 @@ func Execute() {
 	if flags.debugMode {
 		text := styles.TitleStyle.Render("----- Debug mode -----\n")
 
-		settings, err := configuration.GetUserSettings()
-		if err != nil {
-			fmt.Println("Fatal: ", err)
-			os.Exit(1)
-		}
 		text += styles.OutputStyle.Render(fmt.Sprintf("user settings:\n%v\n\n", settings))
 
 		text += styles.OutputStyle.Render(fmt.Sprintf("runtime flags:\n%v\n\n", flags))
