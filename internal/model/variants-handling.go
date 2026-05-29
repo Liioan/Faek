@@ -10,6 +10,17 @@ func getVariantList(v []v.VariantData) []list.Item {
 	for _, i := range v {
 		res = append(res, item(i.Value))
 	}
+
+	res = append(res, item("back"))
+	return res
+}
+
+func getNonVariantList(types []string) []list.Item {
+	res := []list.Item{}
+	for _, s := range types {
+		res = append(res, item(s))
+	}
+	res = append(res, item("back"))
 	return res
 }
 

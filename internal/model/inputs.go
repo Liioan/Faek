@@ -106,6 +106,10 @@ type itemDelegate struct {
 }
 
 func listDefaultStyle(s ...string) *lipgloss.Style {
+	if strings.Contains(s[0], "back") {
+		return &styles.DestructiveItemStyle
+	}
+
 	return &styles.SelectedItemStyle
 }
 

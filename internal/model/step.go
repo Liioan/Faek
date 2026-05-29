@@ -71,8 +71,6 @@ func CreatePropsStep() *Step {
 
 	nextType := []list.Item{item("yes"), item("no")}
 
-	stringTypes := createItemList(v.StringTypes)
-
 	fn := func(s ...string) *lipgloss.Style {
 		if strings.Contains(s[0], "no") {
 			return &styles.DestructiveItemStyle
@@ -84,8 +82,9 @@ func CreatePropsStep() *Step {
 	imgTypes := getVariantList(v.ImgVariants)
 	idTypes := getVariantList(v.IDVariants)
 
-	personalDataTypes := createItemList(v.PersonalData)
-	addressTypes := createItemList(v.AddressTypes)
+	stringTypes := getNonVariantList(v.StringTypes)
+	personalDataTypes := getNonVariantList(v.PersonalData)
+	addressTypes := getNonVariantList(v.AddressTypes)
 
 	zipCodePatterns := l.New(
 		"digit: d",
@@ -98,7 +97,7 @@ func CreatePropsStep() *Step {
 
 	test := fmt.Sprintf("Create a pattern of your zip-code\n\n%s", zipCodePatterns.String())
 
-	i := []activeInput{
+	inputs := []activeInput{
 		{instruction: "Create your object", input: newListInputField(nextType, itemDelegate{fn}, c.DefaultWidth, 6, "Create another property?")},
 		{instruction: "Write property name", input: newTextInputField("e.g. email")},
 		{instruction: "Choose type", input: newListInputField(types, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available types")},
@@ -113,7 +112,8 @@ func CreatePropsStep() *Step {
 		{instruction: "Choose address type", input: newListInputField(addressTypes, itemDelegate{listDefaultStyle}, c.DefaultWidth, c.ListHeight, "available address types")},
 		{instruction: test, input: newTextInputField("e.g. dd-ddd")},
 	}
-	s := Step{StepType: PropStep, InputIdx: 1, AvailableInputs: i, StepInput: i[1]}
+
+	s := Step{StepType: PropStep, InputIdx: 1, AvailableInputs: inputs, StepInput: inputs[1]}
 	return &s
 }
 

@@ -248,6 +248,13 @@ func parseInput(m *Model, current *Step, userInput string) {
 		m.Next()
 		return
 	case PropStep:
+
+		if userInput == "back" {
+			current.InputIdx = 2
+			m.ActiveInput = current.AvailableInputs[current.InputIdx]
+			return
+		}
+
 		switch current.InputIdx {
 		case PROPERTY_NAME_INPUT:
 			if len(userInput) == 0 {
@@ -265,6 +272,7 @@ func parseInput(m *Model, current *Step, userInput string) {
 			m.ActiveInput = current.AvailableInputs[current.InputIdx]
 
 		case PROPERTY_TYPE_INPUT:
+
 			fieldName := current.Answer.text
 			fieldType := userInput
 			current.Answer.fields = append(current.Answer.fields, CreateProperty(fieldName, fieldType))
