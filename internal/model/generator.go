@@ -136,7 +136,7 @@ func handleDeclaration(outputMetadata *OutputMetadata) string {
 				res += fmt.Sprintf("type %s = {\n", outputMetadata.CustomType)
 				for _, field := range outputMetadata.Fields {
 					t := field.getUnderlyingType()
-					res += fmt.Sprintf("%s%s: %s\n", getIndent(&outputMetadata.Settings, 1), field.getName(), t)
+					res += fmt.Sprintf("%s%s: %s;\n", getIndent(&outputMetadata.Settings, 1), field.getName(), t)
 				}
 				res += fmt.Sprintf("}\n\n%sconst %s: %s[]", handleExport(outputMetadata, v.Inline), outputMetadata.ArrName, outputMetadata.CustomType)
 			} else {
