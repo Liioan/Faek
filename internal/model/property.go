@@ -170,7 +170,7 @@ func (p NumberProperty) getName() string {
 }
 
 func (p NumberProperty) getUnderlyingType() string {
-	return ""
+	return "number"
 }
 
 func (p NumberProperty) getType() string {

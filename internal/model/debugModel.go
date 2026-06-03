@@ -43,6 +43,7 @@ func NewDebugModel(steps []Step, template string, length int, override Override)
 			PersonalDataProperty{name: "email", propertyType: "personal data", variant: v.Variant("email")},
 			BooleanProperty{name: "premiumAccount", propertyType: "boolean"},
 			EnumProperty{name: "role", propertyType: "string enum", variant: v.Variant("user admin mod")},
+			ImageProperty{name: "profile_picture", propertyType: "img", variant: v.ProfilePictureImg},
 		}
 		m.Steps[3].Answer.text = "User"
 		m.Steps[4].Answer.text = fmt.Sprint(length)
